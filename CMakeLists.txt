@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 
 # Set parameters
 ## Data
-set(APP_NAME OptiPlate)
+set(APP_NAME Optiplate)
 set(APP_CREATOR "Pavel Lakiza")
 ## Version
 set(VERSION_MAJOR 0)
