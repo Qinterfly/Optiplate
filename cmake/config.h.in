@@ -1,0 +1,18 @@
+
+#ifndef CONFIG_H_IN
+#define CONFIG_H_IN
+
+// Info
+#define APP_NAME "@APP_NAME@"
+#define APP_CREATOR "@APP_CREATOR@"
+
+// Version
+#define VERSION_MAJOR "@VERSION_MAJOR@"
+#define VERSION_MINOR "@VERSION_MINOR@"
+#define VERSION_PATCH "@VERSION_PATCH@"
+#define VERSION_FULL "@VERSION_FULL@"
+
+// Directories
+#define TEMP_DIR "@TEMP_DIR@"
+
+#endif // CONFIG_H_IN
