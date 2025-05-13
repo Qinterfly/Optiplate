@@ -24,8 +24,10 @@ public:
     virtual ~TestBackend() = default;
 
 private slots:
-    void testCreateBasePanel();
     void testCreateRealPanel();
+    void testUpdateRealPanel();
+    void testCreateBasePanel();
+    void testUpdateBasePanel();
 
 private:
     bool isEqual(double firstValue, double secondValue, double precision);

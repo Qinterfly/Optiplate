@@ -13,13 +13,18 @@
 namespace Backend
 {
 
+//! Class to represent panel data and compute inertia properties via KS-L
 class Panel
 {
 public:
     Panel();
     Panel(double thickness, KCL::Vec4 const& xCoords, KCL::Vec4 const& zCoords,
           KCL::Vec3 const& depths, double youngsModulus, double density);
+    ~Panel() = default;
+
     KCL::MassProperties massProperties() const;
+    void renumerate();
+    bool isValid() const;
 
     double thickness() const;
     KCL::Vec4 const& xCoords() const;
@@ -37,6 +42,8 @@ public:
 
 private:
     KCL::Model build() const;
+    KCL::Vec3 depthEquation() const;
+    KCL::Vec4 evaluateDepths(KCL::Vec3 const& coeffs) const;
 
     double mThickness;
     KCL::Vec4 mXCoords;
