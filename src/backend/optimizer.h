@@ -57,11 +57,14 @@ public:
     {
         Options();
 
+        bool logging;
         bool autoScale;
         int numIterations;
         std::chrono::seconds timeoutIteration;
         int numThreads;
         double weightThreshold;
+        double maxRelativeError;
+        double diffStepSize;
     };
 
     Optimizer(State const& state, Target const& target, Weight const& weight,
@@ -81,7 +84,7 @@ public:
     void setOptions(Options const& options);
 
 private:
-    /// Optimization scale
+    //! Optimization scale
     struct Scale
     {
         Scale();
