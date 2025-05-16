@@ -13,6 +13,18 @@
 namespace Backend
 {
 
+struct Properties : KCL::MassProperties
+{
+    Properties();
+    Properties(double value);
+    Properties(KCL::MassProperties const& properties);
+    ~Properties() = default;
+
+    Properties compare(Properties const& another, Properties const& weight = Properties(1.0)) const;
+    std::vector<double> validValues() const;
+    int numValidValues() const;
+};
+
 //! Class to represent panel data and compute inertia properties via KS-L
 class Panel
 {
@@ -22,7 +34,7 @@ public:
           KCL::Vec3 const& depths, double youngsModulus, double density);
     ~Panel() = default;
 
-    KCL::MassProperties massProperties() const;
+    Properties massProperties() const;
     void renumerate();
     bool isValid() const;
 

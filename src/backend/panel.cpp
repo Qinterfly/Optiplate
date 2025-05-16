@@ -14,6 +14,75 @@
 using namespace Backend;
 using namespace KCL;
 
+int const skNumDirections = 3;
+
+Properties::Properties()
+    : Properties(0.0)
+{
+}
+
+Properties::Properties(double value)
+{
+    mass = value;
+    centerGravity.fill(value);
+    inertiaMoments.fill(value);
+    inertiaProducts.fill(value);
+}
+
+//! Copy fields from a base class
+Properties::Properties(MassProperties const& properties)
+{
+    mass = properties.mass;
+    centerGravity = properties.centerGravity;
+    inertiaMoments = properties.inertiaMoments;
+    inertiaProducts = properties.inertiaProducts;
+}
+
+//! Compare two sets of properties with weights
+Properties Properties::compare(Properties const& another, Properties const& weight) const
+{
+    double const kWeightThreshold = 0.0;
+    double const kDefaultValue = std::nan("");
+
+    Properties result(kDefaultValue);
+    if (weight.mass > kWeightThreshold)
+        result.mass = Utility::relativeError(mass, another.mass);
+    for (int i = 0; i != skNumDirections; ++i)
+    {
+        if (weight.centerGravity[i] > kWeightThreshold)
+            result.centerGravity[i] = Utility::relativeError(centerGravity[i], another.centerGravity[i]);
+        if (weight.inertiaMoments[i] > kWeightThreshold)
+            result.inertiaMoments[i] = Utility::relativeError(inertiaMoments[i], another.inertiaMoments[i]);
+        if (weight.inertiaProducts[i] > kWeightThreshold)
+            result.inertiaProducts[i] = Utility::relativeError(inertiaProducts[i], another.inertiaProducts[i]);
+    }
+    return result;
+}
+
+//! Not NaN values of inertia properties
+std::vector<double> Properties::validValues() const
+{
+    std::vector<double> result;
+    if (!std::isnan(mass))
+        result.push_back(mass);
+    for (int i = 0; i != skNumDirections; ++i)
+    {
+        if (!std::isnan(centerGravity[i]))
+            result.push_back(centerGravity[i]);
+        if (!std::isnan(inertiaMoments[i]))
+            result.push_back(inertiaMoments[i]);
+        if (!std::isnan(inertiaProducts[i]))
+            result.push_back(inertiaProducts[i]);
+    }
+    return result;
+}
+
+//! Number of not NaN values
+int Properties::numValidValues() const
+{
+    return validValues().size();
+}
+
 Panel::Panel()
     : mThickness(0.0)
 {
@@ -36,7 +105,7 @@ Panel::Panel(double thickness, Vec4 const& xCoords, Vec4 const& zCoords, Vec3 co
 }
 
 //! Evaluate inertia properties of a panel
-KCL::MassProperties Panel::massProperties() const
+Properties Panel::massProperties() const
 {
     Model model = build();
     return model.massProperties();

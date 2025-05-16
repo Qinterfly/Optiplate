@@ -5,9 +5,8 @@
  * \brief Implementation of the Optimizer class
  */
 
-#include <ceres/ceres.h>
+#include <functional>
 #include <future>
-#include <QDebug>
 
 #include "optimizer.h"
 #include "utility.h"
@@ -25,11 +24,10 @@ static const int skNumDirections = 3;
 class ObjectiveFunctor
 {
 public:
-    ObjectiveFunctor(Optimizer::Target const& target, Optimizer::Weight const& weight, Optimizer::Options const& options, UnwrapFun unwrapFun,
+    ObjectiveFunctor(Properties const& target, Properties const& weight, Optimizer::Options const& options, UnwrapFun unwrapFun,
                      SolverFun solverFun)
         : mTarget(target)
         , mWeight(weight)
-        , mOptions(options)
         , mUnwrapFun(unwrapFun)
         , mSolverFun(solverFun)
     {
@@ -45,30 +43,22 @@ public:
             return false;
 
         // Obtain the solution
-        MassProperties props = mSolverFun(panel);
+        Properties props = mSolverFun(panel);
         if (props.mass == 0.0)
             return false;
 
-        // Compute residuals
-        int iLast = 0;
-        if (mWeight.mass > mOptions.weightThreshold)
-            residuals[iLast++] = Utility::relativeError(props.mass, mTarget.mass) * mWeight.mass;
-        for (int i = 0; i != skNumDirections; ++i)
-        {
-            if (mWeight.centerGravity[i] > mOptions.weightThreshold)
-                residuals[iLast++] = Utility::relativeError(props.centerGravity[i], mTarget.centerGravity[i]) * mWeight.centerGravity[i];
-            if (mWeight.inertiaMoments[i] > mOptions.weightThreshold)
-                residuals[iLast++] = Utility::relativeError(props.inertiaMoments[i], mTarget.inertiaMoments[i]) * mWeight.inertiaMoments[i];
-            if (mWeight.inertiaProducts[i] > mOptions.weightThreshold)
-                residuals[iLast++] = Utility::relativeError(props.inertiaProducts[i], mTarget.inertiaProducts[i]) * mWeight.inertiaProducts[i];
-        }
+        // Compure the errors in properties
+        auto errorProps = props.compare(mTarget, mWeight);
+
+        // Set the residuals
+        auto errors = errorProps.validValues();
+        std::copy_n(errors.begin(), errors.size(), residuals);
         return true;
     }
 
 private:
-    Optimizer::Target mTarget;
-    Optimizer::Weight mWeight;
-    Optimizer::Options mOptions;
+    Properties mTarget;
+    Properties mWeight;
     UnwrapFun mUnwrapFun;
     SolverFun mSolverFun;
 };
@@ -77,7 +67,7 @@ private:
 class OptimizerCallback : public ceres::IterationCallback
 {
 public:
-    OptimizerCallback(std::vector<double> const& parameters, Optimizer::Target const& target, Optimizer::Weight const& weight,
+    OptimizerCallback(std::vector<double> const& parameters, Properties const& target, Properties const& weight,
                       Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging)
         : mParameters(parameters)
         , mTarget(target)
@@ -85,7 +75,6 @@ public:
         , mOptions(options)
         , mUnwrapFun(unwrapFun)
         , mSolverFun(solverFun)
-        , mLogging(logging)
     {
     }
 
@@ -95,41 +84,41 @@ public:
     {
         // Obtain the solution
         Panel panel = mUnwrapFun(mParameters.data());
-        MassProperties props = mSolverFun(panel);
+        Properties props = mSolverFun(panel);
 
-        // Create the working function
-        double error;
+        // Compare the properties with the target ones
+        Properties errorProps = props.compare(mTarget, mWeight);
         double maxError = 0.0;
+        auto errors = errorProps.validValues();
+        for (auto e : errors)
+            maxError = std::max(maxError, std::abs(e));
+
+        // Create the function for printing
         int iLastName = 0;
-        auto processFun = [this, &error, &maxError, &iLastName](std::vector<double> const& values, std::vector<double> const& targetValues,
-                                                                std::vector<double> const& weights)
+        auto printFun = [&iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
         {
             static std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
             static auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}\n";
-            int numValues = values.size();
+            int numValues = current.size();
             for (int i = 0; i != numValues; ++i)
             {
-                if (weights[i] > mOptions.weightThreshold)
-                {
-                    error = Utility::relativeError(values[i], targetValues[i]);
-                    if (mLogging)
-                        std::cout << std::format(kFormat, kNames[iLastName], values[i], targetValues[i], error * 100);
-                    maxError = std::max(maxError, std::abs(error));
-                }
+                if (!std::isnan(errors[i]))
+                    std::cout << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
                 ++iLastName;
             }
         };
         auto vecFun = [](KCL::Vec3 vec) { return std::vector<double>(vec.begin(), vec.end()); };
 
-        // Process the properties
-        if (mLogging)
+        // Print the properties
+        if (mOptions.logging)
+        {
             std::cout << std::endl;
-        processFun({props.mass}, {mTarget.mass}, {mWeight.mass});
-        processFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(mWeight.centerGravity));
-        processFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(mWeight.inertiaMoments));
-        processFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(mWeight.inertiaProducts));
-        if (mLogging)
+            printFun({props.mass}, {mTarget.mass}, {errorProps.mass});
+            printFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
+            printFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
+            printFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
             std::cout << std::endl;
+        }
 
         // Check if the termination criterion is achieved
         if (maxError < mOptions.maxRelativeError)
@@ -139,16 +128,14 @@ public:
 
 private:
     std::vector<double> const& mParameters;
-    Optimizer::Target mTarget;
-    Optimizer::Weight mWeight;
+    Properties mTarget;
+    Properties mWeight;
     Optimizer::Options mOptions;
     UnwrapFun mUnwrapFun;
     SolverFun mSolverFun;
-    bool mLogging;
 };
 
-Optimizer::Optimizer(State const& state, Target const& target, Weight const& weight,
-                     Options const& options)
+Optimizer::Optimizer(State const& state, Properties const& target, Properties const& weight, Options const& options)
     : mState(state)
     , mTarget(target)
     , mWeight(weight)
@@ -157,7 +144,7 @@ Optimizer::Optimizer(State const& state, Target const& target, Weight const& wei
 }
 
 //! Run the optimization process
-void Optimizer::run(Panel const& initPanel)
+Optimizer::Solution Optimizer::solve(Panel const& initPanel)
 {
     // Get the parameters
     std::vector<double> parameters = wrap(initPanel);
@@ -173,28 +160,21 @@ void Optimizer::run(Panel const& initPanel)
     auto solverFun = [this](Panel const& panel)
     {
         auto fun = [&panel]() { return panel.massProperties(); };
-        std::future<MassProperties> future = std::async(fun);
+        std::future<Properties> future = std::async(fun);
         std::future_status status = future.wait_for(mOptions.timeoutIteration);
         if (status != std::future_status::ready)
-            return MassProperties();
+            return Properties();
         return future.get();
     };
 
-    // Estimate the number of residuals
-    int numResiduals = 0;
-    if (mWeight.mass > mOptions.weightThreshold)
-        ++numResiduals;
-    for (int i = 0; i != skNumDirections; ++i)
-    {
-        if (mWeight.centerGravity[i] > mOptions.weightThreshold)
-            ++numResiduals;
-        if (mWeight.inertiaMoments[i] > mOptions.weightThreshold)
-            ++numResiduals;
-        if (mWeight.inertiaProducts[i] > mOptions.weightThreshold)
-            ++numResiduals;
-    }
+    // Obtain the initial solution
+    Properties initProps = solverFun(initPanel);
+    Properties initErrors = initProps.compare(mTarget, mWeight);
 
-    // Assign diff options
+    // Estimate the number of residuals
+    int numResiduals = initErrors.numValidValues();
+
+    // Assign options to compute Jacobian
     ceres::NumericDiffOptions diffOpts;
     diffOpts.relative_step_size = mOptions.diffStepSize;
 
@@ -232,6 +212,7 @@ void Optimizer::run(Panel const& initPanel)
     // Process the result
     Panel optPanel = unwrapFun(parameters.data());
     MassProperties optProps = solverFun(optPanel);
+    return Solution(summary, optPanel, optProps);
 }
 
 //! Vectorize parameters for optimization
@@ -327,31 +308,24 @@ Panel Optimizer::unwrap(Panel const& basePanel, std::vector<double> const& param
     return panel;
 }
 
+Optimizer::Solution::Solution()
+{
+}
+
+Optimizer::Solution::Solution(ceres::Solver::Summary const& summary, Panel const& rPanel, Properties const& rProperties)
+    : iteration(summary.iterations.size())
+    , cost(summary.final_cost)
+    , panel(rPanel)
+    , properties(rProperties)
+{
+}
+
 //! Enabled parameters for optimization
 Optimizer::State::State()
     : vertices(true)
     , depths(true)
     , density(true)
 {
-}
-
-//! Optimization target values
-Optimizer::Target::Target()
-    : mass(0.0)
-{
-    centerGravity.fill(0.0);
-    inertiaMoments.fill(0.0);
-    inertiaProducts.fill(0.0);
-}
-
-//! Weights by which residuals get multiplied
-Optimizer::Weight::Weight()
-    : mass(1.0)
-{
-    centerGravity.fill(1.0);
-    inertiaMoments.fill(1.0);
-    inertiaProducts.fill(1.0);
-    coefficients = {1.0, 0.0};
 }
 
 //! Optimization options
@@ -361,7 +335,6 @@ Optimizer::Options::Options()
     , numIterations(500)
     , timeoutIteration(1s)
     , numThreads(1)
-    , weightThreshold(0.0)
     , maxRelativeError(1e-3)
     , diffStepSize(1e-5)
 {
@@ -379,12 +352,12 @@ Optimizer::State const& Optimizer::state() const
     return mState;
 }
 
-Optimizer::Target const& Optimizer::target() const
+Properties const& Optimizer::target() const
 {
     return mTarget;
 }
 
-Optimizer::Weight const& Optimizer::weight() const
+Properties const& Optimizer::weight() const
 {
     return mWeight;
 }
@@ -399,12 +372,12 @@ void Optimizer::setState(State const& state)
     mState = state;
 }
 
-void Optimizer::setTarget(Target const& target)
+void Optimizer::setTarget(Properties const& target)
 {
     mTarget = target;
 }
 
-void Optimizer::setWeight(Weight const& weight)
+void Optimizer::setWeight(Properties const& weight)
 {
     mWeight = weight;
 }

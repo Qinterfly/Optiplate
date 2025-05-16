@@ -103,14 +103,14 @@ void TestBackend::testUpdateBasePanel()
     Optimizer::State state;
 
     // Set the targets
-    Optimizer::Target target;
+    Properties target;
     target.mass = targetProps.mass;
     target.centerGravity = targetProps.centerGravity;
     target.inertiaMoments = targetProps.inertiaMoments;
     target.inertiaProducts = targetProps.inertiaProducts;
 
     // Assign the weights
-    Optimizer::Weight weight;
+    Properties weight(1.0);
 
     // Select the options
     Optimizer::Options options;
@@ -121,7 +121,7 @@ void TestBackend::testUpdateBasePanel()
 
     // Run the solver
     Optimizer optimizer(state, target, weight, options);
-    optimizer.run(initPanel);
+    auto solution = optimizer.solve(initPanel);
 }
 
 //! Update the real panel
@@ -131,14 +131,14 @@ void TestBackend::testUpdateRealPanel()
     Optimizer::State state;
 
     // Set the targets
-    Optimizer::Target target;
+    Properties target;
     target.mass = 0.01079;
     target.centerGravity = {-0.155, 0, 0.519};
     target.inertiaMoments = {0.00077, 0.00176, 0.00107};
     target.inertiaProducts = {0, 0, 0.00001};
 
     // Assign the weights
-    Optimizer::Weight weight;
+    Properties weight(1.0);
 
     // Select the options
     Optimizer::Options options;
@@ -147,7 +147,7 @@ void TestBackend::testUpdateRealPanel()
 
     // Run the solver
     Optimizer optimizer(state, target, weight, options);
-    optimizer.run(mRealPanel);
+    auto solution = optimizer.solve(mRealPanel);
 }
 
 //! Check if two double values are equal within the specified precision

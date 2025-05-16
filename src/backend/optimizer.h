@@ -8,6 +8,7 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+#include <ceres/ceres.h>
 #include <chrono>
 
 #include "panel.h"
@@ -19,6 +20,18 @@ namespace Backend
 class Optimizer
 {
 public:
+    //! Solution of the optimization problem
+    struct Solution
+    {
+        Solution();
+        Solution(ceres::Solver::Summary const& summary, Panel const& rPanel, Properties const& rProperties);
+
+        int iteration;
+        double cost;
+        Panel panel;
+        Properties properties;
+    };
+
     //! Enabled parameters for optimization
     struct State
     {
@@ -29,58 +42,46 @@ public:
         bool density;
     };
 
-    //! Target values for optimization
-    struct Target
-    {
-        Target();
-
-        double mass;
-        KCL::Vec3 centerGravity;
-        KCL::Vec3 inertiaMoments;
-        KCL::Vec3 inertiaProducts;
-    };
-
-    //! Weights which used in residuals in the objective function
-    struct Weight
-    {
-        Weight();
-
-        double mass;
-        KCL::Vec3 centerGravity;
-        KCL::Vec3 inertiaMoments;
-        KCL::Vec3 inertiaProducts;
-        KCL::Vec2 coefficients;
-    };
-
     //! Optimization settings
     struct Options
     {
         Options();
 
+        //! Log results to std::out
         bool logging;
+
+        //! Scale parameters during optimization
         bool autoScale;
+
+        //! Maximum number of iterations
         int numIterations;
+
+        //! Maximum duration of inertia properties computation per iteration
         std::chrono::seconds timeoutIteration;
+
+        //! Number of threads used for optimization
         int numThreads;
-        double weightThreshold;
+
+        //! Threshold relative error of inertia properties
         double maxRelativeError;
+
+        //! Relative step size to compute Jacobian
         double diffStepSize;
     };
 
-    Optimizer(State const& state, Target const& target, Weight const& weight,
-              Options const& options);
+    Optimizer(State const& state, Properties const& target, Properties const& weight, Options const& options);
     ~Optimizer() = default;
 
-    void run(Panel const& panel);
+    Solution solve(Panel const& panel);
 
     State const& state() const;
-    Target const& target() const;
-    Weight const& weight() const;
+    Properties const& target() const;
+    Properties const& weight() const;
     Options const& options() const;
 
     void setState(State const& state);
-    void setTarget(Target const& target);
-    void setWeight(Weight const& weight);
+    void setTarget(Properties const& target);
+    void setWeight(Properties const& weight);
     void setOptions(Options const& options);
 
 private:
@@ -98,8 +99,8 @@ private:
     Panel unwrap(Panel const& basePanel, std::vector<double> const& parameters);
 
     State mState;
-    Target mTarget;
-    Weight mWeight;
+    Properties mTarget;
+    Properties mWeight;
     Options mOptions;
     Scale mScale;
 };
