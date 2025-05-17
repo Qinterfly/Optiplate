@@ -17,6 +17,7 @@ qt_add_library(backend STATIC
     ${BACKEND_HEADERS}
     ${BACKEND_SOURCES}
     utility.h utility.cpp
+    project.h project.cpp
 )
 
 target_include_directories(backend PUBLIC

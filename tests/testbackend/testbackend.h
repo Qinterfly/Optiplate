@@ -10,7 +10,7 @@
 
 #include <QTest>
 
-#include "panel.h"
+#include "project.h"
 
 namespace Tests
 {
@@ -24,16 +24,18 @@ public:
     virtual ~TestBackend() = default;
 
 private slots:
+    // Base
     void testCreateBasePanel();
-    void testCreateRealPanel();
     void testUpdateBasePanel();
+    // Real
+    void testCreateRealPanel();
     void testUpdateRealPanel();
 
 private:
     bool isEqual(double firstValue, double secondValue, double precision);
 
-    Backend::Panel mBasePanel;
-    Backend::Panel mRealPanel;
+    Backend::Project mBaseProject;
+    Backend::Project mRealProject;
 };
 
 }

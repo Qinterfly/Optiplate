@@ -7,133 +7,113 @@
 
 #include <functional>
 #include <future>
-
 #include "optimizer.h"
-#include "utility.h"
 
 using namespace std::chrono_literals;
 using namespace Backend;
 using namespace KCL;
 
-using UnwrapFun = std::function<Panel(const double* const)>;
-using SolverFun = std::function<KCL::MassProperties(Panel const&)>;
-
 static const int skNumDirections = 3;
 
-//! Functor which are used by optimization solver
-class ObjectiveFunctor
+ObjectiveFunctor::ObjectiveFunctor(Properties const& target, Properties const& weight, Optimizer::Options const& options, UnwrapFun unwrapFun,
+                                   SolverFun solverFun)
+    : mTarget(target)
+    , mWeight(weight)
+    , mUnwrapFun(unwrapFun)
+    , mSolverFun(solverFun)
 {
-public:
-    ObjectiveFunctor(Properties const& target, Properties const& weight, Optimizer::Options const& options, UnwrapFun unwrapFun,
-                     SolverFun solverFun)
-        : mTarget(target)
-        , mWeight(weight)
-        , mUnwrapFun(unwrapFun)
-        , mSolverFun(solverFun)
-    {
-    }
+}
 
-    //! Compute the residuals
-    bool operator()(double const* const* parameters, double* residuals) const
-    {
-        Panel panel = mUnwrapFun(*parameters);
-
-        // Check if the panel is valid
-        if (!panel.isValid())
-            return false;
-
-        // Obtain the solution
-        Properties props = mSolverFun(panel);
-        if (props.mass == 0.0)
-            return false;
-
-        // Compure the errors in properties
-        auto errorProps = props.compare(mTarget, mWeight);
-
-        // Set the residuals
-        auto errors = errorProps.validValues();
-        std::copy_n(errors.begin(), errors.size(), residuals);
-        return true;
-    }
-
-private:
-    Properties mTarget;
-    Properties mWeight;
-    UnwrapFun mUnwrapFun;
-    SolverFun mSolverFun;
-};
-
-//! Functor which is called after every optimization iteration
-class OptimizerCallback : public ceres::IterationCallback
+//! Compute the residuals
+bool ObjectiveFunctor::operator()(double const* const* parameters, double* residuals) const
 {
-public:
-    OptimizerCallback(std::vector<double> const& parameters, Properties const& target, Properties const& weight,
-                      Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging)
-        : mParameters(parameters)
-        , mTarget(target)
-        , mWeight(weight)
-        , mOptions(options)
-        , mUnwrapFun(unwrapFun)
-        , mSolverFun(solverFun)
+    Panel panel = mUnwrapFun(*parameters);
+
+    // Check if the panel is valid
+    if (!panel.isValid())
+        return false;
+
+    // Obtain the solution
+    Properties props = mSolverFun(panel);
+    if (props.mass == 0.0)
+        return false;
+
+    // Compure the errors in properties
+    auto errorProps = props.compare(mTarget, mWeight);
+
+    // Set the residuals
+    auto errors = errorProps.validValues();
+    std::copy_n(errors.begin(), errors.size(), residuals);
+
+    return true;
+}
+
+OptimizerCallback::OptimizerCallback(std::vector<double> const& parameters, Properties const& target, Properties const& weight,
+                                     Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging)
+    : mParameters(parameters)
+    , mTarget(target)
+    , mWeight(weight)
+    , mOptions(options)
+    , mUnwrapFun(unwrapFun)
+    , mSolverFun(solverFun)
+{
+}
+
+ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary const& summary)
+{
+    // Obtain the solution
+    Panel panel = mUnwrapFun(mParameters.data());
+    Properties props = mSolverFun(panel);
+
+    // Compare the properties with the target ones
+    Properties errorProps = props.compare(mTarget, mWeight);
+    double maxError = 0.0;
+    auto errors = errorProps.validValues();
+    for (auto e : errors)
+        maxError = std::max(maxError, std::abs(e));
+
+    // Create the function for printing
+    int iLastName = 0;
+    auto printFun = [&iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
     {
-    }
-
-    ~OptimizerCallback() = default;
-
-    ceres::CallbackReturnType operator()(ceres::IterationSummary const& summary)
-    {
-        // Obtain the solution
-        Panel panel = mUnwrapFun(mParameters.data());
-        Properties props = mSolverFun(panel);
-
-        // Compare the properties with the target ones
-        Properties errorProps = props.compare(mTarget, mWeight);
-        double maxError = 0.0;
-        auto errors = errorProps.validValues();
-        for (auto e : errors)
-            maxError = std::max(maxError, std::abs(e));
-
-        // Create the function for printing
-        int iLastName = 0;
-        auto printFun = [&iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
+        std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
+        auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}\n";
+        int numValues = current.size();
+        for (int i = 0; i != numValues; ++i)
         {
-            static std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
-            static auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}\n";
-            int numValues = current.size();
-            for (int i = 0; i != numValues; ++i)
-            {
-                if (!std::isnan(errors[i]))
-                    std::cout << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
-                ++iLastName;
-            }
-        };
-        auto vecFun = [](KCL::Vec3 vec) { return std::vector<double>(vec.begin(), vec.end()); };
-
-        // Print the properties
-        if (mOptions.logging)
-        {
-            std::cout << std::endl;
-            printFun({props.mass}, {mTarget.mass}, {errorProps.mass});
-            printFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
-            printFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
-            printFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
-            std::cout << std::endl;
+            if (!std::isnan(errors[i]))
+                std::cout << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
+            ++iLastName;
         }
+    };
+    auto vecFun = [](KCL::Vec3 vec) { return std::vector<double>(vec.begin(), vec.end()); };
 
-        // Check if the termination criterion is achieved
-        if (maxError < mOptions.maxRelativeError)
-            return ceres::SOLVER_TERMINATE_SUCCESSFULLY;
-        return ceres::SOLVER_CONTINUE;
+    // Print the properties
+    if (mOptions.logging)
+    {
+        std::cout << std::endl;
+        printFun({props.mass}, {mTarget.mass}, {errorProps.mass});
+        printFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
+        printFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
+        printFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
+        std::cout << std::endl;
     }
 
-private:
-    std::vector<double> const& mParameters;
-    Properties mTarget;
-    Properties mWeight;
-    Optimizer::Options mOptions;
-    UnwrapFun mUnwrapFun;
-    SolverFun mSolverFun;
-};
+    // Indicate that the iteration is finished
+    Optimizer::Solution solution;
+    solution.isSuccess = summary.step_is_successful;
+    solution.duration = summary.iteration_time_in_seconds;
+    solution.cost = summary.cost;
+    solution.panel = panel;
+    solution.properties = props;
+    solution.errorProperties = errorProps;
+    emit iterationFinished(solution);
+
+    // Check if the termination criterion is achieved
+    if (maxError < mOptions.maxRelativeError)
+        return ceres::SOLVER_TERMINATE_SUCCESSFULLY;
+    return ceres::SOLVER_CONTINUE;
+}
 
 Optimizer::Optimizer(State const& state, Properties const& target, Properties const& weight, Options const& options)
     : mState(state)
@@ -144,8 +124,12 @@ Optimizer::Optimizer(State const& state, Properties const& target, Properties co
 }
 
 //! Run the optimization process
-Optimizer::Solution Optimizer::solve(Panel const& initPanel)
+QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
 {
+    // Intialize the resulting set
+    QList<Optimizer::Solution> solutions;
+    solutions.reserve(mOptions.maxNumIterations);
+
     // Get the parameters
     std::vector<double> parameters = wrap(initPanel);
     int numParameters = parameters.size();
@@ -166,6 +150,7 @@ Optimizer::Solution Optimizer::solve(Panel const& initPanel)
             return Properties();
         return future.get();
     };
+    auto saveFun = [&solutions](Optimizer::Solution const& solution) { solutions.push_back(solution); };
 
     // Obtain the initial solution
     Properties initProps = solverFun(initPanel);
@@ -191,7 +176,7 @@ Optimizer::Solution Optimizer::solve(Panel const& initPanel)
 
     // Assign the solver settings
     ceres::Solver::Options solverOpts;
-    solverOpts.max_num_iterations = mOptions.numIterations;
+    solverOpts.max_num_iterations = mOptions.maxNumIterations;
     solverOpts.num_threads = mOptions.numThreads;
     solverOpts.minimizer_type = ceres::TRUST_REGION;
     solverOpts.linear_solver_type = ceres::DENSE_QR;
@@ -201,6 +186,7 @@ Optimizer::Solution Optimizer::solve(Panel const& initPanel)
     solverOpts.update_state_every_iteration = true;
     solverOpts.minimizer_progress_to_stdout = mOptions.logging;
     OptimizerCallback callback(parameters, mTarget, mWeight, mOptions, unwrapFun, solverFun, mOptions.logging);
+    QObject::connect(&callback, &OptimizerCallback::iterationFinished, this, saveFun);
     solverOpts.callbacks.push_back(&callback);
 
     // Solve the problem
@@ -209,10 +195,7 @@ Optimizer::Solution Optimizer::solve(Panel const& initPanel)
     if (mOptions.logging)
         std::cout << summary.FullReport();
 
-    // Process the result
-    Panel optPanel = unwrapFun(parameters.data());
-    MassProperties optProps = solverFun(optPanel);
-    return Solution(summary, optPanel, optProps);
+    return solutions;
 }
 
 //! Vectorize parameters for optimization
@@ -309,14 +292,9 @@ Panel Optimizer::unwrap(Panel const& basePanel, std::vector<double> const& param
 }
 
 Optimizer::Solution::Solution()
-{
-}
-
-Optimizer::Solution::Solution(ceres::Solver::Summary const& summary, Panel const& rPanel, Properties const& rProperties)
-    : iteration(summary.iterations.size())
-    , cost(summary.final_cost)
-    , panel(rPanel)
-    , properties(rProperties)
+    : isSuccess(false)
+    , duration(0.0)
+    , cost(std::numeric_limits<double>::infinity())
 {
 }
 
@@ -332,7 +310,7 @@ Optimizer::State::State()
 Optimizer::Options::Options()
     : logging(true)
     , autoScale(false)
-    , numIterations(500)
+    , maxNumIterations(500)
     , timeoutIteration(1s)
     , numThreads(1)
     , maxRelativeError(1e-3)

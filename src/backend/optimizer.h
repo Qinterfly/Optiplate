@@ -10,26 +10,33 @@
 
 #include <ceres/ceres.h>
 #include <chrono>
+#include <QObject>
 
 #include "panel.h"
 
 namespace Backend
 {
 
+using UnwrapFun = std::function<Panel(const double* const)>;
+using SolverFun = std::function<KCL::MassProperties(Panel const&)>;
+
 //! Class to perform optimization of a panel model
-class Optimizer
+class Optimizer : public QObject
 {
+    Q_OBJECT
+
 public:
     //! Solution of the optimization problem
     struct Solution
     {
         Solution();
-        Solution(ceres::Solver::Summary const& summary, Panel const& rPanel, Properties const& rProperties);
 
-        int iteration;
+        bool isSuccess;
+        double duration;
         double cost;
         Panel panel;
         Properties properties;
+        Properties errorProperties;
     };
 
     //! Enabled parameters for optimization
@@ -47,32 +54,19 @@ public:
     {
         Options();
 
-        //! Log results to std::out
         bool logging;
-
-        //! Scale parameters during optimization
         bool autoScale;
-
-        //! Maximum number of iterations
-        int numIterations;
-
-        //! Maximum duration of inertia properties computation per iteration
+        int maxNumIterations;
         std::chrono::seconds timeoutIteration;
-
-        //! Number of threads used for optimization
         int numThreads;
-
-        //! Threshold relative error of inertia properties
         double maxRelativeError;
-
-        //! Relative step size to compute Jacobian
         double diffStepSize;
     };
 
     Optimizer(State const& state, Properties const& target, Properties const& weight, Options const& options);
     ~Optimizer() = default;
 
-    Solution solve(Panel const& panel);
+    QList<Solution> solve(Panel const& panel);
 
     State const& state() const;
     Properties const& target() const;
@@ -103,6 +97,43 @@ private:
     Properties mWeight;
     Options mOptions;
     Scale mScale;
+};
+
+//! Functor to compute residuals
+class ObjectiveFunctor
+{
+public:
+    ObjectiveFunctor(Properties const& target, Properties const& weight, Optimizer::Options const& options, UnwrapFun unwrapFun,
+                     SolverFun solverFun);
+    bool operator()(double const* const* parameters, double* residuals) const;
+
+private:
+    Properties mTarget;
+    Properties mWeight;
+    UnwrapFun mUnwrapFun;
+    SolverFun mSolverFun;
+};
+
+//! Functor to be called after every optimization iteration
+class OptimizerCallback : public QObject, public ceres::IterationCallback
+{
+    Q_OBJECT
+
+public:
+    OptimizerCallback(std::vector<double> const& parameters, Properties const& target, Properties const& weight,
+                      Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging);
+    ceres::CallbackReturnType operator()(ceres::IterationSummary const& summary);
+
+signals:
+    void iterationFinished(Backend::Optimizer::Solution solution);
+
+private:
+    std::vector<double> const& mParameters;
+    Properties const& mTarget;
+    Properties const& mWeight;
+    Optimizer::Options const& mOptions;
+    UnwrapFun mUnwrapFun;
+    SolverFun mSolverFun;
 };
 
 } // namespace Backend
