@@ -1,4 +1,5 @@
 archive
 build
 lib
+examples
 CMakeLists.txt.user*
