@@ -2,11 +2,11 @@
  * \file
  * \author Pavel Lakiza
  * \date May 2025
- * \brief Declaration of the utility functions
+ * \brief Declaration of math utilities
  */
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef MATHUTILITY_H
+#define MATHUTILITY_H
 
 #include <vector>
 
@@ -21,7 +21,8 @@ struct Point
 
 std::vector<int> jarvisMarch(std::vector<Point> const& points);
 double relativeError(double current, double base);
+double roundTo(double value, double precision = 1.0);
 
 } // namespace Backend::Utility
 
-#endif // UTILITY_H
+#endif // MATHUTILITY_H

@@ -14,5 +14,6 @@
 
 // Directories
 #define TEMP_DIR "@TEMP_DIR@"
+#define EXAMPLES_DIR "@EXAMPLES_DIR@"
 
 #endif // CONFIG_H_IN

@@ -8,21 +8,30 @@
 #ifndef PANEL_H
 #define PANEL_H
 
+#include <QString>
+
 #include <kcl/model.h>
+
+QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
 namespace Backend
 {
 
-struct Properties : KCL::MassProperties
+//! Inertia properties of a KCL model
+struct Properties : public KCL::MassProperties
 {
     Properties();
     Properties(double value);
     Properties(KCL::MassProperties const& properties);
     ~Properties() = default;
 
-    Properties compare(Properties const& another, Properties const& weight = Properties(1.0)) const;
-    std::vector<double> validValues() const;
     int numValidValues() const;
+    std::vector<double> validValues() const;
+    double maxAbsValue() const;
+    Properties compare(Properties const& another, Properties const& weight = Properties(1.0)) const;
+    void read(QXmlStreamReader& stream);
+    void write(QString const& name, QXmlStreamWriter& stream);
 };
 
 //! Class to represent panel data and compute inertia properties via KS-L
@@ -37,6 +46,9 @@ public:
     Properties massProperties() const;
     void renumerate();
     bool isValid() const;
+    void read(QXmlStreamReader& stream);
+    void write(QXmlStreamWriter& stream);
+    Panel round(double precisionGeometry, double precisionMechanical);
 
     double thickness() const;
     KCL::Vec4 const& xCoords() const;

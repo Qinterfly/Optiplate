@@ -8,10 +8,11 @@ set(APP_CREATOR "Pavel Lakiza")
 ## Version
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
-set(VERSION_PATCH 4)
+set(VERSION_PATCH 5)
 set(VERSION_FULL ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 ## Directories
 set(TEMP_DIR ${CMAKE_BINARY_DIR})
+set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 
 # Set language standard
 set(CMAKE_CXX_STANDARD 20)

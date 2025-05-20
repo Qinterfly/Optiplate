@@ -7,9 +7,11 @@
 
 #include <Eigen/Dense>
 #include <QDebug>
+#include <QXmlStreamWriter>
 
+#include "fileutility.h"
+#include "mathutility.h"
 #include "panel.h"
-#include "utility.h"
 
 using namespace Backend;
 using namespace KCL;
@@ -38,6 +40,40 @@ Properties::Properties(MassProperties const& properties)
     inertiaProducts = properties.inertiaProducts;
 }
 
+//! Number of not NaN values
+int Properties::numValidValues() const
+{
+    return validValues().size();
+}
+
+//! Not NaN values of inertia properties
+std::vector<double> Properties::validValues() const
+{
+    std::vector<double> result;
+    if (!std::isnan(mass))
+        result.push_back(mass);
+    for (int i = 0; i != skNumDirections; ++i)
+    {
+        if (!std::isnan(centerGravity[i]))
+            result.push_back(centerGravity[i]);
+        if (!std::isnan(inertiaMoments[i]))
+            result.push_back(inertiaMoments[i]);
+        if (!std::isnan(inertiaProducts[i]))
+            result.push_back(inertiaProducts[i]);
+    }
+    return result;
+}
+
+//! Found the maximum absolute valid value
+double Properties::maxAbsValue() const
+{
+    std::vector<double> const& values = validValues();
+    double result = -std::numeric_limits<double>::infinity();
+    for (double v : values)
+        result = std::max(result, std::abs(v));
+    return result;
+}
+
 //! Compare two sets of properties with weights
 Properties Properties::compare(Properties const& another, Properties const& weight) const
 {
@@ -59,28 +95,33 @@ Properties Properties::compare(Properties const& another, Properties const& weig
     return result;
 }
 
-//! Not NaN values of inertia properties
-std::vector<double> Properties::validValues() const
+//! Read properties from a XML stream
+void Properties::read(QXmlStreamReader& stream)
 {
-    std::vector<double> result;
-    if (!std::isnan(mass))
-        result.push_back(mass);
-    for (int i = 0; i != skNumDirections; ++i)
+    while (stream.readNextStartElement())
     {
-        if (!std::isnan(centerGravity[i]))
-            result.push_back(centerGravity[i]);
-        if (!std::isnan(inertiaMoments[i]))
-            result.push_back(inertiaMoments[i]);
-        if (!std::isnan(inertiaProducts[i]))
-            result.push_back(inertiaProducts[i]);
+        if (stream.name() == "mass")
+            mass = stream.readElementText().toDouble();
+        else if (stream.name() == "centerGravity")
+            Utility::readData(centerGravity.begin(), centerGravity.end(), stream);
+        else if (stream.name() == "inertiaMoments")
+            Utility::readData(inertiaMoments.begin(), inertiaMoments.end(), stream);
+        else if (stream.name() == "inertiaProducts")
+            Utility::readData(inertiaProducts.begin(), inertiaProducts.end(), stream);
+        else
+            stream.skipCurrentElement();
     }
-    return result;
 }
 
-//! Number of not NaN values
-int Properties::numValidValues() const
+//! Write properties to a XML stream
+void Properties::write(QString const& name, QXmlStreamWriter& stream)
 {
-    return validValues().size();
+    stream.writeStartElement(name);
+    stream.writeTextElement("mass", QString::number(mass));
+    Utility::writeData("centerGravity", centerGravity.begin(), centerGravity.end(), stream);
+    Utility::writeData("inertiaMoments", inertiaMoments.begin(), inertiaMoments.end(), stream);
+    Utility::writeData("inertiaProducts", inertiaProducts.begin(), inertiaProducts.end(), stream);
+    stream.writeEndElement();
 }
 
 Panel::Panel()
@@ -180,6 +221,58 @@ bool Panel::isValid() const
             return false;
     }
     return true;
+}
+
+//! Read a panel from a XML stream
+void Panel::read(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement())
+    {
+        if (stream.name() == "mass")
+            mThickness = stream.readElementText().toDouble();
+        else if (stream.name() == "xCoords")
+            Utility::readData(mXCoords.begin(), mXCoords.end(), stream);
+        else if (stream.name() == "zCoords")
+            Utility::readData(mZCoords.begin(), mZCoords.end(), stream);
+        else if (stream.name() == "depths")
+            Utility::readData(mDepths.begin(), mDepths.end(), stream);
+        else if (stream.name() == "youngsModulus")
+            mYoungsModulus = stream.readElementText().toDouble();
+        else if (stream.name() == "density")
+            mDensity = stream.readElementText().toDouble();
+        else
+            stream.skipCurrentElement();
+    }
+}
+
+//! Write the panel to a XML stream
+void Panel::write(QXmlStreamWriter& stream)
+{
+    stream.writeStartElement("panel");
+    stream.writeTextElement("thickness", QString::number(mThickness));
+    Utility::writeData("xCoords", mXCoords.begin(), mXCoords.end(), stream);
+    Utility::writeData("zCoords", mZCoords.begin(), mZCoords.end(), stream);
+    Utility::writeData("depths", mDepths.begin(), mDepths.end(), stream);
+    stream.writeTextElement("youngsModulus", QString::number(mYoungsModulus));
+    stream.writeTextElement("density", QString::number(mDensity));
+    stream.writeEndElement();
+}
+
+//! Round panel data up to the specified precision
+Panel Panel::round(double precisionGeometry, double precisionMechanical)
+{
+    Panel panel;
+    panel.mThickness = Utility::roundTo(mThickness, precisionGeometry);
+    for (int i = 0; i != mXCoords.size(); ++i)
+    {
+        panel.mXCoords[i] = Utility::roundTo(mXCoords[i], precisionGeometry);
+        panel.mZCoords[i] = Utility::roundTo(mZCoords[i], precisionGeometry);
+    }
+    for (int i = 0; i != mDepths.size(); ++i)
+        panel.mDepths[i] = Utility::roundTo(mDepths[i], precisionGeometry);
+    panel.mYoungsModulus = Utility::roundTo(mYoungsModulus, precisionMechanical);
+    panel.mDensity = Utility::roundTo(mDensity, precisionMechanical);
+    return panel;
 }
 
 //! Create a model based on the specified panel properties

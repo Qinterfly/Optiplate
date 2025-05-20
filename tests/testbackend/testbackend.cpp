@@ -10,6 +10,7 @@
 
 #include "testbackend.h"
 
+#include "fileutility.h"
 #include "optimizer.h"
 #include "panel.h"
 
@@ -20,6 +21,8 @@ using namespace KCL;
 static int const skNumDirections = 3;
 
 TestBackend::TestBackend()
+    : mBaseProject("base")
+    , mRealProject("real")
 {
 
 }
@@ -64,6 +67,32 @@ void TestBackend::testCreateBasePanel()
     mBaseProject.setPanel(panel);
 }
 
+//! Build a panel associated with real data
+void TestBackend::testCreateRealPanel()
+{
+    double const precision = 1e-4;
+
+    // Create a panel
+    Panel panel;
+    panel.setThickness(0.0);
+    panel.setXCoords({-0.73, -0.64, 0.43, 0.35});
+    panel.setZCoords({0, 0.98, 0.98, 0});
+    panel.setDepths({0.201, 0.16, 0.153});
+    panel.setDensity(0.057855);
+
+    // Define analytical properties
+    Vec3 centerGravity = {-0.152764, 0, 0.47034};
+
+    // Evaluate inertia properties
+    auto props = panel.massProperties();
+    QVERIFY(isEqual(props.mass, 0.01079, precision));
+    for (int i = 0; i != skNumDirections; ++i)
+        QVERIFY(isEqual(props.centerGravity[i], centerGravity[i], precision));
+
+    // Add panel to the project
+    mRealProject.setPanel(panel);
+}
+
 //! Update the base panel
 void TestBackend::testUpdateBasePanel()
 {
@@ -73,7 +102,7 @@ void TestBackend::testUpdateBasePanel()
     // Set up the target panel
     Panel targetPanel;
     double width = 2.1;
-    double height = 1;
+    double height = 0.9;
     double depth = 1e-3;
     double density = 0.5;
     targetPanel.setThickness(0.0);
@@ -101,40 +130,17 @@ void TestBackend::testUpdateBasePanel()
     options.maxRelativeError = 1e-3;
     options.logging = true;
     options.autoScale = true;
-    options.diffStepSize = 1e-5;
+    options.numThreads = 1;
+    options.diffStepSize = 1e-3;
 
     // Run the solver
     Optimizer optimizer(state, target, weight, options);
     auto solutions = optimizer.solve(initPanel);
+    QVERIFY(!solutions.empty());
+    QVERIFY(solutions.back().isSuccess);
 
     // Assign the solutions
     mBaseProject.setSolutions(solutions);
-}
-
-//! Build a panel associated with real data
-void TestBackend::testCreateRealPanel()
-{
-    double const precision = 1e-4;
-
-    // Create a panel
-    Panel panel;
-    panel.setThickness(0.0);
-    panel.setXCoords({-0.73, -0.64, 0.43, 0.35});
-    panel.setZCoords({0, 0.98, 0.98, 0});
-    panel.setDepths({0.201, 0.16, 0.153});
-    panel.setDensity(0.057855);
-
-    // Define analytical properties
-    Vec3 centerGravity = {-0.152764, 0, 0.47034};
-
-    // Evaluate inertia properties
-    auto props = panel.massProperties();
-    QVERIFY(isEqual(props.mass, 0.01079, precision));
-    for (int i = 0; i != skNumDirections; ++i)
-        QVERIFY(isEqual(props.centerGravity[i], centerGravity[i], precision));
-
-    // Add panel to the project
-    mRealProject.setPanel(panel);
 }
 
 //! Update the real panel
@@ -159,14 +165,39 @@ void TestBackend::testUpdateRealPanel()
     // Select the options
     Optimizer::Options& options = config.options;
     options.autoScale = true;
+    options.numThreads = 1;
     options.diffStepSize = 1e-5;
 
     // Run the solver
     Optimizer optimizer(state, target, weight, options);
     auto solutions = optimizer.solve(initPanel);
+    QVERIFY(!solutions.empty());
+    QVERIFY(solutions.back().isSuccess);
 
     // Assign the solutions
     mRealProject.setSolutions(solutions);
+}
+
+//! Write the base and real projects to files
+void TestBackend::testWriteProject()
+{
+    std::vector<Backend::Project> projects({mBaseProject, mRealProject});
+    for (auto& project : projects)
+    {
+        // Write the project to a file
+        QString fileName = project.configuration().name + '.' + Project::fileSuffix();
+        QString pathFile = Utility::combineFilePath(EXAMPLES_DIR, fileName);
+        QVERIFY(project.write(pathFile));
+
+        // Read the project
+        Project checkProject;
+        QVERIFY(checkProject.read(pathFile));
+
+        // Check if the project are equal
+        QVERIFY(checkProject.configuration().name == project.configuration().name);
+        QVERIFY(checkProject.panel().density() == project.panel().density());
+        QVERIFY(checkProject.solutions().size() == project.solutions().size());
+    }
 }
 
 //! Check if two double values are equal within the specified precision

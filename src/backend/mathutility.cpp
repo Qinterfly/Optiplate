@@ -2,13 +2,14 @@
  * \file
  * \author Pavel Lakiza
  * \date May 2025
- * \brief Implementation of the utility functions
+ * \brief Implementation of math utilities
  */
 
 #include <QDebug>
+#include <QFileInfo>
 #include <QObject>
 
-#include "utility.h"
+#include "mathutility.h"
 
 namespace Backend::Utility
 {
@@ -65,6 +66,12 @@ double relativeError(double current, double base)
     if (std::abs(base) > std::numeric_limits<double>::epsilon())
         result /= base;
     return result;
+}
+
+//! Round the number up to the specified precision
+double roundTo(double value, double precision)
+{
+    return std::round(value / precision) * precision;
 }
 
 } // namespace Backend::Utility

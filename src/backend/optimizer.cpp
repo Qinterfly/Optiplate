@@ -7,113 +7,142 @@
 
 #include <functional>
 #include <future>
+#include <QXmlStreamWriter>
+
 #include "optimizer.h"
 
-using namespace std::chrono_literals;
 using namespace Backend;
 using namespace KCL;
 
+using Solutions = QList<Optimizer::Solution>;
+
 static const int skNumDirections = 3;
 
-ObjectiveFunctor::ObjectiveFunctor(Properties const& target, Properties const& weight, Optimizer::Options const& options, UnwrapFun unwrapFun,
-                                   SolverFun solverFun)
-    : mTarget(target)
-    , mWeight(weight)
-    , mUnwrapFun(unwrapFun)
-    , mSolverFun(solverFun)
+//! Functor to compute residuals
+class ObjectiveFunctor
 {
-}
-
-//! Compute the residuals
-bool ObjectiveFunctor::operator()(double const* const* parameters, double* residuals) const
-{
-    Panel panel = mUnwrapFun(*parameters);
-
-    // Check if the panel is valid
-    if (!panel.isValid())
-        return false;
-
-    // Obtain the solution
-    Properties props = mSolverFun(panel);
-    if (props.mass == 0.0)
-        return false;
-
-    // Compure the errors in properties
-    auto errorProps = props.compare(mTarget, mWeight);
-
-    // Set the residuals
-    auto errors = errorProps.validValues();
-    std::copy_n(errors.begin(), errors.size(), residuals);
-
-    return true;
-}
-
-OptimizerCallback::OptimizerCallback(std::vector<double> const& parameters, Properties const& target, Properties const& weight,
-                                     Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging)
-    : mParameters(parameters)
-    , mTarget(target)
-    , mWeight(weight)
-    , mOptions(options)
-    , mUnwrapFun(unwrapFun)
-    , mSolverFun(solverFun)
-{
-}
-
-ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary const& summary)
-{
-    // Obtain the solution
-    Panel panel = mUnwrapFun(mParameters.data());
-    Properties props = mSolverFun(panel);
-
-    // Compare the properties with the target ones
-    Properties errorProps = props.compare(mTarget, mWeight);
-    double maxError = 0.0;
-    auto errors = errorProps.validValues();
-    for (auto e : errors)
-        maxError = std::max(maxError, std::abs(e));
-
-    // Create the function for printing
-    int iLastName = 0;
-    auto printFun = [&iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
+public:
+    ObjectiveFunctor(Properties const& target, Properties const& weight, Optimizer::Options const& options, UnwrapFun unwrapFun,
+                     SolverFun solverFun)
+        : mTarget(target)
+        , mWeight(weight)
+        , mUnwrapFun(unwrapFun)
+        , mSolverFun(solverFun)
     {
-        std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
-        auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}\n";
-        int numValues = current.size();
-        for (int i = 0; i != numValues; ++i)
-        {
-            if (!std::isnan(errors[i]))
-                std::cout << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
-            ++iLastName;
-        }
-    };
-    auto vecFun = [](KCL::Vec3 vec) { return std::vector<double>(vec.begin(), vec.end()); };
-
-    // Print the properties
-    if (mOptions.logging)
-    {
-        std::cout << std::endl;
-        printFun({props.mass}, {mTarget.mass}, {errorProps.mass});
-        printFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
-        printFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
-        printFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
-        std::cout << std::endl;
     }
 
-    // Indicate that the iteration is finished
-    Optimizer::Solution solution;
-    solution.isSuccess = summary.step_is_successful;
-    solution.duration = summary.iteration_time_in_seconds;
-    solution.cost = summary.cost;
-    solution.panel = panel;
-    solution.properties = props;
-    solution.errorProperties = errorProps;
-    emit iterationFinished(solution);
+    //! Compute the residuals
+    bool operator()(double const* const* parameters, double* residuals) const
+    {
+        Panel panel = mUnwrapFun(*parameters);
 
-    // Check if the termination criterion is achieved
-    if (maxError < mOptions.maxRelativeError)
-        return ceres::SOLVER_TERMINATE_SUCCESSFULLY;
-    return ceres::SOLVER_CONTINUE;
-}
+        // Check if the panel is valid
+        if (!panel.isValid())
+            return false;
+
+        // Obtain the solution
+        Properties props = mSolverFun(panel);
+        if (props.mass == 0.0)
+            return false;
+
+        // Compure the errors in properties
+        auto errorProps = props.compare(mTarget, mWeight);
+
+        // Set the residuals
+        auto errors = errorProps.validValues();
+        std::copy_n(errors.begin(), errors.size(), residuals);
+
+        return true;
+    }
+
+private:
+    Properties mTarget;
+    Properties mWeight;
+    UnwrapFun mUnwrapFun;
+    SolverFun mSolverFun;
+};
+
+//! Functor to be called after every optimization iteration
+class OptimizerCallback : public ceres::IterationCallback
+{
+public:
+    OptimizerCallback(std::vector<double> const& parameters, Solutions& solutions, Properties const& target, Properties const& weight,
+                      Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging)
+        : mParameters(parameters)
+        , mTarget(target)
+        , mWeight(weight)
+        , mOptions(options)
+        , mSolutions(solutions)
+        , mUnwrapFun(unwrapFun)
+        , mSolverFun(solverFun)
+    {
+    }
+    ceres::CallbackReturnType operator()(ceres::IterationSummary const& summary)
+    {
+        // Obtain the solution
+        Panel panel = mUnwrapFun(mParameters.data());
+        Properties props = mSolverFun(panel);
+
+        // Compare the properties with the target ones
+        Properties errorProps = props.compare(mTarget, mWeight);
+        double maxError = 0.0;
+        auto errors = errorProps.validValues();
+        for (auto e : errors)
+            maxError = std::max(maxError, std::abs(e));
+
+        // Create the function for printing
+        int iLastName = 0;
+        auto printFun = [&iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
+        {
+            std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
+            auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}\n";
+            int numValues = current.size();
+            for (int i = 0; i != numValues; ++i)
+            {
+                if (!std::isnan(errors[i]))
+                    std::cout << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
+                ++iLastName;
+            }
+        };
+        auto vecFun = [](KCL::Vec3 vec) { return std::vector<double>(vec.begin(), vec.end()); };
+
+        // Print the properties
+        if (mOptions.logging)
+        {
+            std::cout << std::endl;
+            printFun({props.mass}, {mTarget.mass}, {errorProps.mass});
+            printFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
+            printFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
+            printFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
+            std::cout << std::endl;
+        }
+
+        // Indicate that the iteration is finished
+        Optimizer::Solution solution;
+        solution.iteration = summary.iteration;
+        solution.isSuccess = summary.step_is_successful;
+        solution.duration = summary.iteration_time_in_seconds;
+        solution.cost = summary.cost;
+        solution.panel = panel;
+        solution.properties = props;
+        solution.errorProperties = errorProps;
+        mSolutions.emplaceBack(std::move(solution));
+
+        // Check if the termination criterion is achieved
+        if (maxError < mOptions.maxRelativeError)
+            return ceres::SOLVER_TERMINATE_SUCCESSFULLY;
+        return ceres::SOLVER_CONTINUE;
+    }
+
+private:
+    std::vector<double> const& mParameters;
+    Properties const& mTarget;
+    Properties const& mWeight;
+    Optimizer::Options const& mOptions;
+    Solutions& mSolutions;
+    UnwrapFun mUnwrapFun;
+    SolverFun mSolverFun;
+};
 
 Optimizer::Optimizer(State const& state, Properties const& target, Properties const& weight, Options const& options)
     : mState(state)
@@ -126,10 +155,6 @@ Optimizer::Optimizer(State const& state, Properties const& target, Properties co
 //! Run the optimization process
 QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
 {
-    // Intialize the resulting set
-    QList<Optimizer::Solution> solutions;
-    solutions.reserve(mOptions.maxNumIterations);
-
     // Get the parameters
     std::vector<double> parameters = wrap(initPanel);
     int numParameters = parameters.size();
@@ -145,12 +170,12 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
     {
         auto fun = [&panel]() { return panel.massProperties(); };
         std::future<Properties> future = std::async(fun);
-        std::future_status status = future.wait_for(mOptions.timeoutIteration);
+        auto duration = std::chrono::seconds(mOptions.timeoutIteration);
+        std::future_status status = future.wait_for(duration);
         if (status != std::future_status::ready)
             return Properties();
         return future.get();
     };
-    auto saveFun = [&solutions](Optimizer::Solution const& solution) { solutions.push_back(solution); };
 
     // Obtain the initial solution
     Properties initProps = solverFun(initPanel);
@@ -174,6 +199,10 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
     ceres::Problem problem;
     problem.AddResidualBlock(costFunction, nullptr, parameters.data());
 
+    // Intialize the resulting set
+    Solutions solutions;
+    solutions.reserve(mOptions.maxNumIterations);
+
     // Assign the solver settings
     ceres::Solver::Options solverOpts;
     solverOpts.max_num_iterations = mOptions.maxNumIterations;
@@ -185,13 +214,18 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
     // Set the callback functions
     solverOpts.update_state_every_iteration = true;
     solverOpts.minimizer_progress_to_stdout = mOptions.logging;
-    OptimizerCallback callback(parameters, mTarget, mWeight, mOptions, unwrapFun, solverFun, mOptions.logging);
-    QObject::connect(&callback, &OptimizerCallback::iterationFinished, this, saveFun);
+    OptimizerCallback callback(parameters, solutions, mTarget, mWeight, mOptions, unwrapFun, solverFun, mOptions.logging);
     solverOpts.callbacks.push_back(&callback);
 
     // Solve the problem
     ceres::Solver::Summary summary;
     ceres::Solve(solverOpts, &problem, &summary);
+    if (!solutions.empty())
+    {
+        auto lastSolution = solutions.back();
+        lastSolution.isSuccess = summary.IsSolutionUsable();
+        lastSolution.message = summary.message.c_str();
+    }
     if (mOptions.logging)
         std::cout << summary.FullReport();
 
@@ -292,10 +326,54 @@ Panel Optimizer::unwrap(Panel const& basePanel, std::vector<double> const& param
 }
 
 Optimizer::Solution::Solution()
-    : isSuccess(false)
+    : iteration(0.0)
+    , isSuccess(false)
     , duration(0.0)
     , cost(std::numeric_limits<double>::infinity())
+    , properties(0.0)
+    , errorProperties(std::numeric_limits<double>::infinity())
 {
+}
+
+//! Read a solution from a XML stream
+void Optimizer::Solution::read(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement())
+    {
+        if (stream.name() == "iteration")
+            iteration = stream.readElementText().toInt();
+        else if (stream.name() == "isSuccess")
+            isSuccess = stream.readElementText().toInt();
+        else if (stream.name() == "duration")
+            duration = stream.readElementText().toDouble();
+        else if (stream.name() == "cost")
+            cost = stream.readElementText().toDouble();
+        else if (stream.name() == "panel")
+            panel.read(stream);
+        else if (stream.name() == "properties")
+            properties.read(stream);
+        else if (stream.name() == "errorProperties")
+            errorProperties.read(stream);
+        else if (stream.name() == "message")
+            message = stream.readElementText();
+        else
+            stream.skipCurrentElement();
+    }
+}
+
+//! Output the solution to a XML stream
+void Optimizer::Solution::write(QXmlStreamWriter& stream)
+{
+    stream.writeStartElement("solution");
+    stream.writeTextElement("iteration", QString::number(iteration));
+    stream.writeTextElement("isSuccess", QString::number(isSuccess));
+    stream.writeTextElement("duration", QString::number(duration));
+    stream.writeTextElement("cost", QString::number(cost));
+    panel.write(stream);
+    properties.write("properties", stream);
+    errorProperties.write("errorProperties", stream);
+    stream.writeTextElement("message", message);
+    stream.writeEndElement();
 }
 
 //! Enabled parameters for optimization
@@ -306,16 +384,80 @@ Optimizer::State::State()
 {
 }
 
+//! Read an optimizer state from a XML stream
+void Optimizer::State::read(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement())
+    {
+        if (stream.name() == "vertices")
+            vertices = stream.readElementText().toInt();
+        else if (stream.name() == "depths")
+            depths = stream.readElementText().toInt();
+        else if (stream.name() == "density")
+            density = stream.readElementText().toInt();
+        else
+            stream.skipCurrentElement();
+    }
+}
+
+//! Output the optimizer state to a XML stream
+void Optimizer::State::write(QXmlStreamWriter& stream)
+{
+    stream.writeStartElement("state");
+    stream.writeTextElement("vertices", QString::number(vertices));
+    stream.writeTextElement("depths", QString::number(vertices));
+    stream.writeTextElement("density", QString::number(vertices));
+    stream.writeEndElement();
+}
+
 //! Optimization options
 Optimizer::Options::Options()
     : logging(true)
-    , autoScale(false)
-    , maxNumIterations(500)
-    , timeoutIteration(1s)
+    , autoScale(true)
+    , maxNumIterations(256)
+    , timeoutIteration(1)
     , numThreads(1)
     , maxRelativeError(1e-3)
     , diffStepSize(1e-5)
 {
+}
+
+//! Read optimizer options from a XML stream
+void Optimizer::Options::read(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement())
+    {
+        if (stream.name() == "logging")
+            logging = stream.readElementText().toInt();
+        else if (stream.name() == "autoScale")
+            autoScale = stream.readElementText().toInt();
+        else if (stream.name() == "maxNumIterations")
+            maxNumIterations = stream.readElementText().toInt();
+        else if (stream.name() == "timeoutIteration")
+            timeoutIteration = stream.readElementText().toInt();
+        else if (stream.name() == "numThreads")
+            numThreads = stream.readElementText().toInt();
+        else if (stream.name() == "maxRelativeError")
+            maxRelativeError = stream.readElementText().toDouble();
+        else if (stream.name() == "diffStepSize")
+            diffStepSize = stream.readElementText().toDouble();
+        else
+            stream.skipCurrentElement();
+    }
+}
+
+//! Output the optimizer options to a XML stream
+void Optimizer::Options::write(QXmlStreamWriter& stream)
+{
+    stream.writeStartElement("options");
+    stream.writeTextElement("logging", QString::number(logging));
+    stream.writeTextElement("autoScale", QString::number(autoScale));
+    stream.writeTextElement("maxNumIterations", QString::number(maxNumIterations));
+    stream.writeTextElement("timeoutIteration", QString::number(timeoutIteration));
+    stream.writeTextElement("numThreads", QString::number(numThreads));
+    stream.writeTextElement("maxRelativeSize", QString::number(maxRelativeError));
+    stream.writeTextElement("diffStepSize", QString::number(diffStepSize));
+    stream.writeEndElement();
 }
 
 Optimizer::Scale::Scale()

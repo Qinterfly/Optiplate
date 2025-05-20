@@ -14,37 +14,57 @@
 #include "optimizer.h"
 #include "panel.h"
 
+QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
+
 namespace Backend
 {
 
-struct Configuration
+//! Project configuration
+class Configuration
 {
+public:
     Configuration();
 
+    QDateTime const& creationDate() const;
     QString name;
     Optimizer::State state;
     Properties target;
     Properties weight;
     Optimizer::Options options;
+
+    void read(QXmlStreamReader& stream);
+    void write(QXmlStreamWriter& stream);
+
+private:
+    QDateTime mCreationDate;
 };
 
+//! Project which contains panel and solution results
 class Project
 {
 public:
-    Project();
+    Project(QString const& name = QString());
     ~Project() = default;
 
     Configuration& configuration();
     Panel const& panel() const;
     QList<Optimizer::Solution> solutions() const;
+    QString const& pathFile() const;
 
     void setPanel(Panel const& panel);
     void setSolutions(QList<Optimizer::Solution> const& solutions);
+
+    bool read(QString const& pathFile);
+    bool write(QString const& pathFile);
+
+    static QString fileSuffix();
 
 private:
     Configuration mConfiguration;
     Panel mPanel;
     QList<Optimizer::Solution> mSolutions;
+    QString mPathFile;
 };
 
 } // namespace Backend
