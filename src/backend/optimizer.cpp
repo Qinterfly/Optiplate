@@ -6,7 +6,6 @@
  */
 
 #include <functional>
-#include <future>
 #include <QXmlStreamWriter>
 
 #include "optimizer.h"
@@ -166,16 +165,7 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
         std::vector<double> params(x, x + numParameters);
         return unwrap(initPanel, params);
     };
-    auto solverFun = [this](Panel const& panel)
-    {
-        auto fun = [&panel]() { return panel.massProperties(); };
-        std::future<Properties> future = std::async(fun);
-        auto duration = std::chrono::seconds(mOptions.timeoutIteration);
-        std::future_status status = future.wait_for(duration);
-        if (status != std::future_status::ready)
-            return Properties();
-        return future.get();
-    };
+    auto solverFun = [this](Panel const& panel) { return panel.massProperties(mOptions.timeoutIteration); };
 
     // Obtain the initial solution
     Properties initProps = solverFun(initPanel);
@@ -415,7 +405,7 @@ Optimizer::Options::Options()
     : logging(true)
     , autoScale(true)
     , maxNumIterations(256)
-    , timeoutIteration(1)
+    , timeoutIteration(1.0)
     , numThreads(1)
     , maxRelativeError(1e-3)
     , diffStepSize(1e-5)
@@ -434,7 +424,7 @@ void Optimizer::Options::read(QXmlStreamReader& stream)
         else if (stream.name() == "maxNumIterations")
             maxNumIterations = stream.readElementText().toInt();
         else if (stream.name() == "timeoutIteration")
-            timeoutIteration = stream.readElementText().toInt();
+            timeoutIteration = stream.readElementText().toDouble();
         else if (stream.name() == "numThreads")
             numThreads = stream.readElementText().toInt();
         else if (stream.name() == "maxRelativeError")

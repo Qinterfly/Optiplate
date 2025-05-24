@@ -1,0 +1,122 @@
+/*!
+ * \file
+ * \author Pavel Lakiza
+ * \date May 2025
+ * \brief Implementation of the Properties class
+ */
+
+#include <QXmlStreamWriter>
+
+#include "fileutility.h"
+#include "mathutility.h"
+#include "properties.h"
+
+using namespace Backend;
+
+int const skNumDirections = 3;
+
+Properties::Properties()
+    : Properties(0.0)
+{
+}
+
+Properties::Properties(double value)
+{
+    mass = value;
+    centerGravity.fill(value);
+    inertiaMoments.fill(value);
+    inertiaProducts.fill(value);
+}
+
+//! Copy fields from a base class
+Properties::Properties(MassProperties const& properties)
+{
+    mass = properties.mass;
+    centerGravity = properties.centerGravity;
+    inertiaMoments = properties.inertiaMoments;
+    inertiaProducts = properties.inertiaProducts;
+}
+
+//! Number of not NaN values
+int Properties::numValidValues() const
+{
+    return validValues().size();
+}
+
+//! Not NaN values of inertia properties
+std::vector<double> Properties::validValues() const
+{
+    std::vector<double> result;
+    if (!std::isnan(mass))
+        result.push_back(mass);
+    for (int i = 0; i != skNumDirections; ++i)
+    {
+        if (!std::isnan(centerGravity[i]))
+            result.push_back(centerGravity[i]);
+        if (!std::isnan(inertiaMoments[i]))
+            result.push_back(inertiaMoments[i]);
+        if (!std::isnan(inertiaProducts[i]))
+            result.push_back(inertiaProducts[i]);
+    }
+    return result;
+}
+
+//! Found the maximum absolute valid value
+double Properties::maxAbsValue() const
+{
+    std::vector<double> const& values = validValues();
+    double result = -std::numeric_limits<double>::infinity();
+    for (double v : values)
+        result = std::max(result, std::abs(v));
+    return result;
+}
+
+//! Compare two sets of properties with weights
+Properties Properties::compare(Properties const& another, Properties const& weight) const
+{
+    double const kWeightThreshold = 0.0;
+    double const kDefaultValue = std::nan("");
+
+    Properties result(kDefaultValue);
+    if (weight.mass > kWeightThreshold)
+        result.mass = Utility::relativeError(mass, another.mass);
+    for (int i = 0; i != skNumDirections; ++i)
+    {
+        if (weight.centerGravity[i] > kWeightThreshold)
+            result.centerGravity[i] = Utility::relativeError(centerGravity[i], another.centerGravity[i]);
+        if (weight.inertiaMoments[i] > kWeightThreshold)
+            result.inertiaMoments[i] = Utility::relativeError(inertiaMoments[i], another.inertiaMoments[i]);
+        if (weight.inertiaProducts[i] > kWeightThreshold)
+            result.inertiaProducts[i] = Utility::relativeError(inertiaProducts[i], another.inertiaProducts[i]);
+    }
+    return result;
+}
+
+//! Read properties from a XML stream
+void Properties::read(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement())
+    {
+        if (stream.name() == "mass")
+            mass = stream.readElementText().toDouble();
+        else if (stream.name() == "centerGravity")
+            Utility::readData(centerGravity.begin(), centerGravity.end(), stream);
+        else if (stream.name() == "inertiaMoments")
+            Utility::readData(inertiaMoments.begin(), inertiaMoments.end(), stream);
+        else if (stream.name() == "inertiaProducts")
+            Utility::readData(inertiaProducts.begin(), inertiaProducts.end(), stream);
+        else
+            stream.skipCurrentElement();
+    }
+}
+
+//! Write properties to a XML stream
+void Properties::write(QString const& name, QXmlStreamWriter& stream)
+{
+    stream.writeStartElement(name);
+    stream.writeTextElement("mass", QString::number(mass));
+    Utility::writeData("centerGravity", centerGravity.begin(), centerGravity.end(), stream);
+    Utility::writeData("inertiaMoments", inertiaMoments.begin(), inertiaMoments.end(), stream);
+    Utility::writeData("inertiaProducts", inertiaProducts.begin(), inertiaProducts.end(), stream);
+    stream.writeEndElement();
+}

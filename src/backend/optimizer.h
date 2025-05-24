@@ -11,6 +11,7 @@
 #include <ceres/ceres.h>
 
 #include "panel.h"
+#include "properties.h"
 
 QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
 QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
@@ -67,7 +68,7 @@ public:
         bool logging;
         bool autoScale;
         int maxNumIterations;
-        int timeoutIteration;
+        double timeoutIteration;
         int numThreads;
         double maxRelativeError;
         double diffStepSize;

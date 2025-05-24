@@ -14,13 +14,14 @@ using namespace Frontend;
 
 TestFrontend::TestFrontend()
 {
-    mpMainWindow = new MainWindow();
+    mpMainWindow = new MainWindow;
 }
 
 //! Open a project consisted of several examples
 void TestFrontend::testOpenProject()
 {
     // TODO
+    mpMainWindow->show();
 }
 
 TestFrontend::~TestFrontend()

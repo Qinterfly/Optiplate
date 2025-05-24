@@ -22,6 +22,7 @@ set(BACKEND_SOURCES
 qt_add_library(backend STATIC
     ${BACKEND_HEADERS}
     ${BACKEND_SOURCES}
+    properties.h properties.cpp
 )
 
 target_include_directories(backend PUBLIC

@@ -32,9 +32,9 @@ void TestBackend::testCreateBasePanel()
 {
     double const precision = 1e-4;
 
-    Panel panel;
+    Panel& panel = mBaseProject.panel();
 
-    // Set panel properties
+    // Set panel data
     double width = 2;
     double height = 1;
     double depth = 1e-3;
@@ -62,9 +62,6 @@ void TestBackend::testCreateBasePanel()
         QVERIFY(isEqual(props.inertiaMoments[i], inertiaMoments[i], precision));
         QVERIFY(isEqual(props.inertiaProducts[i], 0.0, precision));
     }
-
-    // Add panel to the project
-    mBaseProject.setPanel(panel);
 }
 
 //! Build a panel associated with real data
@@ -72,8 +69,9 @@ void TestBackend::testCreateRealPanel()
 {
     double const precision = 1e-4;
 
-    // Create a panel
-    Panel panel;
+    Panel& panel = mRealProject.panel();
+
+    // Set panel data
     panel.setThickness(0.0);
     panel.setXCoords({-0.73, -0.64, 0.43, 0.35});
     panel.setZCoords({0, 0.98, 0.98, 0});
@@ -88,9 +86,6 @@ void TestBackend::testCreateRealPanel()
     QVERIFY(isEqual(props.mass, 0.01079, precision));
     for (int i = 0; i != skNumDirections; ++i)
         QVERIFY(isEqual(props.centerGravity[i], centerGravity[i], precision));
-
-    // Add panel to the project
-    mRealProject.setPanel(panel);
 }
 
 //! Update the base panel

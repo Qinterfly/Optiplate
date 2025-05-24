@@ -71,12 +71,12 @@ Configuration& Project::configuration()
     return mConfiguration;
 }
 
-Panel const& Project::panel() const
+Panel& Project::panel()
 {
     return mPanel;
 }
 
-QList<Optimizer::Solution> Project::solutions() const
+QList<Optimizer::Solution> const& Project::solutions() const
 {
     return mSolutions;
 }
@@ -84,11 +84,6 @@ QList<Optimizer::Solution> Project::solutions() const
 QString const& Project::pathFile() const
 {
     return mPathFile;
-}
-
-void Project::setPanel(Panel const& panel)
-{
-    mPanel = panel;
 }
 
 void Project::setSolutions(QList<Optimizer::Solution> const& solutions)
@@ -181,6 +176,7 @@ bool Project::write(QString const& pathFile)
     return true;
 }
 
+//! Extension of a project file
 QString Project::fileSuffix()
 {
     return "oml";

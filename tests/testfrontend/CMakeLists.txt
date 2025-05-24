@@ -7,6 +7,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Test)
 qt_add_executable(testfrontend
     testfrontend.h
     testfrontend.cpp
+    ${RESOURCES_FILE}
 )
 
 set_target_properties(testfrontend PROPERTIES
@@ -24,3 +25,6 @@ target_link_libraries(testfrontend PRIVATE
 )
 
 target_include_directories(testfrontend PUBLIC ${CMAKE_BINARY_DIR})
+
+deployDependencies("application")
+

@@ -18,21 +18,7 @@ QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 namespace Backend
 {
 
-//! Inertia properties of a KCL model
-struct Properties : public KCL::MassProperties
-{
-    Properties();
-    Properties(double value);
-    Properties(KCL::MassProperties const& properties);
-    ~Properties() = default;
-
-    int numValidValues() const;
-    std::vector<double> validValues() const;
-    double maxAbsValue() const;
-    Properties compare(Properties const& another, Properties const& weight = Properties(1.0)) const;
-    void read(QXmlStreamReader& stream);
-    void write(QString const& name, QXmlStreamWriter& stream);
-};
+class Properties;
 
 //! Class to represent panel data and compute inertia properties via KS-L
 class Panel
@@ -43,7 +29,7 @@ public:
           KCL::Vec3 const& depths, double youngsModulus, double density);
     ~Panel() = default;
 
-    Properties massProperties() const;
+    Properties massProperties(double timeout = 0) const;
     void renumerate();
     bool isValid() const;
     void read(QXmlStreamReader& stream);

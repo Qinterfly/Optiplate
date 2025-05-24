@@ -48,11 +48,10 @@ public:
     ~Project() = default;
 
     Configuration& configuration();
-    Panel const& panel() const;
-    QList<Optimizer::Solution> solutions() const;
+    Panel& panel();
+    QList<Optimizer::Solution> const& solutions() const;
     QString const& pathFile() const;
 
-    void setPanel(Panel const& panel);
     void setSolutions(QList<Optimizer::Solution> const& solutions);
 
     bool read(QString const& pathFile);

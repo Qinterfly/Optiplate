@@ -19,7 +19,7 @@ version="$versionMajor.$versionMinor.$versionPatch"
 echo $version
 
 # Create a list of files to archive
-listArchive=$(ls | grep -Ev "archive|build|exec|examples|info|theory")
+listArchive=$(ls | grep -Ev "archive|build|examples")
 
 # Create an archive
 dirArchive="archive"
