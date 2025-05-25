@@ -37,6 +37,12 @@ Properties::Properties(MassProperties const& properties)
     inertiaProducts = properties.inertiaProducts;
 }
 
+//! Check if the set of properties is correct
+bool Properties::isValid() const
+{
+    return mass > 0.0;
+}
+
 //! Number of not NaN values
 int Properties::numValidValues() const
 {

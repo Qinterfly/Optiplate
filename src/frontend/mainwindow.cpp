@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget* pParent)
     initializeWindow();
     createContent();
     createConnections();
-    restoreSettings();
+    // restoreSettings();
     newProject();
 }
 
@@ -86,6 +86,10 @@ void MainWindow::createContent()
     // Options editor
     pWidget = createOptionsEditor();
     mpDockManager->addDockWidget(ads::CenterDockWidgetArea, pWidget, pArea);
+
+    // Properties viewer
+    pWidget = createPropertiesViewer();
+    mpDockManager->addDockWidget(ads::BottomDockWidgetArea, pWidget);
 
     // Select the first widget to display
     pArea->setCurrentIndex(0);
@@ -148,11 +152,11 @@ void MainWindow::createDockManager()
 //! Create a widget to represent a panel data
 ads::CDockWidget* MainWindow::createPanelEditor()
 {
-    // Create the widget to browse project content
+    // Create the widget to edit panel data
     mpPanelEditor = new PanelEditor(mProject.panel());
 
     // Construct the dock widget
-    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Panel Editor"));
+    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Panel"));
     pDockWidget->setWidget(mpPanelEditor);
     mpWindowMenu->addAction(pDockWidget->toggleViewAction());
     return pDockWidget;
@@ -161,7 +165,7 @@ ads::CDockWidget* MainWindow::createPanelEditor()
 //! Create a widget to represent inertia properties
 ads::CDockWidget* MainWindow::createPropertiesEditor(QString const& name, PropertyType type, Backend::Properties& properties)
 {
-    // Create the widget to browse project content
+    // Create the widget to edit properties
     mPropertiesEditors[type] = new PropertiesEditor(type, properties);
 
     // Construct the dock widget
@@ -174,7 +178,7 @@ ads::CDockWidget* MainWindow::createPropertiesEditor(QString const& name, Proper
 //! Create a widget to represent optimization options
 ads::CDockWidget* MainWindow::createOptionsEditor()
 {
-    // Create the widget to browse project content
+    // Create the widget to browse options
     mpOptionsEditor = new OptionsEditor(mProject.configuration().options);
 
     // Construct the dock widget
@@ -184,15 +188,34 @@ ads::CDockWidget* MainWindow::createOptionsEditor()
     return pDockWidget;
 }
 
+//! Create a widget to represent current properties
+ads::CDockWidget* MainWindow::createPropertiesViewer()
+{
+    // Create the widget to view and compare properties
+    mpPropertiesViewer = new PropertiesViewer();
+
+    // Construct the dock widget
+    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Properties"));
+    pDockWidget->setWidget(mpPropertiesViewer);
+    mpWindowMenu->addAction(pDockWidget->toggleViewAction());
+    return pDockWidget;
+}
+
 //! Connect the widgets between each other
 void MainWindow::createConnections()
 {
+    auto updateProperties = [this]() { mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target); };
+
     // Panel
     connect(mpPanelEditor, &PanelEditor::dataChanged, this, &MainWindow::processProjectChange);
+    connect(mpPanelEditor, &PanelEditor::dataChanged, this, updateProperties);
 
     // Properties
     for (auto [key, value] : mPropertiesEditors.asKeyValueRange())
+    {
         connect(value, &PropertiesEditor::dataChanged, this, &MainWindow::processProjectChange);
+        connect(value, &PropertiesEditor::dataChanged, this, updateProperties);
+    }
 }
 
 //! Close the current project and create a new one
@@ -205,10 +228,11 @@ void MainWindow::newProject()
     for (auto [key, value] : mPropertiesEditors.asKeyValueRange())
         value->update();
     mpOptionsEditor->update();
+    mpPropertiesViewer->clear();
 }
 
 //! Read the project located at the specified path
-void MainWindow::openProject(QString const& pathFile)
+bool MainWindow::openProject(QString const& pathFile)
 {
     if (mProject.read(pathFile))
     {
@@ -219,7 +243,10 @@ void MainWindow::openProject(QString const& pathFile)
         for (auto [key, value] : mPropertiesEditors.asKeyValueRange())
             value->update();
         mpOptionsEditor->update();
+        mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+        return true;
     }
+    return false;
 }
 
 //! Save the project at the last used path

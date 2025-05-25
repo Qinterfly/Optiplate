@@ -46,6 +46,7 @@ private:
     // Signals & slots
     void processDataChange();
 
+private:
     Backend::Panel& mPanel;
 };
 

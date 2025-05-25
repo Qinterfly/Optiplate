@@ -15,6 +15,7 @@
 #include "paneleditor.h"
 #include "project.h"
 #include "propertieseditor.h"
+#include "propertiesviewer.h"
 
 namespace ads
 {
@@ -37,7 +38,7 @@ public:
 
     // File interaction
     void newProject();
-    void openProject(QString const& pathFile);
+    bool openProject(QString const& pathFile);
     void saveProject();
     void saveAsProject(QString const& pathFile);
 
@@ -53,6 +54,7 @@ private:
     ads::CDockWidget* createPanelEditor();
     ads::CDockWidget* createPropertiesEditor(QString const& name, PropertyType type, Backend::Properties& properties);
     ads::CDockWidget* createOptionsEditor();
+    ads::CDockWidget* createPropertiesViewer();
     void createConnections();
 
     // State
@@ -86,6 +88,7 @@ private:
     QMenu* mpWindowMenu;
     PanelEditor* mpPanelEditor;
     QMap<PropertyType, PropertiesEditor*> mPropertiesEditors;
+    PropertiesViewer* mpPropertiesViewer;
     OptionsEditor* mpOptionsEditor;
 
     // Project

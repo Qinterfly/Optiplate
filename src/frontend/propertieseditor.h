@@ -52,6 +52,7 @@ private:
     // Signals & slots
     void processDataChange();
 
+private:
     Backend::Properties& mProperties;
 };
 

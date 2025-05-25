@@ -124,7 +124,7 @@ bool Panel::isValid() const
     auto depths = evaluateDepths(depthEquation());
     for (double d : depths)
     {
-        if (d < 0)
+        if (d < 0.0)
             return false;
     }
     return true;

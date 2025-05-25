@@ -26,6 +26,7 @@ struct Properties : public KCL::MassProperties
     Properties(KCL::MassProperties const& properties);
     ~Properties() = default;
 
+    bool isValid() const;
     int numValidValues() const;
     std::vector<double> validValues() const;
     double maxAbsValue() const;

@@ -13,6 +13,7 @@ set(FRONTEND_HEADERS
     propertieseditor.h
     optionseditor.h
     custompropertyeditor.h
+    propertiesviewer.h
 )
 
 set(FRONTEND_SOURCES
@@ -22,6 +23,7 @@ set(FRONTEND_SOURCES
     propertieseditor.cpp
     optionseditor.cpp
     custompropertyeditor.cpp
+    propertiesviewer.cpp
 )
 
 qt_add_library(frontend STATIC

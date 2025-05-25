@@ -7,10 +7,12 @@
 
 #include <config.h>
 
+#include "fileutility.h"
 #include "testfrontend.h"
 
 using namespace Tests;
 using namespace Frontend;
+using namespace Backend;
 
 TestFrontend::TestFrontend()
 {
@@ -20,7 +22,9 @@ TestFrontend::TestFrontend()
 //! Open a project consisted of several examples
 void TestFrontend::testOpenProject()
 {
-    // TODO
+    QString fileName = QString("real.%1").arg(Project::fileSuffix());
+    QString pathFile = Utility::combineFilePath(EXAMPLES_DIR, fileName);
+    QVERIFY(mpMainWindow->openProject(pathFile));
     mpMainWindow->show();
 }
 
