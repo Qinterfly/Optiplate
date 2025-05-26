@@ -5,11 +5,11 @@
  * \brief Implementation of the PropertiesEditor class
  */
 
+#include <qtpropertybrowser/customdoublespinbox.h>
 #include <QGridLayout>
 #include <QLabel>
 
 #include "propertieseditor.h"
-#include "qtpropertybrowser/customdoublespinbox.h"
 
 using namespace Frontend;
 

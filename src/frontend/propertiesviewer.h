@@ -27,6 +27,8 @@ public:
     void clear();
     void update(Backend::Panel const& panel, Backend::Properties const& target);
 
+    void keyPressEvent(QKeyEvent* pEvent) override;
+
 private:
     void createContent();
 

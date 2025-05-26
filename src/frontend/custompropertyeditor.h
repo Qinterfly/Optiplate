@@ -8,7 +8,7 @@
 #ifndef CUSTOMPROPERTYEDITOR_H
 #define CUSTOMPROPERTYEDITOR_H
 
-#include "qtpropertybrowser/qttreepropertybrowser.h"
+#include <qtpropertybrowser/qttreepropertybrowser.h>
 
 namespace Frontend
 {
