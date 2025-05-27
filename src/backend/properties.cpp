@@ -53,22 +53,27 @@ int Properties::numValidValues() const
 std::vector<double> Properties::validValues() const
 {
     std::vector<double> result;
-    if (!std::isnan(mass))
-        result.push_back(mass);
+    std::vector<double> values = allValues();
+    std::copy_if(values.begin(), values.end(), std::back_inserter(result), [](double value) { return !std::isnan(value); });
+    return result;
+}
+
+//! Values of inertia properties
+std::vector<double> Properties::allValues() const
+{
+    std::vector<double> result;
+    result.push_back(mass);
     for (int i = 0; i != skNumDirections; ++i)
     {
-        if (!std::isnan(centerGravity[i]))
-            result.push_back(centerGravity[i]);
-        if (!std::isnan(inertiaMoments[i]))
-            result.push_back(inertiaMoments[i]);
-        if (!std::isnan(inertiaProducts[i]))
-            result.push_back(inertiaProducts[i]);
+        result.push_back(centerGravity[i]);
+        result.push_back(inertiaMoments[i]);
+        result.push_back(inertiaProducts[i]);
     }
     return result;
 }
 
 //! Found the maximum absolute valid value
-double Properties::maxAbsValue() const
+double Properties::maxAbsValidValue() const
 {
     std::vector<double> const& values = validValues();
     double result = -std::numeric_limits<double>::infinity();

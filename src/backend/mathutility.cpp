@@ -74,4 +74,4 @@ double roundTo(double value, double precision)
     return std::round(value / precision) * precision;
 }
 
-} // namespace Backend::Utility
+}

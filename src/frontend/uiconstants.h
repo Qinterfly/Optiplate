@@ -26,7 +26,7 @@ const QString skRecent = "recent";
 const QString skFileName = "Settings.ini";
 const QString skMainWindow = "mainWindow";
 
-} // namespace Settings
+}
 
 namespace Size
 {
@@ -34,8 +34,17 @@ namespace Size
 const QSize skToolBarIcon = QSize(25, 25);
 const uint skMaxRecentProjects = 5;
 
-} // namespace Size
+}
 
-} // namespace Frontend::Constants
+namespace Render
+{
+
+const QList<QColor> skStandardColors = {"red", "green", "blue", "orange", "cyan", "magenta", "gray", "purple", "darkyellow"};
+
+const float skMinRelativeDistance = 0.01f;
+
+}
+
+}
 
 #endif // UICONSTANTS_H

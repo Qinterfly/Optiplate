@@ -14,6 +14,12 @@ set(FRONTEND_HEADERS
     optionseditor.h
     custompropertyeditor.h
     propertiesviewer.h
+    customplot.h
+    datatip.h
+    plottablepropertyeditor.h
+    customtable.h
+    convergenceplot.h
+    logger.h
 )
 
 set(FRONTEND_SOURCES
@@ -24,6 +30,12 @@ set(FRONTEND_SOURCES
     optionseditor.cpp
     custompropertyeditor.cpp
     propertiesviewer.cpp
+    customplot.cpp
+    datatip.cpp
+    plottablepropertyeditor.cpp
+    customtable.cpp
+    convergenceplot.cpp
+    logger.cpp
 )
 
 qt_add_library(frontend STATIC

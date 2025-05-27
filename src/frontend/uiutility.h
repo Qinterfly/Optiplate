@@ -19,7 +19,7 @@ namespace Frontend::Utility
 // Ui
 int showSaveDialog(QWidget* pWidget, QString const& title, QString const& message);
 void fullScreenResize(QWidget* pWidget);
-void blockChildrenSignals(QWidget* pWidget, bool flag);
+void setShortcutHints(QToolBar* pToolBar);
 
 // File
 void modifyFileSuffix(QString& pathFile, QString const& expectedSuffix);

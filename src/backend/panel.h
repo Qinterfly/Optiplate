@@ -63,6 +63,6 @@ private:
     double mDensity;
 };
 
-} // namespace Backend
+}
 
 #endif // PANEL_H

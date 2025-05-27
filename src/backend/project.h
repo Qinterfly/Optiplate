@@ -66,6 +66,6 @@ private:
     QString mPathFile;
 };
 
-} // namespace Backend
+}
 
 #endif // PROJECT_H

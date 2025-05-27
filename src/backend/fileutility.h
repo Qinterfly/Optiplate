@@ -36,6 +36,6 @@ QSharedPointer<QFile> openFile(QString const& pathFile, QString const& expectedS
 void readData(double* pBegin, double* pEnd, QXmlStreamReader& stream);
 void writeData(QString const& name, double* pBegin, double* pEnd, QXmlStreamWriter& stream);
 
-} // namespace Backend::Utility
+}
 
 #endif // FILEUTILITY_H

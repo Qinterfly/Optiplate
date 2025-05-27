@@ -13,14 +13,22 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QMenuBar>
+#include <QToolBar>
 
 #include "config.h"
+#include "convergenceplot.h"
+#include "logger.h"
 #include "mainwindow.h"
+#include "optionseditor.h"
+#include "paneleditor.h"
+#include "propertiesviewer.h"
 #include "uiconstants.h"
 #include "uiutility.h"
 
-using namespace Frontend;
 using namespace ads;
+using namespace Frontend;
+
+Logger* MainWindow::pLogger = nullptr;
 
 MainWindow::MainWindow(QWidget* pParent)
     : QMainWindow(pParent)
@@ -29,7 +37,7 @@ MainWindow::MainWindow(QWidget* pParent)
     initializeWindow();
     createContent();
     createConnections();
-    // restoreSettings();
+    restoreSettings();
     newProject();
 }
 
@@ -44,6 +52,7 @@ void MainWindow::initializeWindow()
     setWindowState(Qt::WindowMaximized);
     setWindowTitle(QString(APP_NAME) + "[*]");
     setTheme();
+    qInstallMessageHandler(Frontend::logMessage);
 
     // Since OpenGL widgets tend to change the window geometry, we set the maximized state manually
     Utility::fullScreenResize(this);
@@ -90,6 +99,14 @@ void MainWindow::createContent()
     // Properties viewer
     pWidget = createPropertiesViewer();
     mpDockManager->addDockWidget(ads::BottomDockWidgetArea, pWidget);
+
+    // Convergence plot
+    pWidget = createConvergencePlot();
+    pArea = mpDockManager->addDockWidget(ads::RightDockWidgetArea, pWidget);
+
+    // Logger
+    pWidget = createLogger();
+    mpDockManager->addDockWidget(ads::BottomDockWidgetArea, pWidget, pArea);
 
     // Select the first widget to display
     pArea->setCurrentIndex(0);
@@ -139,6 +156,17 @@ void MainWindow::createFileActions()
     pFileMenu->addSeparator();
     pFileMenu->addAction(pExitAction);
     menuBar()->addMenu(pFileMenu);
+
+    // Create the file toolbar
+    QToolBar* pFileToolBar = new QToolBar;
+    pFileToolBar->setIconSize(Constants::Size::skToolBarIcon);
+    pFileToolBar->addAction(pNewAction);
+    pFileToolBar->addAction(pOpenProjectAction);
+    pFileToolBar->addSeparator();
+    pFileToolBar->addAction(pSaveAction);
+    pFileToolBar->addAction(pSaveAsAction);
+    Utility::setShortcutHints(pFileToolBar);
+    addToolBar(pFileToolBar);
 }
 
 //! Create the dock manager and specify its configuration
@@ -201,6 +229,33 @@ ads::CDockWidget* MainWindow::createPropertiesViewer()
     return pDockWidget;
 }
 
+//! Create a widget to represent convergence
+ads::CDockWidget* MainWindow::createConvergencePlot()
+{
+    // Create the widget to view and compare properties
+    mpConvergencePlot = new ConvergencePlot();
+
+    // Construct the dock widget
+    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Convergence"));
+    pDockWidget->setWidget(mpConvergencePlot);
+    mpWindowMenu->addAction(pDockWidget->toggleViewAction());
+    return pDockWidget;
+}
+
+//! Create a widget to log all events
+ads::CDockWidget* MainWindow::createLogger()
+{
+    // Create the logger
+    if (!pLogger)
+        pLogger = new Logger;
+
+    // Create a dock widget
+    ads::CDockWidget* pDockWidget = new ads::CDockWidget(mpDockManager, tr("Log"));
+    pDockWidget->setWidget(pLogger);
+    mpWindowMenu->addAction(pDockWidget->toggleViewAction());
+    return pDockWidget;
+}
+
 //! Connect the widgets between each other
 void MainWindow::createConnections()
 {
@@ -229,6 +284,7 @@ void MainWindow::newProject()
         value->update();
     mpOptionsEditor->update();
     mpPropertiesViewer->clear();
+    mpConvergencePlot->clear();
 }
 
 //! Read the project located at the specified path
@@ -244,6 +300,7 @@ bool MainWindow::openProject(QString const& pathFile)
             value->update();
         mpOptionsEditor->update();
         mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+        mpConvergencePlot->plot(mProject.solutions());
         return true;
     }
     return false;
@@ -469,4 +526,10 @@ void MainWindow::createWindowActions()
 {
     mpWindowMenu = new QMenu(tr("&Window"), this);
     menuBar()->addMenu(mpWindowMenu);
+}
+
+//! Helper function to log all the messages
+void Frontend::logMessage(QtMsgType type, const QMessageLogContext& /*context*/, const QString& message)
+{
+    Frontend::MainWindow::pLogger->log(type, message);
 }

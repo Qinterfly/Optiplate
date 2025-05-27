@@ -110,6 +110,6 @@ private:
     Scale mScale;
 };
 
-} // namespace Backend
+}
 
 #endif // OPTIMIZER_H

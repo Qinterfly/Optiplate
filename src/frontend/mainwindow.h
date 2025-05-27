@@ -11,11 +11,8 @@
 #include <QMainWindow>
 #include <QSettings>
 
-#include "optionseditor.h"
-#include "paneleditor.h"
 #include "project.h"
 #include "propertieseditor.h"
-#include "propertiesviewer.h"
 
 namespace ads
 {
@@ -26,6 +23,12 @@ class CDockManager;
 namespace Frontend
 {
 
+class Logger;
+class ConvergencePlot;
+class OptionsEditor;
+class PanelEditor;
+class PropertiesViewer;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -33,6 +36,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget* pParent = nullptr);
     ~MainWindow();
+    static Logger* pLogger;
 
     QSettings& settings();
 
@@ -55,6 +59,8 @@ private:
     ads::CDockWidget* createPropertiesEditor(QString const& name, PropertyType type, Backend::Properties& properties);
     ads::CDockWidget* createOptionsEditor();
     ads::CDockWidget* createPropertiesViewer();
+    ads::CDockWidget* createConvergencePlot();
+    ads::CDockWidget* createLogger();
     void createConnections();
 
     // State
@@ -90,11 +96,13 @@ private:
     QMap<PropertyType, PropertiesEditor*> mPropertiesEditors;
     PropertiesViewer* mpPropertiesViewer;
     OptionsEditor* mpOptionsEditor;
+    ConvergencePlot* mpConvergencePlot;
 
     // Project
     Backend::Project mProject;
 };
 
+void logMessage(QtMsgType type, const QMessageLogContext& /*context*/, const QString& message);
 }
 
 #endif // MAINWINDOW_H

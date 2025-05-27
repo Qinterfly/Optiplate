@@ -29,12 +29,13 @@ struct Properties : public KCL::MassProperties
     bool isValid() const;
     int numValidValues() const;
     std::vector<double> validValues() const;
-    double maxAbsValue() const;
+    double maxAbsValidValue() const;
+    std::vector<double> allValues() const;
     Properties compare(Properties const& another, Properties const& weight = Properties(1.0)) const;
     void read(QXmlStreamReader& stream);
     void write(QString const& name, QXmlStreamWriter& stream);
 };
 
-} // namespace Backend
+}
 
 #endif // PROPERTIES_H

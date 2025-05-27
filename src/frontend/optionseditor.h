@@ -63,6 +63,6 @@ private:
     QtDoubleSpinBoxFactory* mpDoubleSpinBoxFactory;
 };
 
-} // namespace Frontend
+}
 
 #endif // OPTIONSEDITOR_H

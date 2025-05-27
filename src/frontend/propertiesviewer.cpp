@@ -110,8 +110,8 @@ void PropertiesViewer::update(Backend::Panel const& panel, Backend::Properties c
 
     // Set the header
     mpTable->horizontalHeader()->show();
+    mpTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     mpTable->setHorizontalHeaderLabels({tr("Property"), tr("Current value"), tr("Target value"), tr("Error, %")});
-    mpTable->resizeColumnsToContents();
 }
 
 //! Copy the table content when the

@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QScreen>
+#include <QToolBar>
 #include <QWidget>
 
 #include "uiutility.h"
@@ -36,6 +37,18 @@ void fullScreenResize(QWidget* pWidget)
 {
     QRect screenGeometry = QApplication::QGuiApplication::primaryScreen()->availableGeometry();
     pWidget->resize(screenGeometry.width(), screenGeometry.height());
+}
+
+//! Add shortcurt hints to all items contained in a tool bar
+void setShortcutHints(QToolBar* pToolBar)
+{
+    for (QAction* pAction : pToolBar->actions())
+    {
+        QKeySequence shortcut = pAction->shortcut();
+        if (shortcut.isEmpty())
+            continue;
+        pAction->setToolTip(QString("%1 (%2)").arg(pAction->toolTip(), shortcut.toString()));
+    }
 }
 
 //! Substitute a file suffix to the expected one, if necessary

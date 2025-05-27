@@ -64,4 +64,4 @@ void writeData(QString const& name, double* pBegin, double* pEnd, QXmlStreamWrit
     stream.writeEndElement();
 }
 
-} // namespace Backend::Utility
+}
