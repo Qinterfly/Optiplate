@@ -54,6 +54,7 @@ public:
 
     void setSolutions(QList<Optimizer::Solution> const& solutions);
 
+    void clear();
     bool read(QString const& pathFile);
     bool write(QString const& pathFile);
 

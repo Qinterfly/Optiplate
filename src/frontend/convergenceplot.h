@@ -25,11 +25,13 @@ public:
 
     QSize sizeHint() const override;
 
-    void plot(QList<Backend::Optimizer::Solution> const& solutions);
+    void plot(QList<Backend::Optimizer::Solution> const& solutions, Backend::Optimizer::Options const& options);
     void clear();
 
 private:
     void createContent();
+    void addGraph(QList<double> const& xData, QList<double> const& yData, QString const& name, QColor const& color);
+    void addCriterionLine(double xMin, double xMax, double value);
 
 private:
     CustomPlot* mpPlot;

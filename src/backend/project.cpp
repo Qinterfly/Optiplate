@@ -91,6 +91,11 @@ void Project::setSolutions(QList<Optimizer::Solution> const& solutions)
     mSolutions = solutions;
 }
 
+void Project::clear()
+{
+    *this = Project();
+}
+
 //! Read a project from a file
 bool Project::read(QString const& pathFile)
 {
@@ -117,6 +122,9 @@ bool Project::read(QString const& pathFile)
         qWarning() << QObject::tr("The unsupported project detected: %1").arg(stream.name());
         return false;
     }
+
+    // Clean up the project data
+    clear();
 
     // Read the document content
     while (stream.readNextStartElement())

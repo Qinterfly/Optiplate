@@ -300,7 +300,7 @@ bool MainWindow::openProject(QString const& pathFile)
             value->update();
         mpOptionsEditor->update();
         mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
-        mpConvergencePlot->plot(mProject.solutions());
+        mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
         return true;
     }
     return false;
