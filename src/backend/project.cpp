@@ -16,8 +16,11 @@ static const QString skProjectIOVersion = "1.0";
 
 Configuration::Configuration()
     : target(0.0)
-    , weight(1.0)
 {
+    weight.mass = 1.0;
+    weight.centerGravity.fill(1.0);
+    weight.inertiaMoments.fill(10.0);
+    weight.inertiaProducts = {0, 0, 1};
     mCreationDate = QDateTime::currentDateTime();
 }
 
@@ -66,6 +69,16 @@ Project::Project(QString const& name)
     mConfiguration.name = name;
 }
 
+Configuration const& Project::configuration() const
+{
+    return mConfiguration;
+}
+
+Panel const& Project::panel() const
+{
+    return mPanel;
+}
+
 Configuration& Project::configuration()
 {
     return mConfiguration;
@@ -89,6 +102,16 @@ QString const& Project::pathFile() const
 void Project::setSolutions(QList<Optimizer::Solution> const& solutions)
 {
     mSolutions = solutions;
+}
+
+void Project::addSolution(Optimizer::Solution const& solution)
+{
+    mSolutions.push_back(solution);
+}
+
+void Project::clearSolutions()
+{
+    mSolutions.clear();
 }
 
 void Project::clear()

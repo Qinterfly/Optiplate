@@ -43,7 +43,7 @@ void PropertiesEditor::createContent(PropertyType type)
         break;
     case PropertyType::kWeight:
         numDecimals = 2;
-        limitsMass = {0, 10};
+        limitsMass = {0, 1e3};
         limitsCenterGravity = limitsMass;
         limitsInertia = limitsMass;
         break;

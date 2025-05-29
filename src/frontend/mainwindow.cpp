@@ -13,6 +13,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QMenuBar>
+#include <QThread>
 #include <QToolBar>
 
 #include "config.h"
@@ -33,6 +34,7 @@ Logger* MainWindow::pLogger = nullptr;
 MainWindow::MainWindow(QWidget* pParent)
     : QMainWindow(pParent)
     , mSettings(Constants::Settings::skMainWindow, QSettings::IniFormat)
+    , mIsSolverRunning(false)
 {
     initializeWindow();
     createContent();
@@ -78,6 +80,7 @@ void MainWindow::createContent()
     // Top widgets
     createFileActions();
     createWindowActions();
+    createSolverActions();
 
     // Manager to place dockable widgets
     createDockManager();
@@ -167,6 +170,48 @@ void MainWindow::createFileActions()
     pFileToolBar->addAction(pSaveAsAction);
     Utility::setShortcutHints(pFileToolBar);
     addToolBar(pFileToolBar);
+}
+
+//! Create the actions to customize windows
+void MainWindow::createWindowActions()
+{
+    mpWindowMenu = new QMenu(tr("&Window"), this);
+    menuBar()->addMenu(mpWindowMenu);
+}
+
+//! Create the actions to run the solver
+void MainWindow::createSolverActions()
+{
+    // Create the actions
+    mpStartSolverAction = new QAction(tr("&Start the solver"), this);
+    mpStopSolverAction = new QAction(tr("&Stop the solver"), this);
+
+    // Set the shortcuts
+    mpStartSolverAction->setShortcut(Qt::Key_F5);
+    mpStopSolverAction->setShortcut(Qt::SHIFT | Qt::Key_F5);
+
+    // Set the icons
+    mpStartSolverAction->setIcon(QIcon(":/icons/process-start.svg"));
+    mpStopSolverAction->setIcon(QIcon(":/icons/process-stop.svg"));
+
+    // Set the connections
+    connect(mpStartSolverAction, &QAction::triggered, this, &MainWindow::startSolver);
+    connect(mpStopSolverAction, &QAction::triggered, this, &MainWindow::stopSolver);
+
+    // Create the menu
+    QMenu* pMenu = new QMenu(tr("&Solver"), this);
+    pMenu->addAction(mpStartSolverAction);
+    pMenu->addAction(mpStopSolverAction);
+    menuBar()->addMenu(pMenu);
+
+    // Create the toolbar
+    QToolBar* pToolBar = new QToolBar;
+    pToolBar->setIconSize(Constants::Size::skToolBarIcon);
+    pToolBar->addAction(mpStartSolverAction);
+    pToolBar->addAction(mpStopSolverAction);
+    Utility::setShortcutHints(pToolBar);
+    addToolBar(pToolBar);
+    updateSolverActions();
 }
 
 //! Create the dock manager and specify its configuration
@@ -390,6 +435,72 @@ void MainWindow::processProjectChange()
     setModified(true);
 }
 
+//! Run the optimizer
+void MainWindow::startSolver()
+{
+    // Check if the solver is alreay started
+    if (mIsSolverRunning)
+    {
+        qDebug() << tr("The solve is already running");
+        return;
+    }
+
+    // Update the state
+    mIsSolverRunning = true;
+    mProject.clearSolutions();
+    updateSolverActions();
+
+    // Clear the tread
+    SolveThread* pThread = new SolveThread(mProject, this);
+
+    // Set the  connections
+    connect(pThread, &SolveThread::iterationFinished, this,
+            [this](Backend::Optimizer::Solution solution)
+            {
+                mProject.addSolution(solution);
+                mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
+            });
+    connect(pThread, &SolveThread::resultReady, this,
+            [this](QList<Backend::Optimizer::Solution> solutions)
+            {
+                mIsSolverRunning = false;
+                mProject.setSolutions(solutions);
+                updateSolverActions();
+            });
+    connect(pThread, &SolveThread::finished, pThread,
+            [this, pThread]()
+            {
+                mIsSolverRunning = false;
+                pThread->deleteLater();
+                updateSolverActions();
+            });
+    connect(this, &MainWindow::stopSolverRequested, pThread,
+            [this, pThread]()
+            {
+                mIsSolverRunning = false;
+                pThread->terminate();
+                updateSolverActions();
+            });
+    pThread->start();
+}
+
+//! Stop the optimizer
+void MainWindow::stopSolver()
+{
+    if (!mIsSolverRunning)
+    {
+        qDebug() << tr("The solver is not running");
+        return;
+    }
+    emit stopSolverRequested();
+}
+
+void MainWindow::updateSolverActions()
+{
+    mpStartSolverAction->setVisible(!mIsSolverRunning);
+    mpStopSolverAction->setVisible(mIsSolverRunning);
+}
+
 //! Retrieve recent projects from the settings file
 void MainWindow::retrieveRecentProjects()
 {
@@ -521,11 +632,24 @@ bool MainWindow::saveProjectChangesDialog()
     return true;
 }
 
-//! Create the actions to customize windows
-void MainWindow::createWindowActions()
+SolveThread::SolveThread(Backend::Project const& project, QObject* pParent)
+    : QThread(pParent)
+    , mProject(project)
 {
-    mpWindowMenu = new QMenu(tr("&Window"), this);
-    menuBar()->addMenu(mpWindowMenu);
+}
+
+void SolveThread::run()
+{
+    // Configure the solver
+    Backend::Configuration const& config = mProject.configuration();
+    Backend::Optimizer optimizer(config.state, config.target, config.weight, config.options);
+
+    // Set up the connections
+    connect(&optimizer, &Backend::Optimizer::iterationFinished, this, &SolveThread::iterationFinished);
+
+    // Run the solver
+    auto solutions = optimizer.solve(mProject.panel());
+    emit resultReady(solutions);
 }
 
 //! Helper function to log all the messages

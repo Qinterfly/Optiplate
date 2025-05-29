@@ -10,6 +10,7 @@
 
 #include <QMainWindow>
 #include <QSettings>
+#include <QThread>
 
 #include "project.h"
 #include "propertieseditor.h"
@@ -46,6 +47,9 @@ public:
     void saveProject();
     void saveAsProject(QString const& pathFile);
 
+signals:
+    void stopSolverRequested();
+
 private:
     void initializeWindow();
     void closeEvent(QCloseEvent* pEvent) override;
@@ -54,6 +58,7 @@ private:
     void createContent();
     void createFileActions();
     void createWindowActions();
+    void createSolverActions();
     void createDockManager();
     ads::CDockWidget* createPanelEditor();
     ads::CDockWidget* createPropertiesEditor(QString const& name, PropertyType type, Backend::Properties& properties);
@@ -68,6 +73,9 @@ private:
     void setModified(bool flag);
     void setTheme();
     void processProjectChange();
+    void startSolver();
+    void stopSolver();
+    void updateSolverActions();
 
     // Recent
     void retrieveRecentProjects();
@@ -97,9 +105,28 @@ private:
     PropertiesViewer* mpPropertiesViewer;
     OptionsEditor* mpOptionsEditor;
     ConvergencePlot* mpConvergencePlot;
+    bool mIsSolverRunning;
+    QAction* mpStartSolverAction;
+    QAction* mpStopSolverAction;
 
     // Project
     Backend::Project mProject;
+};
+
+class SolveThread : public QThread
+{
+    Q_OBJECT
+
+public:
+    SolveThread(Backend::Project const& project, QObject* pParent = nullptr);
+    void run() override;
+
+signals:
+    void iterationFinished(Backend::Optimizer::Solution solution);
+    void resultReady(QList<Backend::Optimizer::Solution> solutions);
+
+private:
+    Backend::Project const& mProject;
 };
 
 void logMessage(QtMsgType type, const QMessageLogContext& /*context*/, const QString& message);

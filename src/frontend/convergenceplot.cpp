@@ -81,9 +81,6 @@ void ConvergencePlot::plot(QList<Optimizer::Solution> const& solutions, Backend:
     mpPlot->yAxis->setLabel(tr("Relative error, %"));
 
     // Set the ticks
-    QSharedPointer<QCPAxisTickerFixed> pXTicker(new QCPAxisTickerFixed);
-    pXTicker->setTickStep(1.0);
-    mpPlot->xAxis->setTicker(pXTicker);
     QSharedPointer<QCPAxisTickerLog> pYTicker(new QCPAxisTickerLog);
     mpPlot->yAxis->setTicker(pYTicker);
 

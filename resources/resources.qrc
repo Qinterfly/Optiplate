@@ -7,6 +7,8 @@
 		<file>icons/document-new.svg</file>
 		<file>icons/document-save.svg</file>
 		<file>icons/document-save-as.svg</file>
+		<file>icons/process-start.svg</file>
+		<file>icons/process-stop.svg</file>
 		<file>icons/edit-copy.svg</file>
 		<file>icons/edit-paste.svg</file>
 		<file>icons/edit-delete.svg</file>

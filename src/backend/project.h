@@ -47,12 +47,17 @@ public:
     Project(QString const& name = QString());
     ~Project() = default;
 
+    Configuration const& configuration() const;
+    Panel const& panel() const;
+
     Configuration& configuration();
     Panel& panel();
     QList<Optimizer::Solution> const& solutions() const;
     QString const& pathFile() const;
 
     void setSolutions(QList<Optimizer::Solution> const& solutions);
+    void addSolution(Optimizer::Solution const& solution);
+    void clearSolutions();
 
     void clear();
     bool read(QString const& pathFile);
