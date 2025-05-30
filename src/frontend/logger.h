@@ -8,13 +8,15 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <QTextEdit>
+#include <QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QTextEdit)
 
 namespace Frontend
 {
 
 //! Log all the messages sent
-class Logger : public QTextEdit
+class Logger : public QWidget
 {
 public:
     Logger(QWidget* pParent = nullptr);
@@ -23,6 +25,9 @@ public:
     ~Logger();
 
     void log(QtMsgType messageType, const QString& message);
+
+private:
+    QTextEdit* mpEdit;
 };
 
 }

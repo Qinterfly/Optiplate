@@ -6,6 +6,7 @@
  */
 
 #include <functional>
+#include <QDebug>
 #include <QXmlStreamWriter>
 
 #include "optimizer.h"
@@ -84,7 +85,7 @@ ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary 
         for (int i = 0; i != numValues; ++i)
         {
             if (!std::isnan(errors[i]))
-                std::cout << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
+                qInfo() << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
             ++iLastName;
         }
     };
@@ -93,12 +94,12 @@ ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary 
     // Print the properties
     if (mOptions.logging)
     {
-        std::cout << std::endl;
+        qInfo() << Qt::endl;
         printFun({props.mass}, {mTarget.mass}, {errorProps.mass});
         printFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
         printFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
         printFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
-        std::cout << std::endl;
+        qInfo() << Qt::endl;
     }
 
     // Indicate that the iteration is finished
@@ -179,6 +180,7 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
     solverOpts.minimizer_type = ceres::TRUST_REGION;
     solverOpts.linear_solver_type = ceres::DENSE_QR;
     solverOpts.use_nonmonotonic_steps = true;
+    solverOpts.logging_type = ceres::SILENT;
 
     // Set the callback functions
     solverOpts.update_state_every_iteration = true;
@@ -202,7 +204,7 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
         lastSolution.message = summary.message.c_str();
     }
     if (mOptions.logging)
-        std::cout << summary.FullReport();
+        qInfo() << summary.FullReport();
 
     return solutions;
 }
