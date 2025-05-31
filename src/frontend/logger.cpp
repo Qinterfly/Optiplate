@@ -5,6 +5,7 @@
  * \brief Implementation of the Logger class
  */
 
+#include <QApplication>
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 
@@ -13,38 +14,20 @@
 using namespace Frontend;
 
 Logger::Logger(QWidget* pParent)
-    : QWidget(pParent)
+    : QTextEdit(pParent)
 {
-    QVBoxLayout* pLayout = new QVBoxLayout;
-    mpEdit = new QTextEdit;
-    pLayout->addWidget(mpEdit);
-    setLayout(pLayout);
+    setReadOnly(true);
+    setFont(QFont("RobotoMono"));
 }
 
 Logger::~Logger()
 {
-
 }
 
-//! Represent a received message
+//! Represent a message sent
 void Logger::log(QtMsgType messageType, QString const& message)
 {
-    // qDebug() << message;
-    // QTextCursor cursor(mpTextEdit->document());
-    // cursor.beginEditBlock();
-    // cursor.insertText("test");
-
-    // cursor.endEditBlock();
-    // mpTextEdit->append("test");
-    // mpTextEdit->insertPlainText(message);
     QString filterMessage = message;
-    filterMessage.remove('\"');
-    mpEdit->append(filterMessage);
-    // append(filterMessage);
-    // append(message);
-    // insertPlainText(message);
-    // mMutex.lock();
-    // QTextCursor cursor(document());
-    // cursor.insertText("test");
-    // mMutex.unlock();
+    filterMessage = filterMessage.remove('\"');
+    append(filterMessage);
 }

@@ -19,13 +19,19 @@ TestFrontend::TestFrontend()
     mpMainWindow = new MainWindow;
 }
 
-//! Open a project consisted of several examples
+//! Open a project
 void TestFrontend::testOpenProject()
 {
     QString fileName = QString("real.%1").arg(Project::fileSuffix());
     QString pathFile = Utility::combineFilePath(EXAMPLES_DIR, fileName);
     QVERIFY(mpMainWindow->openProject(pathFile));
     mpMainWindow->show();
+}
+
+//! Solve the project
+void TestFrontend::testSolveProject()
+{
+    mpMainWindow->startSolver();
 }
 
 TestFrontend::~TestFrontend()

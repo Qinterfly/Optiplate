@@ -1,6 +1,7 @@
 <RCC>
 	<qresource prefix="/">
-		<file>fonts/SourceSansPro-Regular.ttf</file>
+		<file>fonts/RobotoMono.ttf</file>
+		<file>fonts/Roboto.ttf</file>
 
 		<file>icons/application.svg</file>
 		<file>icons/document-open.svg</file>

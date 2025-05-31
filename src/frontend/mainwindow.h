@@ -47,6 +47,10 @@ public:
     void saveProject();
     void saveAsProject(QString const& pathFile);
 
+    // Solver interaction
+    void startSolver();
+    void stopSolver();
+
 signals:
     void stopSolverRequested();
 
@@ -73,8 +77,6 @@ private:
     void setModified(bool flag);
     void setTheme();
     void processProjectChange();
-    void startSolver();
-    void stopSolver();
     void updateSolverActions();
 
     // Recent
@@ -118,18 +120,19 @@ class SolveThread : public QThread
     Q_OBJECT
 
 public:
-    SolveThread(Backend::Project const& project, QObject* pParent = nullptr);
+    SolveThread(Backend::Project project, QObject* pParent = nullptr);
     void run() override;
 
 signals:
     void iterationFinished(Backend::Optimizer::Solution solution);
     void resultReady(QList<Backend::Optimizer::Solution> solutions);
+    void log(QString message);
 
 private:
-    Backend::Project const& mProject;
+    Backend::Project mProject;
 };
 
-void logMessage(QtMsgType type, const QMessageLogContext& /*context*/, const QString& message);
+void logMessage(QtMsgType type, QMessageLogContext const& /*context*/, QString const& message);
 }
 
 #endif // MAINWINDOW_H

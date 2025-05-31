@@ -6,7 +6,7 @@
  */
 
 #include <functional>
-#include <QDebug>
+#include <QTextStream>
 #include <QXmlStreamWriter>
 
 #include "optimizer.h"
@@ -52,7 +52,7 @@ bool ObjectiveFunctor::operator()(double const* const* parameters, double* resid
 }
 
 OptimizerCallback::OptimizerCallback(std::vector<double> const& parameters, Properties const& target, Properties const& weight,
-                                     Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging)
+                                     Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun)
     : mParameters(parameters)
     , mTarget(target)
     , mWeight(weight)
@@ -77,30 +77,29 @@ ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary 
 
     // Create the function for printing
     int iLastName = 0;
-    auto printFun = [&iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
+    QString message;
+    QTextStream stream(&message);
+    auto logFun = [&stream, &iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
     {
         std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
-        auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}\n";
+        auto constexpr kFormat = "{:>7} {:10.4g} {:10.4g} {:10.4f}";
         int numValues = current.size();
         for (int i = 0; i != numValues; ++i)
         {
             if (!std::isnan(errors[i]))
-                qInfo() << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100);
+                stream << std::format(kFormat, kNames[iLastName], current[i], target[i], errors[i] * 100).c_str() << Qt::endl;
             ++iLastName;
         }
     };
     auto vecFun = [](KCL::Vec3 vec) { return std::vector<double>(vec.begin(), vec.end()); };
 
     // Print the properties
-    if (mOptions.logging)
-    {
-        qInfo() << Qt::endl;
-        printFun({props.mass}, {mTarget.mass}, {errorProps.mass});
-        printFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
-        printFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
-        printFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
-        qInfo() << Qt::endl;
-    }
+    stream << Qt::endl;
+    logFun({props.mass}, {mTarget.mass}, {errorProps.mass});
+    logFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
+    logFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
+    logFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
+    stream << Qt::endl;
 
     // Indicate that the iteration is finished
     Optimizer::Solution solution;
@@ -112,6 +111,7 @@ ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary 
     solution.properties = props;
     solution.errorProperties = errorProps;
     emit iterationFinished(solution);
+    emit log(message);
 
     // Check if the termination criterion is achieved
     if (maxError < mOptions.maxRelativeError)
@@ -181,17 +181,18 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
     solverOpts.linear_solver_type = ceres::DENSE_QR;
     solverOpts.use_nonmonotonic_steps = true;
     solverOpts.logging_type = ceres::SILENT;
+    solverOpts.minimizer_progress_to_stdout = false;
 
     // Set the callback functions
     solverOpts.update_state_every_iteration = true;
-    solverOpts.minimizer_progress_to_stdout = mOptions.logging;
-    OptimizerCallback callback(parameters, mTarget, mWeight, mOptions, unwrapFun, solverFun, mOptions.logging);
+    OptimizerCallback callback(parameters, mTarget, mWeight, mOptions, unwrapFun, solverFun);
     connect(&callback, &OptimizerCallback::iterationFinished, this,
             [this, &solutions](Solution solution)
             {
                 solutions.push_back(solution);
                 emit iterationFinished(solution);
             });
+    connect(&callback, &OptimizerCallback::log, this, &Optimizer::log);
     solverOpts.callbacks.push_back(&callback);
 
     // Solve the problem
@@ -203,8 +204,7 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
         lastSolution.isSuccess = summary.IsSolutionUsable();
         lastSolution.message = summary.message.c_str();
     }
-    if (mOptions.logging)
-        qInfo() << summary.FullReport();
+    emit log(summary.BriefReport().c_str());
 
     return solutions;
 }

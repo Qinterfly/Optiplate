@@ -95,6 +95,7 @@ public:
 
 signals:
     void iterationFinished(Backend::Optimizer::Solution solution);
+    void log(QString message);
 
 private:
     //! Optimization scale
@@ -139,11 +140,12 @@ class OptimizerCallback : public QObject, public ceres::IterationCallback
 
 public:
     OptimizerCallback(std::vector<double> const& parameters, Properties const& target, Properties const& weight,
-                      Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun, bool logging);
+                      Optimizer::Options const& options, UnwrapFun unwrapFun, SolverFun solverFun);
     ceres::CallbackReturnType operator()(ceres::IterationSummary const& summary);
 
 signals:
     void iterationFinished(Backend::Optimizer::Solution solution);
+    void log(QString message);
 
 private:
     std::vector<double> const& mParameters;

@@ -409,12 +409,13 @@ void MainWindow::setModified(bool flag)
 void MainWindow::setTheme()
 {
     // Font
-    QFontDatabase::addApplicationFont(":/fonts/SourceSansPro-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Roboto.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/RobotoMono.ttf");
     uint fontSize = 12;
 #ifdef Q_OS_WIN
     fontSize = 10;
 #endif
-    QFont font("Source Sans Pro", fontSize);
+    QFont font("Roboto", fontSize);
     setFont(font);
     qApp->setFont(font);
 
@@ -441,7 +442,7 @@ void MainWindow::startSolver()
     // Check if the solver is alreay started
     if (mIsSolverRunning)
     {
-        qDebug() << tr("The solve is already running");
+        qInfo() << tr("The solve is already running");
         return;
     }
 
@@ -489,7 +490,7 @@ void MainWindow::stopSolver()
 {
     if (!mIsSolverRunning)
     {
-        qDebug() << tr("The solver is not running");
+        qInfo() << tr("The solver is not running");
         return;
     }
     emit stopSolverRequested();
@@ -632,7 +633,7 @@ bool MainWindow::saveProjectChangesDialog()
     return true;
 }
 
-SolveThread::SolveThread(Backend::Project const& project, QObject* pParent)
+SolveThread::SolveThread(Backend::Project project, QObject* pParent)
     : QThread(pParent)
     , mProject(project)
 {
@@ -646,6 +647,9 @@ void SolveThread::run()
 
     // Set up the connections
     connect(&optimizer, &Backend::Optimizer::iterationFinished, this, &SolveThread::iterationFinished);
+    if (config.options.logging)
+        connect(&optimizer, &Backend::Optimizer::log, this,
+                [](QString message) { logMessage(QtMsgType::QtInfoMsg, QMessageLogContext(), message); });
 
     // Run the solver
     auto solutions = optimizer.solve(mProject.panel());
@@ -653,7 +657,7 @@ void SolveThread::run()
 }
 
 //! Helper function to log all the messages
-void Frontend::logMessage(QtMsgType type, const QMessageLogContext& /*context*/, const QString& message)
+void Frontend::logMessage(QtMsgType type, QMessageLogContext const& /*context*/, QString const& message)
 {
     Frontend::MainWindow::pLogger->log(type, message);
 }

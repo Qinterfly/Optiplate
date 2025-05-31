@@ -30,6 +30,7 @@ public:
 
 private slots:
     void testOpenProject();
+    void testSolveProject();
 
 private:
     Frontend::MainWindow* mpMainWindow;
