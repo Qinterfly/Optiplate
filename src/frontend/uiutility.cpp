@@ -20,7 +20,7 @@ namespace Frontend::Utility
 //! Show save dialog when closing a widget and process its output
 int showSaveDialog(QWidget* pWidget, QString const& title, QString const& message)
 {
-    auto isSave = QMessageBox::warning(pWidget, title, message, QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    auto isSave = QMessageBox::question(pWidget, title, message, QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     switch (isSave)
     {
     case QMessageBox::Save:

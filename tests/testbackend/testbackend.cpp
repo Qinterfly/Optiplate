@@ -122,14 +122,14 @@ void TestBackend::testUpdateBasePanel()
 
     // Select the options
     Optimizer::Options& options = config.options;
+    options.autoScale = false;
     options.maxRelativeError = 1e-3;
-    options.logging = true;
-    options.autoScale = true;
     options.numThreads = 1;
     options.diffStepSize = 1e-3;
 
     // Run the solver
     Optimizer optimizer(state, target, weight, options);
+    connect(&optimizer, &Optimizer::log, this, &TestBackend::log);
     auto solutions = optimizer.solve(initPanel);
     QVERIFY(!solutions.empty());
     QVERIFY(solutions.back().isSuccess);
@@ -159,12 +159,13 @@ void TestBackend::testUpdateRealPanel()
 
     // Select the options
     Optimizer::Options& options = config.options;
-    options.autoScale = true;
+    options.autoScale = false;
+    options.diffStepSize = 1e-3;
     options.numThreads = 1;
-    options.diffStepSize = 1e-5;
 
     // Run the solver
     Optimizer optimizer(state, target, weight, options);
+    connect(&optimizer, &Optimizer::log, this, &TestBackend::log);
     auto solutions = optimizer.solve(initPanel);
     QVERIFY(!solutions.empty());
     QVERIFY(solutions.back().isSuccess);
@@ -199,6 +200,12 @@ void TestBackend::testWriteProject()
 bool TestBackend::isEqual(double firstValue, double secondValue, double precision)
 {
     return qAbs(firstValue - secondValue) <= precision;
+}
+
+//! Output message for logging
+void TestBackend::log(QString message)
+{
+    std::cout << message.toStdString() << std::endl;
 }
 
 QTEST_MAIN(TestBackend)

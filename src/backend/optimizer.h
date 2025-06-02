@@ -68,7 +68,6 @@ public:
         void read(QXmlStreamReader& stream);
         void write(QXmlStreamWriter& stream);
 
-        bool logging;
         bool autoScale;
         int maxNumIterations;
         double timeoutIteration;

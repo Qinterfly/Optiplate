@@ -93,6 +93,8 @@ private:
     void openProjectDialog();
     void saveAsProjectDialog();
     bool saveProjectChangesDialog();
+    bool stopSolverDialog();
+    void clearResultsDialog();
 
 private:
     QSettings mSettings;

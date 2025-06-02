@@ -1,12 +1,13 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the Optimizer class
  */
 
 #include <functional>
 #include <QTextStream>
+#include <QThread>
 #include <QXmlStreamWriter>
 
 #include "optimizer.h"
@@ -64,6 +65,10 @@ OptimizerCallback::OptimizerCallback(std::vector<double> const& parameters, Prop
 
 ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary const& summary)
 {
+    // Check if the user requested to stop the solver
+    if (QThread::currentThread()->isInterruptionRequested())
+        return ceres::SOLVER_ABORT;
+
     // Obtain the solution
     Panel panel = mUnwrapFun(mParameters.data());
     Properties props = mSolverFun(panel);
@@ -82,7 +87,7 @@ ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary 
     auto logFun = [&stream, &iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
     {
         std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
-        auto constexpr kFormat = "{:>7} {:10.4g} {:10.4g} {:10.4f}";
+        auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}";
         int numValues = current.size();
         for (int i = 0; i != numValues; ++i)
         {
@@ -93,13 +98,18 @@ ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary 
     };
     auto vecFun = [](KCL::Vec3 vec) { return std::vector<double>(vec.begin(), vec.end()); };
 
-    // Print the properties
+    // Print the current info
+    if (summary.iteration == 0)
+        stream << std::format("{:^8} {:>6} {:>11} {:>10}", "Iter", "Fun", "Diff", "Grad").c_str() << Qt::endl;
+    auto constexpr kFormat = "{:^7d} {:10.3e} {:10.3e} {:10.3e}";
+    stream << std::format(kFormat, summary.iteration, summary.cost, summary.cost_change, summary.gradient_max_norm).c_str() << Qt::endl;
     stream << Qt::endl;
+
+    // Print the properties
     logFun({props.mass}, {mTarget.mass}, {errorProps.mass});
     logFun(vecFun(props.centerGravity), vecFun(mTarget.centerGravity), vecFun(errorProps.centerGravity));
     logFun(vecFun(props.inertiaMoments), vecFun(mTarget.inertiaMoments), vecFun(errorProps.inertiaMoments));
     logFun(vecFun(props.inertiaProducts), vecFun(mTarget.inertiaProducts), vecFun(errorProps.inertiaProducts));
-    stream << Qt::endl;
 
     // Indicate that the iteration is finished
     Optimizer::Solution solution;
@@ -389,13 +399,12 @@ void Optimizer::State::write(QXmlStreamWriter& stream)
 
 //! Optimization options
 Optimizer::Options::Options()
-    : logging(true)
-    , autoScale(true)
+    : autoScale(false)
     , maxNumIterations(256)
     , timeoutIteration(1.0)
     , numThreads(1)
     , maxRelativeError(1e-3)
-    , diffStepSize(1e-5)
+    , diffStepSize(1e-3)
 {
 }
 
@@ -404,9 +413,7 @@ void Optimizer::Options::read(QXmlStreamReader& stream)
 {
     while (stream.readNextStartElement())
     {
-        if (stream.name() == "logging")
-            logging = stream.readElementText().toInt();
-        else if (stream.name() == "autoScale")
+        if (stream.name() == "autoScale")
             autoScale = stream.readElementText().toInt();
         else if (stream.name() == "maxNumIterations")
             maxNumIterations = stream.readElementText().toInt();
@@ -427,7 +434,6 @@ void Optimizer::Options::read(QXmlStreamReader& stream)
 void Optimizer::Options::write(QXmlStreamWriter& stream)
 {
     stream.writeStartElement("options");
-    stream.writeTextElement("logging", QString::number(logging));
     stream.writeTextElement("autoScale", QString::number(autoScale));
     stream.writeTextElement("maxNumIterations", QString::number(maxNumIterations));
     stream.writeTextElement("timeoutIteration", QString::number(timeoutIteration));

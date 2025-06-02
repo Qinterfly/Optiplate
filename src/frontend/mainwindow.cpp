@@ -13,6 +13,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QThread>
 #include <QToolBar>
 
@@ -63,7 +64,8 @@ void MainWindow::initializeWindow()
 //! Save project and settings before exit
 void MainWindow::closeEvent(QCloseEvent* pEvent)
 {
-    if (saveProjectChangesDialog())
+    bool isClose = stopSolverDialog() && saveProjectChangesDialog();
+    if (isClose)
     {
         saveSettings();
         pEvent->accept();
@@ -185,6 +187,7 @@ void MainWindow::createSolverActions()
     // Create the actions
     mpStartSolverAction = new QAction(tr("&Start the solver"), this);
     mpStopSolverAction = new QAction(tr("&Stop the solver"), this);
+    QAction* pClearAction = new QAction(tr("&Clear results"), this);
 
     // Set the shortcuts
     mpStartSolverAction->setShortcut(Qt::Key_F5);
@@ -193,15 +196,18 @@ void MainWindow::createSolverActions()
     // Set the icons
     mpStartSolverAction->setIcon(QIcon(":/icons/process-start.svg"));
     mpStopSolverAction->setIcon(QIcon(":/icons/process-stop.svg"));
+    pClearAction->setIcon(QIcon(":/icons/edit-delete.svg"));
 
     // Set the connections
     connect(mpStartSolverAction, &QAction::triggered, this, &MainWindow::startSolver);
     connect(mpStopSolverAction, &QAction::triggered, this, &MainWindow::stopSolver);
+    connect(pClearAction, &QAction::triggered, this, &MainWindow::clearResultsDialog);
 
     // Create the menu
     QMenu* pMenu = new QMenu(tr("&Solver"), this);
     pMenu->addAction(mpStartSolverAction);
     pMenu->addAction(mpStopSolverAction);
+    pMenu->addAction(pClearAction);
     menuBar()->addMenu(pMenu);
 
     // Create the toolbar
@@ -209,6 +215,7 @@ void MainWindow::createSolverActions()
     pToolBar->setIconSize(Constants::Size::skToolBarIcon);
     pToolBar->addAction(mpStartSolverAction);
     pToolBar->addAction(mpStopSolverAction);
+    pToolBar->addAction(pClearAction);
     Utility::setShortcutHints(pToolBar);
     addToolBar(pToolBar);
     updateSolverActions();
@@ -442,7 +449,7 @@ void MainWindow::startSolver()
     // Check if the solver is alreay started
     if (mIsSolverRunning)
     {
-        qInfo() << tr("The solve is already running");
+        qWarning() << tr("The solver is already running");
         return;
     }
 
@@ -450,6 +457,7 @@ void MainWindow::startSolver()
     mIsSolverRunning = true;
     mProject.clearSolutions();
     updateSolverActions();
+    mpPanelEditor->setEnabled(false);
 
     // Clear the tread
     SolveThread* pThread = new SolveThread(mProject, this);
@@ -460,6 +468,7 @@ void MainWindow::startSolver()
             {
                 mProject.addSolution(solution);
                 mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
+                setModified(true);
             });
     connect(pThread, &SolveThread::resultReady, this,
             [this](QList<Backend::Optimizer::Solution> solutions)
@@ -467,6 +476,9 @@ void MainWindow::startSolver()
                 mIsSolverRunning = false;
                 mProject.setSolutions(solutions);
                 updateSolverActions();
+                mpPanelEditor->setEnabled(true);
+                setModified(true);
+                qInfo() << tr("Opimization process finished");
             });
     connect(pThread, &SolveThread::finished, pThread,
             [this, pThread]()
@@ -474,14 +486,21 @@ void MainWindow::startSolver()
                 mIsSolverRunning = false;
                 pThread->deleteLater();
                 updateSolverActions();
+                mpPanelEditor->setEnabled(true);
+                setModified(true);
             });
     connect(this, &MainWindow::stopSolverRequested, pThread,
             [this, pThread]()
             {
                 mIsSolverRunning = false;
-                pThread->terminate();
+                qWarning() << tr("Stop solver requested");
+                pThread->requestInterruption();
                 updateSolverActions();
+                mpPanelEditor->setEnabled(true);
             });
+
+    // Start the solver
+    qInfo() << tr("Starting the optimization process...");
     pThread->start();
 }
 
@@ -490,7 +509,7 @@ void MainWindow::stopSolver()
 {
     if (!mIsSolverRunning)
     {
-        qInfo() << tr("The solver is not running");
+        qWarning() << tr("The solver is not running");
         return;
     }
     emit stopSolverRequested();
@@ -616,7 +635,7 @@ void MainWindow::saveAsProjectDialog()
     saveAsProject(pathFile);
 }
 
-//! Save project changes
+//! Save project changes through dialog
 bool MainWindow::saveProjectChangesDialog()
 {
     QString const title = tr("Save project changes");
@@ -633,6 +652,45 @@ bool MainWindow::saveProjectChangesDialog()
     return true;
 }
 
+//! Stop the solver through dialog
+bool MainWindow::stopSolverDialog()
+{
+    QString const title = tr("Stop the solver");
+    QString const message = tr("The solver is still running.\n"
+                               "Would you like to close the application anyway?");
+    if (mIsSolverRunning)
+    {
+        auto result = QMessageBox::question(this, title, message);
+        if (result == QMessageBox::Yes)
+            stopSolver();
+        else
+            return false;
+    }
+    return true;
+}
+
+//! Clear the project results
+void MainWindow::clearResultsDialog()
+{
+    QString const title = tr("Clear the results");
+    QString const message = tr("Would you like to clear the results?");
+
+    // Check if there are any results to remove
+    if (mProject.solutions().empty())
+    {
+        qWarning() << tr("There are no results to clear");
+        return;
+    }
+
+    // Create the dialog window
+    auto result = QMessageBox::question(this, title, message);
+    if (result == QMessageBox::Yes)
+    {
+        mProject.clearSolutions();
+        qInfo() << tr("The results have been cleared");
+    }
+}
+
 SolveThread::SolveThread(Backend::Project project, QObject* pParent)
     : QThread(pParent)
     , mProject(project)
@@ -647,9 +705,7 @@ void SolveThread::run()
 
     // Set up the connections
     connect(&optimizer, &Backend::Optimizer::iterationFinished, this, &SolveThread::iterationFinished);
-    if (config.options.logging)
-        connect(&optimizer, &Backend::Optimizer::log, this,
-                [](QString message) { logMessage(QtMsgType::QtInfoMsg, QMessageLogContext(), message); });
+    connect(&optimizer, &Backend::Optimizer::log, this, [](QString message) { logMessage(QtMsgType::QtInfoMsg, QMessageLogContext(), message); });
 
     // Run the solver
     auto solutions = optimizer.solve(mProject.panel());

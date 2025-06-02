@@ -18,8 +18,8 @@ Configuration::Configuration()
     : target(0.0)
 {
     weight.mass = 1.0;
-    weight.centerGravity.fill(1.0);
-    weight.inertiaMoments.fill(10.0);
+    weight.centerGravity = {1, 0, 1};
+    weight.inertiaMoments.fill(1.0);
     weight.inertiaProducts = {0, 0, 1};
     mCreationDate = QDateTime::currentDateTime();
 }

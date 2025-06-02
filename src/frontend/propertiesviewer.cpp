@@ -82,7 +82,7 @@ void PropertiesViewer::update(Backend::Panel const& panel, Backend::Properties c
             color = Qt::green;
         else if (qAbs(error) > 5.0)
             color = Qt::red;
-        QTableWidgetItem* pItem = new QTableWidgetItem(QString::number(error, 'e', 2));
+        QTableWidgetItem* pItem = new QTableWidgetItem(QString::number(error, 'f', 3));
         pItem->setData(Qt::DecorationRole, color);
         mpTable->setItem(iRow, 3, pItem);
     };

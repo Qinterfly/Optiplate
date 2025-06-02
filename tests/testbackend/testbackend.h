@@ -37,6 +37,7 @@ private slots:
 
 private:
     bool isEqual(double firstValue, double secondValue, double precision);
+    void log(QString message);
 
     Backend::Project mBaseProject;
     Backend::Project mRealProject;

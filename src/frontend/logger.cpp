@@ -1,13 +1,12 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the Logger class
  */
 
 #include <QApplication>
-#include <QPlainTextEdit>
-#include <QVBoxLayout>
+#include <QTime>
 
 #include "logger.h"
 
@@ -27,7 +26,54 @@ Logger::~Logger()
 //! Represent a message sent
 void Logger::log(QtMsgType messageType, QString const& message)
 {
+    // Constants
+    QChar kNewLine = '\n';
+
+    // Set the data to output
+    QString time = QTime::currentTime().toString();
     QString filterMessage = message;
     filterMessage = filterMessage.remove('\"');
-    append(filterMessage);
+
+    // Determine the message color
+    QColor color;
+    switch (messageType)
+    {
+    case QtDebugMsg:
+        color = Qt::gray;
+        break;
+    case QtInfoMsg:
+        color = Qt::black;
+        break;
+    case QtWarningMsg:
+        color = QColor("orange");
+        break;
+    case QtCriticalMsg:
+        color = Qt::red;
+        break;
+    case QtFatalMsg:
+        color = Qt::darkRed;
+        break;
+    }
+
+    // Create the formats
+    QTextCharFormat timeFormat;
+    timeFormat.setUnderlineStyle(QTextCharFormat::UnderlineStyle::SingleUnderline);
+    QTextCharFormat messageFormat;
+    messageFormat.setUnderlineStyle(QTextCharFormat::NoUnderline);
+    messageFormat.setForeground(QBrush(color));
+
+    // Insert the text
+    QTextCursor cursor = textCursor();
+    if (document()->characterCount() > 0)
+        cursor.insertText(kNewLine);
+    cursor.insertText(time, timeFormat);
+    cursor.insertText(kNewLine);
+    cursor.insertText(filterMessage, messageFormat);
+
+    // Insert a new line, if necessary
+    if (message.back() != kNewLine)
+        cursor.insertText(kNewLine);
+
+    // Scroll to bottom
+    moveCursor(QTextCursor::End);
 }
