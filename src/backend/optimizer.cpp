@@ -214,7 +214,9 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
         lastSolution.isSuccess = summary.IsSolutionUsable();
         lastSolution.message = summary.message.c_str();
     }
-    emit log(summary.BriefReport().c_str());
+
+    // Log the report
+    printReport(summary);
 
     return solutions;
 }
@@ -310,6 +312,18 @@ Panel Optimizer::unwrap(Panel const& basePanel, std::vector<double> const& param
     panel.renumerate();
 
     return panel;
+}
+
+//! Output the report to log
+void Optimizer::printReport(ceres::Solver::Summary const& summary)
+{
+    std::string message = "Ceres Solver Report\n";
+    message += std::format("* Iterations:   {:d}\n", summary.iterations.size());
+    message += std::format("* Initial cost: {:.3e}\n", summary.initial_cost);
+    message += std::format("* Final cost:   {:.3e}\n", summary.final_cost);
+    message += std::format("* Duration:     {:.3f} s\n", summary.total_time_in_seconds);
+    message += std::format("* Termination:  {:}", ceres::TerminationTypeToString(summary.termination_type));
+    emit log(message.c_str());
 }
 
 Optimizer::Solution::Solution()

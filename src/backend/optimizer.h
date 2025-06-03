@@ -109,6 +109,7 @@ private:
 
     std::vector<double> wrap(Panel const& panel);
     Panel unwrap(Panel const& basePanel, std::vector<double> const& parameters);
+    void printReport(ceres::Solver::Summary const& summary);
 
     State mState;
     Properties mTarget;

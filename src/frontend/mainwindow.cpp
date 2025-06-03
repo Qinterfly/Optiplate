@@ -675,6 +675,13 @@ void MainWindow::clearResultsDialog()
     QString const title = tr("Clear the results");
     QString const message = tr("Would you like to clear the results?");
 
+    // Check if the solver is still running
+    if (mIsSolverRunning)
+    {
+        qWarning() << tr("The solver is still running. Wait till the results obtained");
+        return;
+    }
+
     // Check if there are any results to remove
     if (mProject.solutions().empty())
     {

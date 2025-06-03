@@ -15,7 +15,7 @@ using namespace Frontend;
 Logger::Logger(QWidget* pParent)
     : QTextEdit(pParent)
 {
-    setReadOnly(true);
+    setReadOnly(false);
     setFont(QFont("RobotoMono"));
 }
 
@@ -28,11 +28,15 @@ void Logger::log(QtMsgType messageType, QString const& message)
 {
     // Constants
     QChar kNewLine = '\n';
+    QChar kComma = '\"';
 
     // Set the data to output
     QString time = QTime::currentTime().toString();
     QString filterMessage = message;
-    filterMessage = filterMessage.remove('\"');
+    if (filterMessage.endsWith(kComma))
+        filterMessage.removeAt(filterMessage.size() - 1);
+    if (filterMessage.startsWith(kComma))
+        filterMessage.removeAt(0);
 
     // Determine the message color
     QColor color;
