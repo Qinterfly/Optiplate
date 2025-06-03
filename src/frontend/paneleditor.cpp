@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the PanelEditor class
  */
 
@@ -24,6 +24,11 @@ PanelEditor::PanelEditor(Backend::Panel& panel, QWidget* pParent)
 
 PanelEditor::~PanelEditor()
 {
+}
+
+QSize PanelEditor::sizeHint() const
+{
+    return QSize(325, 100);
 }
 
 //! Create all the widgets and corresponding actions

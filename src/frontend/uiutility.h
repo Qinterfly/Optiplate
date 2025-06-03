@@ -20,6 +20,8 @@ namespace Frontend::Utility
 int showSaveDialog(QWidget* pWidget, QString const& title, QString const& message);
 void fullScreenResize(QWidget* pWidget);
 void setShortcutHints(QToolBar* pToolBar);
+QString errorColorName(double value);
+QString toString(double value, int numDecimals);
 
 // File
 void modifyFileSuffix(QString& pathFile, QString const& expectedSuffix);

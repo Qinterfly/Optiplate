@@ -5,6 +5,8 @@
  * \brief Implementation of the Optimizer class
  */
 
+#define MAX_LOG_LEVEL -1
+
 #include <functional>
 #include <QTextStream>
 #include <QThread>
@@ -147,7 +149,6 @@ QList<Optimizer::Solution> Optimizer::solve(Panel const& initPanel)
     // Get the parameters
     std::vector<double> parameters = wrap(initPanel);
     int numParameters = parameters.size();
-    auto initParameters = parameters;
 
     // Create the auxiliary functions
     UnwrapFun unwrapFun = [this, &initPanel, &numParameters](const double* const x)

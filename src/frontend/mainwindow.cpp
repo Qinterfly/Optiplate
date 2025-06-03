@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the MainWindow class
  */
 
@@ -24,6 +24,7 @@
 #include "optionseditor.h"
 #include "paneleditor.h"
 #include "propertiesviewer.h"
+#include "solutionbrowser.h"
 #include "uiconstants.h"
 #include "uiutility.h"
 
@@ -40,7 +41,7 @@ MainWindow::MainWindow(QWidget* pParent)
     initializeWindow();
     createContent();
     createConnections();
-    restoreSettings();
+    // restoreSettings();
     newProject();
 }
 
@@ -101,9 +102,16 @@ void MainWindow::createContent()
     pWidget = createOptionsEditor();
     mpDockManager->addDockWidget(ads::CenterDockWidgetArea, pWidget, pArea);
 
+    // Select the first widget to display
+    pArea->setCurrentIndex(0);
+
     // Properties viewer
     pWidget = createPropertiesViewer();
     mpDockManager->addDockWidget(ads::BottomDockWidgetArea, pWidget);
+
+    // Solution browser
+    pWidget = createSolutionBrowser();
+    mpDockManager->addDockWidget(ads::RightDockWidgetArea, pWidget);
 
     // Convergence plot
     pWidget = createConvergencePlot();
@@ -112,9 +120,6 @@ void MainWindow::createContent()
     // Logger
     pWidget = createLogger();
     mpDockManager->addDockWidget(ads::BottomDockWidgetArea, pWidget, pArea);
-
-    // Select the first widget to display
-    pArea->setCurrentIndex(0);
 }
 
 //! Create the actions to interact with files
@@ -281,11 +286,24 @@ ads::CDockWidget* MainWindow::createPropertiesViewer()
     return pDockWidget;
 }
 
+//! Create a widget to represnt solutions
+ads::CDockWidget* MainWindow::createSolutionBrowser()
+{
+    // Create the widget to view the solutions
+    mpSolutionBrowser = new SolutionBrowser;
+
+    // Construct the dock widget
+    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Solution"));
+    pDockWidget->setWidget(mpSolutionBrowser);
+    mpWindowMenu->addAction(pDockWidget->toggleViewAction());
+    return pDockWidget;
+}
+
 //! Create a widget to represent convergence
 ads::CDockWidget* MainWindow::createConvergencePlot()
 {
     // Create the widget to view and compare properties
-    mpConvergencePlot = new ConvergencePlot();
+    mpConvergencePlot = new ConvergencePlot;
 
     // Construct the dock widget
     ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Convergence"));
@@ -311,7 +329,13 @@ ads::CDockWidget* MainWindow::createLogger()
 //! Connect the widgets between each other
 void MainWindow::createConnections()
 {
-    auto updateProperties = [this]() { mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target); };
+    auto updateProperties = [this](int index = -1)
+    {
+        if (index < 0)
+            mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+        else if (index < mProject.solutions().size())
+            mpPropertiesViewer->update(mProject.solutions()[index].properties, mProject.configuration().target);
+    };
 
     // Panel
     connect(mpPanelEditor, &PanelEditor::dataChanged, this, &MainWindow::processProjectChange);
@@ -323,6 +347,9 @@ void MainWindow::createConnections()
         connect(value, &PropertiesEditor::dataChanged, this, &MainWindow::processProjectChange);
         connect(value, &PropertiesEditor::dataChanged, this, updateProperties);
     }
+
+    // Solutions
+    connect(mpSolutionBrowser, &SolutionBrowser::solutionSelected, this, updateProperties);
 }
 
 //! Close the current project and create a new one
@@ -352,6 +379,7 @@ bool MainWindow::openProject(QString const& pathFile)
             value->update();
         mpOptionsEditor->update();
         mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+        mpSolutionBrowser->update(mProject.solutions());
         mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
         return true;
     }
@@ -468,6 +496,7 @@ void MainWindow::startSolver()
             {
                 mProject.addSolution(solution);
                 mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
+                mpSolutionBrowser->update(mProject.solutions());
                 setModified(true);
             });
     connect(pThread, &SolveThread::resultReady, this,
@@ -476,6 +505,7 @@ void MainWindow::startSolver()
                 mIsSolverRunning = false;
                 mProject.setSolutions(solutions);
                 updateSolverActions();
+                mpSolutionBrowser->update(mProject.solutions());
                 mpPanelEditor->setEnabled(true);
                 setModified(true);
                 qInfo() << tr("Opimization process finished");
@@ -486,6 +516,7 @@ void MainWindow::startSolver()
                 mIsSolverRunning = false;
                 pThread->deleteLater();
                 updateSolverActions();
+                mpSolutionBrowser->update(mProject.solutions());
                 mpPanelEditor->setEnabled(true);
                 setModified(true);
             });
@@ -496,6 +527,7 @@ void MainWindow::startSolver()
                 qWarning() << tr("Stop solver requested");
                 pThread->requestInterruption();
                 updateSolverActions();
+                mpSolutionBrowser->update(mProject.solutions());
                 mpPanelEditor->setEnabled(true);
             });
 
@@ -694,6 +726,7 @@ void MainWindow::clearResultsDialog()
     if (result == QMessageBox::Yes)
     {
         mProject.clearSolutions();
+        mpSolutionBrowser->update(mProject.solutions());
         qInfo() << tr("The results have been cleared");
     }
 }
@@ -722,5 +755,6 @@ void SolveThread::run()
 //! Helper function to log all the messages
 void Frontend::logMessage(QtMsgType type, QMessageLogContext const& /*context*/, QString const& message)
 {
-    Frontend::MainWindow::pLogger->log(type, message);
+    if (Frontend::MainWindow::pLogger)
+        Frontend::MainWindow::pLogger->log(type, message);
 }

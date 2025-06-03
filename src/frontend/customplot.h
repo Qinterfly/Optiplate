@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date November 2023
+ * \date June 2025
  * \brief Declaration of the CustomPlot class
  */
 

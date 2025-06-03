@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of the Logger class
  */
 
@@ -16,12 +16,15 @@ namespace Frontend
 //! Log all the messages sent
 class Logger : public QTextEdit
 {
+    Q_OBJECT
+
 public:
     Logger(QWidget* pParent = nullptr);
     Logger(Logger const& another) = delete;
     Logger& operator=(Logger const& another) = delete;
-    ~Logger();
+    virtual ~Logger();
 
+    QSize sizeHint() const override;
     void log(QtMsgType messageType, QString const& message);
 };
 

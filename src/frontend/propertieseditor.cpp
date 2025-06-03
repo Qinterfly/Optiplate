@@ -24,6 +24,11 @@ PropertiesEditor::~PropertiesEditor()
 {
 }
 
+QSize PropertiesEditor::sizeHint() const
+{
+    return QSize(325, 100);
+}
+
 //! Create all the widgets and corresponding actions
 void PropertiesEditor::createContent(PropertyType type)
 {

@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of the MainWindow class
  */
 
@@ -29,6 +29,7 @@ class ConvergencePlot;
 class OptionsEditor;
 class PanelEditor;
 class PropertiesViewer;
+class SolutionBrowser;
 
 class MainWindow : public QMainWindow
 {
@@ -36,7 +37,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget* pParent = nullptr);
-    ~MainWindow();
+    virtual ~MainWindow();
     static Logger* pLogger;
 
     QSettings& settings();
@@ -68,6 +69,7 @@ private:
     ads::CDockWidget* createPropertiesEditor(QString const& name, PropertyType type, Backend::Properties& properties);
     ads::CDockWidget* createOptionsEditor();
     ads::CDockWidget* createPropertiesViewer();
+    ads::CDockWidget* createSolutionBrowser();
     ads::CDockWidget* createConvergencePlot();
     ads::CDockWidget* createLogger();
     void createConnections();
@@ -109,6 +111,7 @@ private:
     PropertiesViewer* mpPropertiesViewer;
     OptionsEditor* mpOptionsEditor;
     ConvergencePlot* mpConvergencePlot;
+    SolutionBrowser* mpSolutionBrowser;
     bool mIsSolverRunning;
     QAction* mpStartSolverAction;
     QAction* mpStopSolverAction;

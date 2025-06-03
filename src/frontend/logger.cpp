@@ -23,6 +23,11 @@ Logger::~Logger()
 {
 }
 
+QSize Logger::sizeHint() const
+{
+    return QSize(600, 200);
+}
+
 //! Represent a message sent
 void Logger::log(QtMsgType messageType, QString const& message)
 {

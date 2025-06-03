@@ -39,6 +39,7 @@ public:
     PropertiesEditor(PropertyType type, Backend::Properties& properties, QWidget* pParent = nullptr);
     virtual ~PropertiesEditor();
 
+    QSize sizeHint() const override;
     void update();
 
 signals:

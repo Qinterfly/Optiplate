@@ -14,6 +14,7 @@
 #include <QVBoxLayout>
 
 #include "propertiesviewer.h"
+#include "uiutility.h"
 
 using namespace Frontend;
 
@@ -53,42 +54,24 @@ void PropertiesViewer::clear()
     mpTable->horizontalHeader()->hide();
 }
 
-//! Update the text
+//! Update the content
 void PropertiesViewer::update(Backend::Panel const& panel, Backend::Properties const& target)
+{
+    double const kTimeout = 1.0;
+    Backend::Properties current = panel.massProperties(kTimeout);
+    update(current, target);
+}
+
+void PropertiesViewer::update(Backend::Properties const& current, Backend::Properties const& target)
 {
     int const kNumColumns = 4;
     QStringList const kDirections = {"X", "Y", "Z"};
     int const kNumDirections = kDirections.size();
-    double const kTimeout = 1.0;
 
     // Clean up all the content
     clear();
 
-    // Create the working functions
-    auto appendRow = [this](QString const& name, double current, double target, double error)
-    {
-        int iRow = mpTable->rowCount();
-        mpTable->insertRow(iRow);
-        // Name
-        mpTable->setItem(iRow, 0, new QTableWidgetItem(name));
-        // Current value
-        mpTable->setItem(iRow, 1, new QTableWidgetItem(QString::number(current, 'g', 5)));
-        // Target value
-        mpTable->setItem(iRow, 2, new QTableWidgetItem(QString::number(target, 'g', 5)));
-        // Error
-        error *= 100;
-        QColor color = Qt::yellow;
-        if (qAbs(error) < 1.0)
-            color = Qt::green;
-        else if (qAbs(error) > 5.0)
-            color = Qt::red;
-        QTableWidgetItem* pItem = new QTableWidgetItem(QString::number(error, 'f', 3));
-        pItem->setData(Qt::DecorationRole, color);
-        mpTable->setItem(iRow, 3, pItem);
-    };
-
     // Retrieve current mass properties and compare them with the target ones
-    Backend::Properties current = panel.massProperties(kTimeout);
     if (!current.isValid())
         return;
     Backend::Properties errors = current.compare(target);
@@ -142,3 +125,22 @@ void PropertiesViewer::keyPressEvent(QKeyEvent* pEvent)
         QApplication::clipboard()->setMimeData(pMimeData);
     }
 }
+
+//! Append a property
+void PropertiesViewer::appendRow(QString const& name, double current, double target, double error)
+{
+    int iRow = mpTable->rowCount();
+    mpTable->insertRow(iRow);
+    // Name
+    mpTable->setItem(iRow, 0, new QTableWidgetItem(name));
+    // Current value
+    mpTable->setItem(iRow, 1, new QTableWidgetItem(QString::number(current, 'g', 5)));
+    // Target value
+    mpTable->setItem(iRow, 2, new QTableWidgetItem(QString::number(target, 'g', 5)));
+    // Error
+    error *= 100;
+    QColor color(Utility::errorColorName(error));
+    QTableWidgetItem* pItem = new QTableWidgetItem(Utility::toString(error, 3));
+    pItem->setData(Qt::DecorationRole, color);
+    mpTable->setItem(iRow, 3, pItem);
+};

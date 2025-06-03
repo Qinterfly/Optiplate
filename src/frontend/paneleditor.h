@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of the PanelEditor class
  */
 
@@ -33,6 +33,7 @@ public:
     PanelEditor(Backend::Panel& panel, QWidget* pParent = nullptr);
     virtual ~PanelEditor();
 
+    QSize sizeHint() const override;
     void update();
 
 signals:

@@ -20,6 +20,8 @@ set(FRONTEND_HEADERS
     customtable.h
     convergenceplot.h
     logger.h
+    solutionbrowser.h
+    solutionmodel.h
 )
 
 set(FRONTEND_SOURCES
@@ -36,6 +38,8 @@ set(FRONTEND_SOURCES
     customtable.cpp
     convergenceplot.cpp
     logger.cpp
+    solutionbrowser.cpp
+    solutionmodel.cpp
 )
 
 qt_add_library(frontend STATIC

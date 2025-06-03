@@ -42,13 +42,36 @@ void fullScreenResize(QWidget* pWidget)
 //! Add shortcurt hints to all items contained in a tool bar
 void setShortcutHints(QToolBar* pToolBar)
 {
-    for (QAction* pAction : pToolBar->actions())
+    QList<QAction*> actions = pToolBar->actions();
+    int numActions = actions.size();
+    for (int i = 0; i != numActions; ++i)
     {
+        QAction* pAction = actions[i];
         QKeySequence shortcut = pAction->shortcut();
         if (shortcut.isEmpty())
             continue;
         pAction->setToolTip(QString("%1 (%2)").arg(pAction->toolTip(), shortcut.toString()));
     }
+}
+
+QString errorColorName(double value)
+{
+    QString result = "yellow";
+    if (qAbs(value) < 1.0)
+        result = "green";
+    else if (qAbs(value) > 5.0)
+        result = "red";
+    return result;
+}
+
+QString toString(double value, int precision)
+{
+    double absValue = qAbs(value);
+    bool isOutsidePrecision = absValue >= pow(10, precision) || absValue <= pow(10, -precision);
+    if (absValue > 0 && isOutsidePrecision)
+        return QString::number(value, 'e', precision);
+    else
+        return QString::number(value, 'f', precision);
 }
 
 //! Substitute a file suffix to the expected one, if necessary
