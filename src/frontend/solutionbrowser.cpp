@@ -6,6 +6,7 @@
  */
 
 #include <QListView>
+#include <QMenu>
 #include <QVBoxLayout>
 
 #include "solutionbrowser.h"
@@ -52,12 +53,45 @@ void SolutionBrowser::createContent()
     mpView->setSelectionMode(QAbstractItemView::SingleSelection);
     mpView->setSelectionBehavior(QAbstractItemView::SelectItems);
     mpView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    mpView->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    // Connect the view widget
+    connect(mpView, &QListView::customContextMenuRequested, this, &SolutionBrowser::processContextMenu);
 
     // Insert the widgets into the main layout
     QVBoxLayout* pLayout = new QVBoxLayout;
     pLayout->addWidget(mpView);
     setLayout(pLayout);
+}
+
+//! Create the context menu
+void SolutionBrowser::processContextMenu(QPoint const& point)
+{
+    // Retrieve the selected items
+    QModelIndexList indices = mpView->selectionModel()->selectedIndexes();
+    if (indices.isEmpty())
+        return;
+    int iSolution = indices.first().row();
+
+    // Create the context menu
+    QMenu* pMenu = new QMenu(this);
+    pMenu->setAttribute(Qt::WA_DeleteOnClose);
+
+    // Create the actions
+    QAction* pViewAction = new QAction(tr("&View panel"));
+    QAction* pSetAction = new QAction(tr("&Set panel"));
+
+    // Fill up the menu
+    pMenu->addAction(pViewAction);
+    pMenu->addAction(pSetAction);
+
+    // Connect the actions
+    connect(pViewAction, &QAction::triggered, this, [this, iSolution]() { emit viewPanelRequested(iSolution); });
+    connect(pSetAction, &QAction::triggered, this, [this, iSolution]() { emit setPanelRequested(iSolution); });
+
+    // Show the menu
+    QPoint position = mpView->mapToGlobal(point);
+    pMenu->exec(position);
 }
 
 //! Process selection of model items

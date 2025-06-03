@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of the Panel class
  */
 
@@ -34,6 +34,7 @@ public:
     bool isValid() const;
     void read(QXmlStreamReader& stream);
     void write(QXmlStreamWriter& stream);
+    void write(QString const& pathFile);
     Panel round(double precisionGeometry, double precisionMechanical);
 
     double thickness() const;

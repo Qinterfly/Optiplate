@@ -140,7 +140,7 @@ void PropertiesViewer::appendRow(QString const& name, double current, double tar
     // Error
     error *= 100;
     QColor color(Utility::errorColorName(error));
-    QTableWidgetItem* pItem = new QTableWidgetItem(Utility::toString(error, 3));
+    QTableWidgetItem* pItem = new QTableWidgetItem(Utility::toString(error, 2));
     pItem->setData(Qt::DecorationRole, color);
     mpTable->setItem(iRow, 3, pItem);
 };

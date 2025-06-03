@@ -1,13 +1,14 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the Panel class
  */
 
 #include <Eigen/Dense>
 #include <future>
 #include <QDebug>
+#include <QFileInfo>
 #include <QXmlStreamWriter>
 
 #include "fileutility.h"
@@ -163,6 +164,13 @@ void Panel::write(QXmlStreamWriter& stream)
     stream.writeTextElement("youngsModulus", QString::number(mYoungsModulus));
     stream.writeTextElement("density", QString::number(mDensity));
     stream.writeEndElement();
+}
+
+//! Write the panel to a file
+void Panel::write(QString const& pathFile)
+{
+    Model model = build();
+    model.write(pathFile.toStdString());
 }
 
 //! Round panel data up to the specified precision

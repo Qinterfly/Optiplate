@@ -31,6 +31,8 @@ public:
 
 signals:
     void solutionSelected(int index);
+    void viewPanelRequested(int index);
+    void setPanelRequested(int index);
 
 private:
     // Content
@@ -38,6 +40,7 @@ private:
 
     // Signals and slots
     void processSelection(QItemSelection const& selected, QItemSelection const& deselected);
+    void processContextMenu(QPoint const& point);
 
 private:
     QListView* mpView;

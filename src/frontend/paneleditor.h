@@ -12,6 +12,8 @@
 
 #include "panel.h"
 
+QT_FORWARD_DECLARE_CLASS(QGridLayout)
+
 class CustomDoubleSpinBox;
 
 namespace Frontend
@@ -46,9 +48,13 @@ private:
 
     // Signals & slots
     void processDataChange();
+    void processExport();
+    void processRound();
 
 private:
     Backend::Panel& mPanel;
+    QGridLayout* mpDataLayout;
+    static QString mLastPath;
 };
 
 } // namespace Frontend

@@ -201,7 +201,7 @@ void MainWindow::createSolverActions()
     // Set the icons
     mpStartSolverAction->setIcon(QIcon(":/icons/process-start.svg"));
     mpStopSolverAction->setIcon(QIcon(":/icons/process-stop.svg"));
-    pClearAction->setIcon(QIcon(":/icons/edit-delete.svg"));
+    pClearAction->setIcon(QIcon(":/icons/trash.svg"));
 
     // Set the connections
     connect(mpStartSolverAction, &QAction::triggered, this, &MainWindow::startSolver);
@@ -329,12 +329,28 @@ ads::CDockWidget* MainWindow::createLogger()
 //! Connect the widgets between each other
 void MainWindow::createConnections()
 {
+    // Slot functions
     auto updateProperties = [this](int index = -1)
     {
         if (index < 0)
             mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
         else if (index < mProject.solutions().size())
             mpPropertiesViewer->update(mProject.solutions()[index].properties, mProject.configuration().target);
+    };
+    auto viewPanel = [this](int index)
+    {
+        Backend::Panel panel = mProject.solutions()[index].panel;
+        PanelEditor* pEditor = new PanelEditor(panel);
+        ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Panel (Iteration: %1)").arg(QString::number(index)));
+        pDockWidget->setWidget(pEditor);
+        mpDockManager->addDockWidgetFloating(pDockWidget);
+    };
+    auto setPanel = [this](int index)
+    {
+        mProject.panel() = mProject.solutions()[index].panel;
+        mpPanelEditor->update();
+        mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+        qInfo() << tr("The panel data has been substituted");
     };
 
     // Panel
@@ -350,6 +366,8 @@ void MainWindow::createConnections()
 
     // Solutions
     connect(mpSolutionBrowser, &SolutionBrowser::solutionSelected, this, updateProperties);
+    connect(mpSolutionBrowser, &SolutionBrowser::viewPanelRequested, this, viewPanel);
+    connect(mpSolutionBrowser, &SolutionBrowser::setPanelRequested, this, setPanel);
 }
 
 //! Close the current project and create a new one
