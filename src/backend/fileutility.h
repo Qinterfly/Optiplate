@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of file utilities
  */
 
@@ -34,8 +34,7 @@ QString combineFilePath(T const& first, Args... args)
 
 QSharedPointer<QFile> openFile(QString const& pathFile, QString const& expectedSuffix, QIODevice::OpenModeFlag const& mode);
 void readData(double* pBegin, double* pEnd, QXmlStreamReader& stream);
-void writeData(QString const& name, double* pBegin, double* pEnd, QXmlStreamWriter& stream);
-
+void writeData(QString const& name, double const* pBegin, double const* pEnd, QXmlStreamWriter& stream);
 }
 
 #endif // FILEUTILITY_H

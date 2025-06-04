@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of ui utilities
  */
 
@@ -54,6 +54,7 @@ void setShortcutHints(QToolBar* pToolBar)
     }
 }
 
+//! Get color name associated with error value
 QString errorColorName(double value)
 {
     QString result = "yellow";
@@ -64,6 +65,7 @@ QString errorColorName(double value)
     return result;
 }
 
+//! Convert number to either exponential or fixed formatted string
 QString toString(double value, int precision)
 {
     double absValue = qAbs(value);
@@ -72,6 +74,19 @@ QString toString(double value, int precision)
         return QString::number(value, 'e', precision);
     else
         return QString::number(value, 'f', precision);
+}
+
+//! Find solution by iteration index
+int findByIteration(QList<Backend::Optimizer::Solution> const& solutions, int iteration)
+{
+    int index = -1;
+    int numSolutions = solutions.size();
+    for (int i = 0; i != numSolutions; ++i)
+    {
+        if (solutions[i].iteration == iteration)
+            return i;
+    }
+    return index;
 }
 
 //! Substitute a file suffix to the expected one, if necessary

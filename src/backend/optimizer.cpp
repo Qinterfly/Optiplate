@@ -328,7 +328,7 @@ void Optimizer::printReport(ceres::Solver::Summary const& summary)
 }
 
 Optimizer::Solution::Solution()
-    : iteration(0.0)
+    : iteration(-1)
     , isSuccess(false)
     , duration(0.0)
     , cost(std::numeric_limits<double>::infinity())
@@ -364,7 +364,7 @@ void Optimizer::Solution::read(QXmlStreamReader& stream)
 }
 
 //! Output the solution to a XML stream
-void Optimizer::Solution::write(QXmlStreamWriter& stream)
+void Optimizer::Solution::write(QXmlStreamWriter& stream) const
 {
     stream.writeStartElement("solution");
     stream.writeTextElement("iteration", QString::number(iteration));
@@ -376,6 +376,12 @@ void Optimizer::Solution::write(QXmlStreamWriter& stream)
     errorProperties.write("errorProperties", stream);
     stream.writeTextElement("message", message);
     stream.writeEndElement();
+}
+
+//! Check if the solution is valid
+bool Optimizer::Solution::isValid() const
+{
+    return iteration >= 0;
 }
 
 //! Enabled parameters for optimization
@@ -403,7 +409,7 @@ void Optimizer::State::read(QXmlStreamReader& stream)
 }
 
 //! Output the optimizer state to a XML stream
-void Optimizer::State::write(QXmlStreamWriter& stream)
+void Optimizer::State::write(QXmlStreamWriter& stream) const
 {
     stream.writeStartElement("state");
     stream.writeTextElement("vertices", QString::number(vertices));
@@ -446,7 +452,7 @@ void Optimizer::Options::read(QXmlStreamReader& stream)
 }
 
 //! Output the optimizer options to a XML stream
-void Optimizer::Options::write(QXmlStreamWriter& stream)
+void Optimizer::Options::write(QXmlStreamWriter& stream) const
 {
     stream.writeStartElement("options");
     stream.writeTextElement("autoScale", QString::number(autoScale));

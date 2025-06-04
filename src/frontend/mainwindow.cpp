@@ -330,24 +330,24 @@ ads::CDockWidget* MainWindow::createLogger()
 void MainWindow::createConnections()
 {
     // Slot functions
-    auto updateProperties = [this](int index = -1)
+    auto updateProperties = [this](Backend::Optimizer::Solution solution = Backend::Optimizer::Solution())
     {
-        if (index < 0)
+        if (solution.isValid())
+            mpPropertiesViewer->update(solution.properties, mProject.configuration().target);
+        else
             mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
-        else if (index < mProject.solutions().size())
-            mpPropertiesViewer->update(mProject.solutions()[index].properties, mProject.configuration().target);
     };
-    auto viewPanel = [this](int index)
+    auto viewPanel = [this](Backend::Optimizer::Solution solution)
     {
-        Backend::Panel panel = mProject.solutions()[index].panel;
+        Backend::Panel panel = solution.panel;
         PanelEditor* pEditor = new PanelEditor(panel);
-        ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Panel (Iteration: %1)").arg(QString::number(index)));
+        ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Panel (Iteration: %1)").arg(QString::number(solution.iteration)));
         pDockWidget->setWidget(pEditor);
         mpDockManager->addDockWidgetFloating(pDockWidget);
     };
-    auto setPanel = [this](int index)
+    auto setPanel = [this](Backend::Optimizer::Solution solution)
     {
-        mProject.panel() = mProject.solutions()[index].panel;
+        mProject.panel() = solution.panel;
         mpPanelEditor->update();
         mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
         qInfo() << tr("The panel data has been substituted");

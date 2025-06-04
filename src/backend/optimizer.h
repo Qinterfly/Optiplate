@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of the Optimizer class
  */
 
@@ -35,7 +35,8 @@ public:
         Solution();
 
         void read(QXmlStreamReader& stream);
-        void write(QXmlStreamWriter& stream);
+        void write(QXmlStreamWriter& stream) const;
+        bool isValid() const;
 
         int iteration;
         bool isSuccess;
@@ -53,7 +54,7 @@ public:
         State();
 
         void read(QXmlStreamReader& stream);
-        void write(QXmlStreamWriter& stream);
+        void write(QXmlStreamWriter& stream) const;
 
         bool vertices;
         bool depths;
@@ -66,7 +67,7 @@ public:
         Options();
 
         void read(QXmlStreamReader& stream);
-        void write(QXmlStreamWriter& stream);
+        void write(QXmlStreamWriter& stream) const;
 
         bool autoScale;
         int maxNumIterations;

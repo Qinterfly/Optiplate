@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 
 #include "solutionbrowser.h"
+#include "solutionitem.h"
 #include "solutionmodel.h"
 
 using namespace Frontend;
@@ -42,7 +43,11 @@ void SolutionBrowser::update(QList<Backend::Optimizer::Solution> const& solution
     connect(mpView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SolutionBrowser::processSelection);
 
     // Select the last item
-    mpView->setCurrentIndex(pModel->index(pModel->rowCount() - 1, 0));
+    int numItems = pModel->rowCount();
+    if (numItems > 0)
+        mpView->setCurrentIndex(pModel->index(numItems - 1, 0));
+    else
+        emit solutionSelected();
 }
 
 //! Create all the widgets and corresponding actions
@@ -54,6 +59,8 @@ void SolutionBrowser::createContent()
     mpView->setSelectionBehavior(QAbstractItemView::SelectItems);
     mpView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     mpView->setContextMenuPolicy(Qt::CustomContextMenu);
+    mpView->setDragEnabled(true);
+    mpView->setAcceptDrops(false);
 
     // Connect the view widget
     connect(mpView, &QListView::customContextMenuRequested, this, &SolutionBrowser::processContextMenu);
@@ -71,7 +78,9 @@ void SolutionBrowser::processContextMenu(QPoint const& point)
     QModelIndexList indices = mpView->selectionModel()->selectedIndexes();
     if (indices.isEmpty())
         return;
-    int iSolution = indices.first().row();
+    SolutionModel* pModel = (SolutionModel*) mpView->model();
+    SolutionItem* pItem = (SolutionItem*) pModel->itemFromIndex(indices.first());
+    Backend::Optimizer::Solution const& solution = pItem->solution();
 
     // Create the context menu
     QMenu* pMenu = new QMenu(this);
@@ -86,8 +95,8 @@ void SolutionBrowser::processContextMenu(QPoint const& point)
     pMenu->addAction(pSetAction);
 
     // Connect the actions
-    connect(pViewAction, &QAction::triggered, this, [this, iSolution]() { emit viewPanelRequested(iSolution); });
-    connect(pSetAction, &QAction::triggered, this, [this, iSolution]() { emit setPanelRequested(iSolution); });
+    connect(pViewAction, &QAction::triggered, this, [this, solution]() { emit viewPanelRequested(solution); });
+    connect(pSetAction, &QAction::triggered, this, [this, solution]() { emit setPanelRequested(solution); });
 
     // Show the menu
     QPoint position = mpView->mapToGlobal(point);
@@ -99,7 +108,13 @@ void SolutionBrowser::processSelection(QItemSelection const& selected, QItemSele
 {
     QModelIndexList indices = mpView->selectionModel()->selectedIndexes();
     if (!indices.empty())
-        emit solutionSelected(indices.first().row());
+    {
+        SolutionModel* pModel = (SolutionModel*) mpView->model();
+        SolutionItem* pItem = (SolutionItem*) pModel->itemFromIndex(indices.first());
+        emit solutionSelected(pItem->solution());
+    }
     else
-        emit solutionSelected(-1);
+    {
+        emit solutionSelected();
+    }
 }

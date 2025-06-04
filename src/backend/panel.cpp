@@ -154,7 +154,7 @@ void Panel::read(QXmlStreamReader& stream)
 }
 
 //! Write the panel to a XML stream
-void Panel::write(QXmlStreamWriter& stream)
+void Panel::write(QXmlStreamWriter& stream) const
 {
     stream.writeStartElement("panel");
     stream.writeTextElement("thickness", QString::number(mThickness));
@@ -167,7 +167,7 @@ void Panel::write(QXmlStreamWriter& stream)
 }
 
 //! Write the panel to a file
-void Panel::write(QString const& pathFile)
+void Panel::write(QString const& pathFile) const
 {
     Model model = build();
     model.write(pathFile.toStdString());

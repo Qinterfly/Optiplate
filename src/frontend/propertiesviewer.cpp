@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the PropertiesViewer class
  */
 
@@ -140,7 +140,7 @@ void PropertiesViewer::appendRow(QString const& name, double current, double tar
     // Error
     error *= 100;
     QColor color(Utility::errorColorName(error));
-    QTableWidgetItem* pItem = new QTableWidgetItem(Utility::toString(error, 2));
+    QTableWidgetItem* pItem = new QTableWidgetItem(Utility::toString(error, 3));
     pItem->setData(Qt::DecorationRole, color);
     mpTable->setItem(iRow, 3, pItem);
 };

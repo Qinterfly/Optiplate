@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Common graphical constants shared between several windows
  */
 
@@ -33,6 +33,13 @@ namespace Size
 
 const QSize skToolBarIcon = QSize(25, 25);
 const uint skMaxRecentProjects = 5;
+
+}
+
+namespace MimeType
+{
+
+const QString skSolutionModel = "project/solution";
 
 }
 

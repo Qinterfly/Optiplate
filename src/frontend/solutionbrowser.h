@@ -30,9 +30,9 @@ public:
     void update(QList<Backend::Optimizer::Solution> const& solutions);
 
 signals:
-    void solutionSelected(int index);
-    void viewPanelRequested(int index);
-    void setPanelRequested(int index);
+    void solutionSelected(Backend::Optimizer::Solution solution = Backend::Optimizer::Solution());
+    void viewPanelRequested(Backend::Optimizer::Solution solution);
+    void setPanelRequested(Backend::Optimizer::Solution solution);
 
 private:
     // Content

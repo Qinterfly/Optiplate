@@ -46,6 +46,7 @@ qt_add_library(frontend STATIC
     ${FRONTEND_HEADERS}
     ${FRONTEND_SOURCES}
     ${RESOURCES_FILE}
+    solutionitem.h solutionitem.cpp
 )
 
 target_link_libraries(frontend PRIVATE

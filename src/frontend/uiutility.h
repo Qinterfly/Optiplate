@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of ui utilities
  */
 
@@ -9,6 +9,8 @@
 #define UIUTILITY_H
 
 #include <QtGlobal>
+
+#include "optimizer.h"
 
 QT_FORWARD_DECLARE_CLASS(QWidget);
 QT_FORWARD_DECLARE_CLASS(QToolBar);
@@ -22,6 +24,7 @@ void fullScreenResize(QWidget* pWidget);
 void setShortcutHints(QToolBar* pToolBar);
 QString errorColorName(double value);
 QString toString(double value, int numDecimals);
+int findByIteration(QList<Backend::Optimizer::Solution> const& solutions, int iteration);
 
 // File
 void modifyFileSuffix(QString& pathFile, QString const& expectedSuffix);

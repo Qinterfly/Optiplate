@@ -41,6 +41,10 @@ public:
 signals:
     void dataChanged();
 
+protected:
+    void dragEnterEvent(QDragEnterEvent* pEvent) override;
+    void dropEvent(QDropEvent* pEvent) override;
+
 private:
     // Content
     void createContent();

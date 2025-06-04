@@ -21,6 +21,9 @@ public:
     SolutionModel(QList<Backend::Optimizer::Solution> const& solutions, QObject* pParent = nullptr);
     virtual ~SolutionModel();
 
+    QStringList mimeTypes() const override;
+    QMimeData* mimeData(QModelIndexList const& indices) const override;
+
 private:
     QList<Backend::Optimizer::Solution> const& mSolutions;
 };

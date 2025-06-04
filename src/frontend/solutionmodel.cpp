@@ -5,8 +5,12 @@
  * \brief Implementation of the SolutionModel class
  */
 
+#include <QMimeData>
+#include <QXmlStreamWriter>
+
+#include "solutionitem.h"
 #include "solutionmodel.h"
-#include "uiutility.h"
+#include "uiconstants.h"
 
 using namespace Frontend;
 
@@ -16,15 +20,36 @@ SolutionModel::SolutionModel(QList<Backend::Optimizer::Solution> const& solution
 {
     QStandardItem* pRootItem = invisibleRootItem();
     for (auto const& solution : solutions)
-    {
-        double error = solution.errorProperties.maxAbsValidValue() * 100;
-        QString name = tr("Iteration %1 → %2 %").arg(QString::number(solution.iteration), QString::number(error, 'f', 3));
-        QIcon icon(QString(":/icons/flag-%1.svg").arg(Utility::errorColorName(error)));
-        QStandardItem* pItem = new QStandardItem(icon, name);
-        pRootItem->appendRow(pItem);
-    }
+        pRootItem->appendRow(new SolutionItem(solution));
 }
 
 SolutionModel::~SolutionModel()
 {
+}
+
+QStringList SolutionModel::mimeTypes() const
+{
+    return QStringList() << Constants::MimeType::skSolutionModel;
+}
+
+QMimeData* SolutionModel::mimeData(QModelIndexList const& indices) const
+{
+    QByteArray encodedData;
+    QMimeData* pMimeData = new QMimeData;
+    QXmlStreamWriter stream(&encodedData);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
+    stream.writeStartElement("mime");
+    for (QModelIndex const& index : indices)
+    {
+        if (index.isValid())
+        {
+            SolutionItem* pItem = (SolutionItem*) itemFromIndex(indices.first());
+            pItem->solution().write(stream);
+        }
+    }
+    stream.writeEndElement();
+    stream.writeEndDocument();
+    pMimeData->setData(Constants::MimeType::skSolutionModel, encodedData);
+    return pMimeData;
 }

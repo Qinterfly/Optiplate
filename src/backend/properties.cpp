@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the Properties class
  */
 
@@ -122,7 +122,7 @@ void Properties::read(QXmlStreamReader& stream)
 }
 
 //! Write properties to a XML stream
-void Properties::write(QString const& name, QXmlStreamWriter& stream)
+void Properties::write(QString const& name, QXmlStreamWriter& stream) const
 {
     stream.writeStartElement(name);
     stream.writeTextElement("mass", QString::number(mass));

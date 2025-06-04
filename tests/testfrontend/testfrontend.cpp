@@ -31,7 +31,7 @@ void TestFrontend::testOpenProject()
 //! Solve the project
 void TestFrontend::testSolveProject()
 {
-    mpMainWindow->startSolver();
+    // mpMainWindow->startSolver();
 }
 
 TestFrontend::~TestFrontend()

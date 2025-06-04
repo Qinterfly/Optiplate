@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of file utilities
  */
 
@@ -56,10 +56,10 @@ void readData(double* pBegin, double* pEnd, QXmlStreamReader& stream)
 }
 
 //! Write a vector to a XML stream
-void writeData(QString const& name, double* pBegin, double* pEnd, QXmlStreamWriter& stream)
+void writeData(QString const& name, double const* pBegin, double const* pEnd, QXmlStreamWriter& stream)
 {
     stream.writeStartElement(name);
-    for (double* pIter = pBegin; pIter != pEnd; ++pIter)
+    for (double const* pIter = pBegin; pIter != pEnd; ++pIter)
         stream.writeTextElement("value", QString::number(*pIter));
     stream.writeEndElement();
 }

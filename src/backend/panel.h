@@ -33,8 +33,8 @@ public:
     void renumerate();
     bool isValid() const;
     void read(QXmlStreamReader& stream);
-    void write(QXmlStreamWriter& stream);
-    void write(QString const& pathFile);
+    void write(QXmlStreamWriter& stream) const;
+    void write(QString const& pathFile) const;
     Panel round(double precisionGeometry, double precisionMechanical);
 
     double thickness() const;

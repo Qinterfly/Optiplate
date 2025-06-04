@@ -6,12 +6,15 @@
  */
 
 #include <QDialog>
+#include <QDragEnterEvent>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMimeData>
 #include <QPushButton>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QXmlStreamReader>
 
 #include "paneleditor.h"
 #include "qtpropertybrowser/customdoublespinbox.h"
@@ -27,6 +30,7 @@ PanelEditor::PanelEditor(Backend::Panel& panel, QWidget* pParent)
     : QWidget(pParent)
     , mPanel(panel)
 {
+    setAcceptDrops(true);
     createContent();
     update();
 }
@@ -126,16 +130,34 @@ void PanelEditor::update()
         setValue(mPanel.depths()[i], kDepths, 1 + i);
 }
 
-CustomDoubleSpinBox* PanelEditor::createDoubleSpinBox(QPair<double, double> const& limits, int numDecimals)
+void PanelEditor::dragEnterEvent(QDragEnterEvent* pEvent)
 {
-    CustomDoubleSpinBox* pSpinBox = new CustomDoubleSpinBox;
-    pSpinBox->setMinimum(limits.first);
-    pSpinBox->setMaximum(limits.second);
-    pSpinBox->setDecimals(numDecimals);
-    pSpinBox->setStepType(CustomDoubleSpinBox::AdaptiveDecimalStepType);
-    pSpinBox->setWheelEnabled(false);
-    connect(pSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double) { processDataChange(); });
-    return pSpinBox;
+    if (pEvent->mimeData()->hasFormat(Constants::MimeType::skSolutionModel))
+        pEvent->acceptProposedAction();
+}
+void PanelEditor::dropEvent(QDropEvent* pEvent)
+{
+    QMimeData const* pMimeData = pEvent->mimeData();
+    QByteArray encodedData = pMimeData->data(Constants::MimeType::skSolutionModel);
+    QXmlStreamReader stream(encodedData);
+
+    // Read the number of solutions
+    stream.readNext();
+    stream.readNextStartElement();
+
+    // Read the first one
+    stream.readNextStartElement();
+    if (stream.name() == "solution")
+    {
+        Backend::Optimizer::Solution solution;
+        solution.read(stream);
+        if (solution.isValid())
+        {
+            mPanel = solution.panel;
+            update();
+            emit dataChanged();
+        }
+    }
 }
 
 //! Process changing data of a panel
@@ -223,4 +245,17 @@ void PanelEditor::processRound()
 
     // Execute the dialog
     pDialog->exec();
+}
+
+//! Helper function to create numeric widget
+CustomDoubleSpinBox* PanelEditor::createDoubleSpinBox(QPair<double, double> const& limits, int numDecimals)
+{
+    CustomDoubleSpinBox* pSpinBox = new CustomDoubleSpinBox;
+    pSpinBox->setMinimum(limits.first);
+    pSpinBox->setMaximum(limits.second);
+    pSpinBox->setDecimals(numDecimals);
+    pSpinBox->setStepType(CustomDoubleSpinBox::AdaptiveDecimalStepType);
+    pSpinBox->setWheelEnabled(false);
+    connect(pSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double) { processDataChange(); });
+    return pSpinBox;
 }

@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Declaration of the Properties class
  */
 
@@ -33,7 +33,7 @@ struct Properties : public KCL::MassProperties
     std::vector<double> allValues() const;
     Properties compare(Properties const& another, Properties const& weight = Properties(1.0)) const;
     void read(QXmlStreamReader& stream);
-    void write(QString const& name, QXmlStreamWriter& stream);
+    void write(QString const& name, QXmlStreamWriter& stream) const;
 };
 
 }
