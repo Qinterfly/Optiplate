@@ -26,6 +26,7 @@ namespace Frontend
 
 class Logger;
 class ConvergencePlot;
+class GeometryPlot;
 class OptionsEditor;
 class PanelEditor;
 class PropertiesViewer;
@@ -71,6 +72,7 @@ private:
     ads::CDockWidget* createPropertiesViewer();
     ads::CDockWidget* createSolutionBrowser();
     ads::CDockWidget* createConvergencePlot();
+    ads::CDockWidget* createGeometryPlot();
     ads::CDockWidget* createLogger();
     void createConnections();
 
@@ -111,6 +113,7 @@ private:
     PropertiesViewer* mpPropertiesViewer;
     OptionsEditor* mpOptionsEditor;
     ConvergencePlot* mpConvergencePlot;
+    GeometryPlot* mpGeometryPlot;
     SolutionBrowser* mpSolutionBrowser;
     bool mIsSolverRunning;
     QAction* mpStartSolverAction;

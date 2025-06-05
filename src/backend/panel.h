@@ -41,6 +41,7 @@ public:
     KCL::Vec4 const& xCoords() const;
     KCL::Vec4 const& zCoords() const;
     KCL::Vec3 const& depths() const;
+    KCL::Vec4 allDepths() const;
     double youngsModulus() const;
     double density() const;
 

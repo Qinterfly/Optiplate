@@ -26,7 +26,7 @@ PropertiesEditor::~PropertiesEditor()
 
 QSize PropertiesEditor::sizeHint() const
 {
-    return QSize(325, 100);
+    return QSize(500, 100);
 }
 
 //! Create all the widgets and corresponding actions

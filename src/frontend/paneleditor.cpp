@@ -41,7 +41,7 @@ PanelEditor::~PanelEditor()
 
 QSize PanelEditor::sizeHint() const
 {
-    return QSize(325, 75);
+    return QSize(500, 100);
 }
 
 //! Create all the widgets and corresponding actions

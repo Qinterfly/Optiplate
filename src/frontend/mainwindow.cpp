@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include "convergenceplot.h"
+#include "geometryplot.h"
 #include "logger.h"
 #include "mainwindow.h"
 #include "optionseditor.h"
@@ -116,6 +117,10 @@ void MainWindow::createContent()
     // Convergence plot
     pWidget = createConvergencePlot();
     pArea = mpDockManager->addDockWidget(ads::RightDockWidgetArea, pWidget);
+
+    // Geometry plot
+    pWidget = createGeometryPlot();
+    pArea = mpDockManager->addDockWidget(ads::CenterDockWidgetArea, pWidget, pArea);
 
     // Logger
     pWidget = createLogger();
@@ -312,6 +317,19 @@ ads::CDockWidget* MainWindow::createConvergencePlot()
     return pDockWidget;
 }
 
+//! Create a widget to represent panel geometry
+ads::CDockWidget* MainWindow::createGeometryPlot()
+{
+    // Create the widget to view panel geometry
+    mpGeometryPlot = new GeometryPlot;
+
+    // Construct the dock widget
+    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Geometry"));
+    pDockWidget->setWidget(mpGeometryPlot);
+    mpWindowMenu->addAction(pDockWidget->toggleViewAction());
+    return pDockWidget;
+}
+
 //! Create a widget to log all events
 ads::CDockWidget* MainWindow::createLogger()
 {
@@ -330,12 +348,18 @@ ads::CDockWidget* MainWindow::createLogger()
 void MainWindow::createConnections()
 {
     // Slot functions
-    auto updateProperties = [this](Backend::Optimizer::Solution solution = Backend::Optimizer::Solution())
+    auto updateWidgets = [this](Backend::Optimizer::Solution solution = Backend::Optimizer::Solution())
     {
         if (solution.isValid())
+        {
             mpPropertiesViewer->update(solution.properties, mProject.configuration().target);
+            mpGeometryPlot->plot(solution.panel);
+        }
         else
+        {
             mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+            mpGeometryPlot->plot(mProject.panel());
+        }
     };
     auto viewPanel = [this](Backend::Optimizer::Solution solution)
     {
@@ -350,22 +374,23 @@ void MainWindow::createConnections()
         mProject.panel() = solution.panel;
         mpPanelEditor->update();
         mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+        mpGeometryPlot->plot(mProject.panel());
         qInfo() << tr("The panel data has been substituted");
     };
 
     // Panel
     connect(mpPanelEditor, &PanelEditor::dataChanged, this, &MainWindow::processProjectChange);
-    connect(mpPanelEditor, &PanelEditor::dataChanged, this, updateProperties);
+    connect(mpPanelEditor, &PanelEditor::dataChanged, this, updateWidgets);
 
     // Properties
     for (auto [key, value] : mPropertiesEditors.asKeyValueRange())
     {
         connect(value, &PropertiesEditor::dataChanged, this, &MainWindow::processProjectChange);
-        connect(value, &PropertiesEditor::dataChanged, this, updateProperties);
+        connect(value, &PropertiesEditor::dataChanged, this, updateWidgets);
     }
 
     // Solutions
-    connect(mpSolutionBrowser, &SolutionBrowser::solutionSelected, this, updateProperties);
+    connect(mpSolutionBrowser, &SolutionBrowser::solutionSelected, this, updateWidgets);
     connect(mpSolutionBrowser, &SolutionBrowser::viewPanelRequested, this, viewPanel);
     connect(mpSolutionBrowser, &SolutionBrowser::setPanelRequested, this, setPanel);
 }
@@ -399,6 +424,7 @@ bool MainWindow::openProject(QString const& pathFile)
         mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
         mpSolutionBrowser->update(mProject.solutions());
         mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
+        mpGeometryPlot->plot(mProject.panel());
         return true;
     }
     return false;

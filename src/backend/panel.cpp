@@ -122,7 +122,7 @@ KCL::Vec4 Panel::evaluateDepths(KCL::Vec3 const& coeffs) const
 //! Check if panel data are correct
 bool Panel::isValid() const
 {
-    auto depths = evaluateDepths(depthEquation());
+    auto depths = allDepths();
     for (double d : depths)
     {
         if (d < 0.0)
@@ -261,6 +261,11 @@ KCL::Vec4 const& Panel::zCoords() const
 KCL::Vec3 const& Panel::depths() const
 {
     return mDepths;
+}
+
+KCL::Vec4 Panel::allDepths() const
+{
+    return evaluateDepths(depthEquation());
 }
 
 double Panel::youngsModulus() const
