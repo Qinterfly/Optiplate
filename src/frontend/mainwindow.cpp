@@ -353,12 +353,12 @@ void MainWindow::createConnections()
         if (solution.isValid())
         {
             mpPropertiesViewer->update(solution.properties, mProject.configuration().target);
-            mpGeometryPlot->plot(solution.panel);
+            mpGeometryPlot->plot(mProject.panel(), solution);
         }
         else
         {
             mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
-            mpGeometryPlot->plot(mProject.panel());
+            mpGeometryPlot->plot(mProject.panel(), solution);
         }
     };
     auto viewPanel = [this](Backend::Optimizer::Solution solution)
@@ -424,7 +424,6 @@ bool MainWindow::openProject(QString const& pathFile)
         mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
         mpSolutionBrowser->update(mProject.solutions());
         mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
-        mpGeometryPlot->plot(mProject.panel());
         return true;
     }
     return false;
