@@ -20,6 +20,8 @@ class vtkOrientationMarkerWidget;
 class vtkNamedColors;
 class vtkPropAssembly;
 
+class ClickInteractionStyle;
+
 namespace Frontend
 {
 
@@ -44,11 +46,12 @@ private:
     vtkSmartPointer<vtkPropAssembly> createOrientationActor();
 
 private:
-    QVTKOpenGLNativeWidget* mVTKWidget;
+    QVTKOpenGLNativeWidget* mRenderWidget;
     vtkSmartPointer<vtkRenderWindow> mRenderWindow;
     vtkSmartPointer<vtkRenderer> mRenderer;
     vtkSmartPointer<vtkOrientationMarkerWidget> mOrientation;
     vtkSmartPointer<vtkNamedColors> mColors;
+    vtkSmartPointer<ClickInteractionStyle> mStyle;
 };
 }
 

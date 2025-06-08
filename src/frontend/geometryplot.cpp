@@ -8,13 +8,17 @@
 #include <vtkActor.h>
 #include <vtkAnnotatedCubeActor.h>
 #include <vtkAxesActor.h>
+#include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
 #include <vtkCameraOrientationWidget.h>
 #include <vtkCaptionActor2D.h>
+#include <vtkCaptionRepresentation.h>
+#include <vtkCaptionWidget.h>
 #include <vtkCellData.h>
+#include <vtkCellPicker.h>
 #include <vtkCubeSource.h>
 #include <vtkDataSetMapper.h>
-#include <vtkDoubleArray.h>
+#include <vtkEventQtSlotConnect.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNamedColors.h>
@@ -22,14 +26,17 @@
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkPointData.h>
 #include <vtkPointPicker.h>
+#include <vtkPolyData.h>
 #include <vtkPolygon.h>
 #include <vtkPropAssembly.h>
 #include <vtkProperty.h>
+#include <vtkProperty2D.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkRendererCollection.h>
-#include <vtkSphereSource.h>
+#include <vtkTextActor.h>
 #include <vtkTextProperty.h>
+
 #include <QVBoxLayout>
 #include <QVTKOpenGLNativeWidget.h>
 
@@ -37,28 +44,101 @@
 
 using namespace Frontend;
 
-vtkSmartPointer<vtkPropAssembly> MakeAnnotatedCubeActor(vtkNamedColors* colors);
+void processKeypress(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
 
-// Define interaction style.
-class MouseInteractionStyle : public vtkInteractorStyleTrackballCamera
+//! Define interaction style
+class ClickInteractionStyle : public vtkInteractorStyleTrackballCamera
 {
 public:
-    static MouseInteractionStyle* New();
-    vtkTypeMacro(MouseInteractionStyle, vtkInteractorStyleTrackballCamera);
+    static ClickInteractionStyle* New();
+
+    ClickInteractionStyle()
+        : tolerancePick(1e-3)
+        , shiftLabel(0.025)
+    {
+        captionWidget = vtkCaptionWidget::New();
+    }
 
     virtual void OnLeftButtonDown() override
     {
-        int* pPosition = Interactor->GetEventPosition();
-        vtkSmartPointer<vtkRenderer> renderer = Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
-        Interactor->GetPicker()->Pick(pPosition[0], pPosition[1], 0, renderer);
-        double picked[3];
-        Interactor->GetPicker()->GetPickPosition(picked);
-        std::cout << "Picked value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
+        // Get the click position
+        int* screenPosition = Interactor->GetEventPosition();
+
+        // Create the picker
+        vtkNew<vtkCellPicker> picker;
+        picker->SetTolerance(tolerancePick);
+
+        // Pick at the click position
+        vtkSmartPointer<vtkRenderer> renderer = GetDefaultRenderer();
+        picker->Pick(screenPosition[0], screenPosition[1], 0, renderer);
+
+        // Process the pick
+        if (picker->GetPointId() != -1)
+            addCaption(picker);
+
+        // Forward events
+        GetInteractor()->GetRenderWindow()->Render();
         vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
     }
+
+    void clear()
+    {
+        captionWidget->SetRepresentation(nullptr);
+        captionWidget->SetEnabled(0);
+        GetInteractor()->GetRenderWindow()->Render();
+    }
+
+    //! Add the text caption associated with the selected point
+    void addCaption(vtkSmartPointer<vtkCellPicker> picker)
+    {
+        auto constexpr kFormat = "X: {:.2g}\nY: {:.2g}\nZ: {:.2g}";
+
+        vtkNew<vtkNamedColors> colors;
+
+        vtkSmartPointer<vtkActor> actor = picker->GetActor();
+        vtkSmartPointer<vtkDataSet> actorData = actor->GetMapper()->GetInput();
+
+        // Retrieve the selected data to render
+        double worldPosition[3];
+        actorData->GetPoint(picker->GetPointId(), worldPosition);
+
+        vtkNew<vtkCaptionRepresentation> captionRep;
+
+        // Set the caption text
+        vtkSmartPointer<vtkCaptionActor2D> captionActor = captionRep->GetCaptionActor2D();
+        vtkSmartPointer<vtkTextProperty> captionTextProperty = captionActor->GetCaptionTextProperty();
+        std::string const text = std::format(kFormat, worldPosition[0], worldPosition[1], worldPosition[2]);
+        captionActor->SetCaption(text.data());
+        captionActor->GetProperty()->SetColor(colors->GetColor3d("Black").GetData());
+        captionTextProperty->SetColor(colors->GetColor3d("Black").GetData());
+        captionTextProperty->SetFontSize(25);
+        captionTextProperty->BoldOff();
+        captionTextProperty->ItalicOff();
+        captionTextProperty->ShadowOff();
+
+        // Get the selected position in normalized display coordinates
+        double x = worldPosition[0];
+        double y = worldPosition[1];
+        double z = worldPosition[2];
+        GetDefaultRenderer()->WorldToDisplay(x, y, z);
+        GetDefaultRenderer()->DisplayToNormalizedDisplay(x, y);
+
+        // Set the caption position
+        captionRep->SetAnchorPosition(worldPosition);
+        captionRep->SetPosition(x + shiftLabel, y + shiftLabel);
+
+        // Enable the caption
+        captionWidget->SetInteractor(GetInteractor());
+        captionWidget->SetEnabled(1);
+        captionWidget->SetRepresentation(captionRep);
+    }
+
+    double tolerancePick;
+    double shiftLabel;
+    vtkSmartPointer<vtkCaptionWidget> captionWidget;
 };
 
-vtkStandardNewMacro(MouseInteractionStyle);
+vtkStandardNewMacro(ClickInteractionStyle);
 
 GeometryPlot::GeometryPlot(QWidget* pParent)
     : QWidget(pParent)
@@ -92,28 +172,33 @@ void GeometryPlot::initialize()
     // Create the window
     mRenderWindow = vtkGenericOpenGLRenderWindow::New();
     mRenderWindow->AddRenderer(mRenderer);
-    mVTKWidget->setRenderWindow(mRenderWindow);
+    mRenderWidget->setRenderWindow(mRenderWindow);
 
     // Set up the picker
-    vtkNew<vtkPointPicker> pointPicker;
-    vtkNew<MouseInteractionStyle> style;
+    mStyle = ClickInteractionStyle::New();
+    mStyle->SetDefaultRenderer(mRenderer);
     auto renderWindowInteractor = mRenderWindow->GetInteractor();
-    renderWindowInteractor->SetPicker(pointPicker);
-    renderWindowInteractor->SetInteractorStyle(style);
+    renderWindowInteractor->SetInteractorStyle(mStyle);
+
+    // Enable keyboard user interactions
+    vtkNew<vtkCallbackCommand> clickCallback;
+    clickCallback->SetCallback(processKeypress);
+    renderWindowInteractor->AddObserver(vtkCommand::KeyPressEvent, clickCallback);
 }
 
 //! Create all the widgets and corresponding actions
 void GeometryPlot::createContent()
 {
     QVBoxLayout* pLayout = new QVBoxLayout;
-    mVTKWidget = new QVTKOpenGLNativeWidget;
-    pLayout->addWidget(mVTKWidget);
+    mRenderWidget = new QVTKOpenGLNativeWidget;
+    pLayout->addWidget(mRenderWidget);
     setLayout(pLayout);
 }
 
 //! Remove all actors
 void GeometryPlot::clear()
 {
+    mStyle->clear();
     auto actors = mRenderer->GetActors();
     while (actors->GetLastActor())
         mRenderer->RemoveActor(actors->GetLastActor());
@@ -280,4 +365,14 @@ vtkSmartPointer<vtkPropAssembly> GeometryPlot::createOrientationActor()
     assembly->AddPart(actor);
 
     return assembly;
+}
+
+void processKeypress(vtkObject* caller, long unsigned int vtkNotUsed(eventId), void* vtkNotUsed(clientData), void* vtkNotUsed(callData))
+{
+    vtkRenderWindowInteractor* renderWindowInteractor = static_cast<vtkRenderWindowInteractor*>(caller);
+    if (QString(renderWindowInteractor->GetKeySym()) == "Escape")
+    {
+        ClickInteractionStyle* style = (ClickInteractionStyle*) renderWindowInteractor->GetInteractorStyle();
+        style->clear();
+    }
 }

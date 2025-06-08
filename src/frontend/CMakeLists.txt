@@ -12,6 +12,7 @@ find_package(VTK REQUIRED COMPONENTS
   FiltersSources
   FiltersGeneral
   FiltersModeling
+  FiltersExtraction
   InteractionStyle
   InteractionWidgets
   RenderingAnnotation
