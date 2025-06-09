@@ -8,19 +8,21 @@
 #include <QMimeData>
 #include <QXmlStreamWriter>
 
+#include "project.h"
 #include "solutionitem.h"
 #include "solutionmodel.h"
 #include "uiconstants.h"
 
 using namespace Frontend;
 
-SolutionModel::SolutionModel(QList<Backend::Optimizer::Solution> const& solutions, QObject* pParent)
+SolutionModel::SolutionModel(QList<Backend::Optimizer::Solution> const& solutions, Backend::Optimizer::Options const& options, QObject* pParent)
     : QStandardItemModel(pParent)
     , mSolutions(solutions)
+    , mOptions(options)
 {
     QStandardItem* pRootItem = invisibleRootItem();
     for (auto const& solution : solutions)
-        pRootItem->appendRow(new SolutionItem(solution));
+        pRootItem->appendRow(new SolutionItem(solution, mOptions));
 }
 
 SolutionModel::~SolutionModel()

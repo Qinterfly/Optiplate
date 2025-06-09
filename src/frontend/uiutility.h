@@ -22,7 +22,7 @@ namespace Frontend::Utility
 int showSaveDialog(QWidget* pWidget, QString const& title, QString const& message);
 void fullScreenResize(QWidget* pWidget);
 void setShortcutHints(QToolBar* pToolBar);
-QString errorColorName(double value);
+QString errorColorName(double value, double acceptThreshold, double criticalThreshold);
 QString toString(double value, int numDecimals);
 int findByIteration(QList<Backend::Optimizer::Solution> const& solutions, int iteration);
 

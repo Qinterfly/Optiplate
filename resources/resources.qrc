@@ -16,6 +16,13 @@
 		<file>icons/export.svg</file>
 		<file>icons/cut.svg</file>
 		<file>icons/trash.svg</file>
+		<file>icons/view-front.svg</file>
+		<file>icons/view-rear.svg</file>
+		<file>icons/view-top.svg</file>
+		<file>icons/view-bottom.svg</file>
+		<file>icons/view-left.svg</file>
+		<file>icons/view-right.svg</file>
+		<file>icons/view-isometric.svg</file>
 		<file>icons/close-button.svg</file>
 		<file>icons/close-button-disabled.svg</file>
 		<file>icons/close-button-focused.svg</file>

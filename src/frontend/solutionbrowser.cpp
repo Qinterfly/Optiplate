@@ -31,9 +31,9 @@ QSize SolutionBrowser::sizeHint() const
 }
 
 //! Update the viewer content
-void SolutionBrowser::update(QList<Backend::Optimizer::Solution> const& solutions)
+void SolutionBrowser::update(QList<Backend::Optimizer::Solution> const& solutions, Backend::Optimizer::Options const& options)
 {
-    SolutionModel* pModel = new SolutionModel(solutions);
+    SolutionModel* pModel = new SolutionModel(solutions, options);
 
     // Set the model
     mpView->setModel(nullptr);

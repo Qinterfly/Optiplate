@@ -10,12 +10,13 @@
 
 using namespace Frontend;
 
-SolutionItem::SolutionItem(Backend::Optimizer::Solution const& solution)
+SolutionItem::SolutionItem(Backend::Optimizer::Solution const& solution, Backend::Optimizer::Options const& options)
     : mSolution(solution)
+    , mOptions(options)
 {
-    double error = mSolution.errorProperties.maxAbsValidValue() * 100;
-    QString name = QObject::tr("Iteration %1 → %2 %").arg(QString::number(mSolution.iteration), QString::number(error, 'f', 3));
-    QIcon icon(QString(":/icons/flag-%1.svg").arg(Utility::errorColorName(error)));
+    double error = mSolution.errorProperties.maxAbsValidValue();
+    QIcon icon(QString(":/icons/flag-%1.svg").arg(Utility::errorColorName(error, mOptions.acceptThreshold, mOptions.criticalThreshold)));
+    QString name = QObject::tr("Iteration %1 → %2 %").arg(QString::number(mSolution.iteration), QString::number(error * 100, 'f', 3));
     setText(name);
     setIcon(icon);
 }

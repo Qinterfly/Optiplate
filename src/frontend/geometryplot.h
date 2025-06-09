@@ -45,6 +45,10 @@ private:
     vtkSmartPointer<vtkPolyDataMapper> createPanelMapper(Backend::Panel const& panel);
     vtkSmartPointer<vtkPropAssembly> createOrientationActor();
 
+    // Slots
+    void setIsometricView();
+    void setPlaneView(int dir, int sign);
+
 private:
     QVTKOpenGLNativeWidget* mRenderWidget;
     vtkSmartPointer<vtkRenderWindow> mRenderWindow;

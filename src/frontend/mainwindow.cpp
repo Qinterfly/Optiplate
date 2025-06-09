@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget* pParent)
     initializeWindow();
     createContent();
     createConnections();
-    // restoreSettings();
+    restoreSettings();
     newProject();
 }
 
@@ -85,6 +85,7 @@ void MainWindow::createContent()
     createFileActions();
     createWindowActions();
     createSolverActions();
+    createHelpActions();
 
     // Manager to place dockable widgets
     createDockManager();
@@ -102,8 +103,6 @@ void MainWindow::createContent()
     // Options editor
     pWidget = createOptionsEditor();
     mpDockManager->addDockWidget(ads::CenterDockWidgetArea, pWidget, pArea);
-
-    // Select the first widget to display
     pArea->setCurrentIndex(0);
 
     // Properties viewer
@@ -121,6 +120,7 @@ void MainWindow::createContent()
     // Geometry plot
     pWidget = createGeometryPlot();
     pArea = mpDockManager->addDockWidget(ads::CenterDockWidgetArea, pWidget, pArea);
+    pArea->setCurrentIndex(0);
 
     // Logger
     pWidget = createLogger();
@@ -229,6 +229,24 @@ void MainWindow::createSolverActions()
     Utility::setShortcutHints(pToolBar);
     addToolBar(pToolBar);
     updateSolverActions();
+}
+
+//! Create the actions to show the program info
+void MainWindow::createHelpActions()
+{
+    // Create the actions
+    QAction* pAboutAction = new QAction(tr("&About"), this);
+    QAction* pAboutQtAction = new QAction(tr("&About Qt"), this);
+
+    // Connect the actions
+    connect(pAboutAction, &QAction::triggered, this, &MainWindow::about);
+    connect(pAboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
+
+    // Fill up the menu
+    QMenu* pHelpMenu = new QMenu(tr("&Help"), this);
+    pHelpMenu->addAction(pAboutAction);
+    pHelpMenu->addAction(pAboutQtAction);
+    menuBar()->addMenu(pHelpMenu);
 }
 
 //! Create the dock manager and specify its configuration
@@ -352,12 +370,12 @@ void MainWindow::createConnections()
     {
         if (solution.isValid())
         {
-            mpPropertiesViewer->update(solution.properties, mProject.configuration().target);
+            mpPropertiesViewer->update(solution.properties, mProject.configuration());
             mpGeometryPlot->plot(mProject.panel(), solution);
         }
         else
         {
-            mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+            mpPropertiesViewer->update(mProject.panel(), mProject.configuration());
             mpGeometryPlot->plot(mProject.panel(), solution);
         }
     };
@@ -373,7 +391,7 @@ void MainWindow::createConnections()
     {
         mProject.panel() = solution.panel;
         mpPanelEditor->update();
-        mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
+        mpPropertiesViewer->update(mProject.panel(), mProject.configuration());
         mpGeometryPlot->plot(mProject.panel());
         qInfo() << tr("The panel data has been substituted");
     };
@@ -421,8 +439,8 @@ bool MainWindow::openProject(QString const& pathFile)
         for (auto [key, value] : mPropertiesEditors.asKeyValueRange())
             value->update();
         mpOptionsEditor->update();
-        mpPropertiesViewer->update(mProject.panel(), mProject.configuration().target);
-        mpSolutionBrowser->update(mProject.solutions());
+        mpPropertiesViewer->update(mProject.panel(), mProject.configuration());
+        mpSolutionBrowser->update(mProject.solutions(), mProject.configuration().options);
         mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
         return true;
     }
@@ -539,7 +557,7 @@ void MainWindow::startSolver()
             {
                 mProject.addSolution(solution);
                 mpConvergencePlot->plot(mProject.solutions(), mProject.configuration().options);
-                mpSolutionBrowser->update(mProject.solutions());
+                mpSolutionBrowser->update(mProject.solutions(), mProject.configuration().options);
                 setModified(true);
             });
     connect(pThread, &SolveThread::resultReady, this,
@@ -548,7 +566,7 @@ void MainWindow::startSolver()
                 mIsSolverRunning = false;
                 mProject.setSolutions(solutions);
                 updateSolverActions();
-                mpSolutionBrowser->update(mProject.solutions());
+                mpSolutionBrowser->update(mProject.solutions(), mProject.configuration().options);
                 mpPanelEditor->setEnabled(true);
                 setModified(true);
                 qInfo() << tr("Opimization process finished");
@@ -559,7 +577,7 @@ void MainWindow::startSolver()
                 mIsSolverRunning = false;
                 pThread->deleteLater();
                 updateSolverActions();
-                mpSolutionBrowser->update(mProject.solutions());
+                mpSolutionBrowser->update(mProject.solutions(), mProject.configuration().options);
                 mpPanelEditor->setEnabled(true);
                 setModified(true);
             });
@@ -570,7 +588,7 @@ void MainWindow::startSolver()
                 qWarning() << tr("Stop solver requested");
                 pThread->requestInterruption();
                 updateSolverActions();
-                mpSolutionBrowser->update(mProject.solutions());
+                mpSolutionBrowser->update(mProject.solutions(), mProject.configuration().options);
                 mpPanelEditor->setEnabled(true);
             });
 
@@ -769,9 +787,22 @@ void MainWindow::clearResultsDialog()
     if (result == QMessageBox::Yes)
     {
         mProject.clearSolutions();
-        mpSolutionBrowser->update(mProject.solutions());
+        mpSolutionBrowser->update(mProject.solutions(), mProject.configuration().options);
+        mpConvergencePlot->clear();
         qInfo() << tr("The results have been cleared");
     }
+}
+
+//! Show information about the program
+void MainWindow::about()
+{
+    QString const build = QStringLiteral(__DATE__) + QStringLiteral(" ") + QStringLiteral(__TIME__);
+    QString const author = tr("Pavel Lakiza");
+    QString const message = tr("%1 is a program which optimizes mechanical and geometrical properties of panels\n\n"
+                               "Built on %3\n\n"
+                               "Copyright %1 (%2)")
+                                .arg(APP_NAME, author, build);
+    QMessageBox::about(this, tr("About %1 v%2").arg(APP_NAME, VERSION_FULL), message);
 }
 
 SolveThread::SolveThread(Backend::Project project, QObject* pParent)

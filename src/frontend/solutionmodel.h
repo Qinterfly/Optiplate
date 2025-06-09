@@ -18,7 +18,7 @@ namespace Frontend
 class SolutionModel : public QStandardItemModel
 {
 public:
-    SolutionModel(QList<Backend::Optimizer::Solution> const& solutions, QObject* pParent = nullptr);
+    SolutionModel(QList<Backend::Optimizer::Solution> const& solutions, Backend::Optimizer::Options const& options, QObject* pParent = nullptr);
     virtual ~SolutionModel();
 
     QStringList mimeTypes() const override;
@@ -26,6 +26,7 @@ public:
 
 private:
     QList<Backend::Optimizer::Solution> const& mSolutions;
+    Backend::Optimizer::Options const& mOptions;
 };
 
 }

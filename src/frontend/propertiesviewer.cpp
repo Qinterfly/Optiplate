@@ -13,6 +13,7 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
+#include "project.h"
 #include "propertiesviewer.h"
 #include "uiutility.h"
 
@@ -55,14 +56,14 @@ void PropertiesViewer::clear()
 }
 
 //! Update the content
-void PropertiesViewer::update(Backend::Panel const& panel, Backend::Properties const& target)
+void PropertiesViewer::update(Backend::Panel const& panel, Backend::Configuration const& configuration)
 {
     double const kTimeout = 1.0;
     Backend::Properties current = panel.massProperties(kTimeout);
-    update(current, target);
+    update(current, configuration);
 }
 
-void PropertiesViewer::update(Backend::Properties const& current, Backend::Properties const& target)
+void PropertiesViewer::update(Backend::Properties const& current, Backend::Configuration const& configuration)
 {
     int const kNumColumns = 4;
     QStringList const kDirections = {"X", "Y", "Z"};
@@ -74,17 +75,22 @@ void PropertiesViewer::update(Backend::Properties const& current, Backend::Prope
     // Retrieve current mass properties and compare them with the target ones
     if (!current.isValid())
         return;
+    Backend::Properties const& target = configuration.target;
+    Backend::Optimizer::Options const& options = configuration.options;
     Backend::Properties errors = current.compare(target);
 
     // Set the data
     mpTable->setColumnCount(kNumColumns);
-    appendRow(tr("Mass"), current.mass, target.mass, errors.mass);
+    appendRow(tr("Mass"), current.mass, target.mass, errors.mass, options);
     for (int i = 0; i != kNumDirections; ++i)
-        appendRow(tr("Center of gravity %1").arg(kDirections[i]), current.centerGravity[i], target.centerGravity[i], errors.centerGravity[i]);
+        appendRow(tr("Center of gravity %1").arg(kDirections[i]), current.centerGravity[i], target.centerGravity[i], errors.centerGravity[i],
+                  options);
     for (int i = 0; i != kNumDirections; ++i)
-        appendRow(tr("Inertia moment %1").arg(kDirections[i]), current.inertiaMoments[i], target.inertiaMoments[i], errors.inertiaMoments[i]);
+        appendRow(tr("Inertia moment %1").arg(kDirections[i]), current.inertiaMoments[i], target.inertiaMoments[i], errors.inertiaMoments[i],
+                  options);
     for (int i = 0; i != kNumDirections; ++i)
-        appendRow(tr("Inertia product %1").arg(kDirections[i]), current.inertiaProducts[i], target.inertiaProducts[i], errors.inertiaProducts[i]);
+        appendRow(tr("Inertia product %1").arg(kDirections[i]), current.inertiaProducts[i], target.inertiaProducts[i], errors.inertiaProducts[i],
+                  options);
 
     // Set the data alignment
     for (int iRow = 0; iRow != mpTable->rowCount(); ++iRow)
@@ -127,7 +133,7 @@ void PropertiesViewer::keyPressEvent(QKeyEvent* pEvent)
 }
 
 //! Append a property
-void PropertiesViewer::appendRow(QString const& name, double current, double target, double error)
+void PropertiesViewer::appendRow(QString const& name, double current, double target, double error, Backend::Optimizer::Options const& options)
 {
     int iRow = mpTable->rowCount();
     mpTable->insertRow(iRow);
@@ -138,8 +144,8 @@ void PropertiesViewer::appendRow(QString const& name, double current, double tar
     // Target value
     mpTable->setItem(iRow, 2, new QTableWidgetItem(QString::number(target, 'g', 5)));
     // Error
+    QColor color(Utility::errorColorName(error, options.acceptThreshold, options.criticalThreshold));
     error *= 100;
-    QColor color(Utility::errorColorName(error));
     QTableWidgetItem* pItem = new QTableWidgetItem(Utility::toString(error, 3));
     pItem->setData(Qt::DecorationRole, color);
     mpTable->setItem(iRow, 3, pItem);

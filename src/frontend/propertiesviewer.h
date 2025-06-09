@@ -10,10 +10,16 @@
 
 #include <QWidget>
 
-#include "panel.h"
-#include "properties.h"
+#include "optimizer.h"
 
 QT_FORWARD_DECLARE_CLASS(QTableWidget)
+
+namespace Backend
+{
+class Configuration;
+class Panel;
+class Properties;
+}
 
 namespace Frontend
 {
@@ -27,14 +33,14 @@ public:
     virtual ~PropertiesViewer();
 
     void clear();
-    void update(Backend::Panel const& panel, Backend::Properties const& target);
-    void update(Backend::Properties const& current, Backend::Properties const& target);
+    void update(Backend::Panel const& panel, Backend::Configuration const& configuration);
+    void update(Backend::Properties const& current, Backend::Configuration const& configuration);
 
     void keyPressEvent(QKeyEvent* pEvent) override;
 
 private:
     void createContent();
-    void appendRow(QString const& name, double current, double target, double error);
+    void appendRow(QString const& name, double current, double target, double error, Backend::Optimizer::Options const& options);
 
 private:
     QTableWidget* mpTable;

@@ -426,6 +426,8 @@ Optimizer::Options::Options()
     , numThreads(1)
     , maxRelativeError(1e-3)
     , diffStepSize(1e-3)
+    , acceptThreshold(0.01)
+    , criticalThreshold(0.05)
 {
 }
 
@@ -446,6 +448,10 @@ void Optimizer::Options::read(QXmlStreamReader& stream)
             maxRelativeError = stream.readElementText().toDouble();
         else if (stream.name() == "diffStepSize")
             diffStepSize = stream.readElementText().toDouble();
+        else if (stream.name() == "acceptThreshold")
+            acceptThreshold = stream.readElementText().toDouble();
+        else if (stream.name() == "criticalThreshold")
+            criticalThreshold = stream.readElementText().toDouble();
         else
             stream.skipCurrentElement();
     }
@@ -461,6 +467,8 @@ void Optimizer::Options::write(QXmlStreamWriter& stream) const
     stream.writeTextElement("numThreads", QString::number(numThreads));
     stream.writeTextElement("maxRelativeSize", QString::number(maxRelativeError));
     stream.writeTextElement("diffStepSize", QString::number(diffStepSize));
+    stream.writeTextElement("acceptThreshold", QString::number(acceptThreshold));
+    stream.writeTextElement("criticalThreshold", QString::number(criticalThreshold));
     stream.writeEndElement();
 }
 

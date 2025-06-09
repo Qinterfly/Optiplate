@@ -55,12 +55,12 @@ void setShortcutHints(QToolBar* pToolBar)
 }
 
 //! Get color name associated with error value
-QString errorColorName(double value)
+QString errorColorName(double value, double acceptThreshold, double criticalThreshold)
 {
     QString result = "yellow";
-    if (qAbs(value) < 1.0)
+    if (qAbs(value) < acceptThreshold)
         result = "green";
-    else if (qAbs(value) > 5.0)
+    else if (qAbs(value) > criticalThreshold)
         result = "red";
     return result;
 }

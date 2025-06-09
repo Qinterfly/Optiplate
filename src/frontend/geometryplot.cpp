@@ -25,10 +25,12 @@
 #include <vtkNew.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkPointData.h>
+#include <vtkPointHandleRepresentation3D.h>
 #include <vtkPointPicker.h>
 #include <vtkPolyData.h>
 #include <vtkPolygon.h>
 #include <vtkPropAssembly.h>
+#include <vtkPropPicker.h>
 #include <vtkProperty.h>
 #include <vtkProperty2D.h>
 #include <vtkRenderWindowInteractor.h>
@@ -36,15 +38,18 @@
 #include <vtkRendererCollection.h>
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
+#include <QToolBar>
 
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QVTKOpenGLNativeWidget.h>
 
 #include "geometryplot.h"
+#include "uiconstants.h"
+#include "uiutility.h"
 
 using namespace Frontend;
 
-void processKeypress(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
+void processKeyPress(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
 
 //! Define interaction style
 class ClickInteractionStyle : public vtkInteractorStyleTrackballCamera
@@ -53,19 +58,20 @@ public:
     static ClickInteractionStyle* New();
 
     ClickInteractionStyle()
-        : tolerancePick(1e-3)
+        : tolerancePick(1e-2)
         , shiftLabel(0.025)
     {
         captionWidget = vtkCaptionWidget::New();
     }
 
+    //! Add captions when points picked
     virtual void OnLeftButtonDown() override
     {
         // Get the click position
         int* screenPosition = Interactor->GetEventPosition();
 
         // Create the picker
-        vtkNew<vtkCellPicker> picker;
+        vtkNew<vtkPointPicker> picker;
         picker->SetTolerance(tolerancePick);
 
         // Pick at the click position
@@ -89,9 +95,9 @@ public:
     }
 
     //! Add the text caption associated with the selected point
-    void addCaption(vtkSmartPointer<vtkCellPicker> picker)
+    void addCaption(vtkSmartPointer<vtkPointPicker> picker)
     {
-        auto constexpr kFormat = "X: {:.2g}\nY: {:.2g}\nZ: {:.2g}";
+        auto constexpr kFormat = "X: {:.3g}\nY: {:.3g}\nZ: {:.3g}";
 
         vtkNew<vtkNamedColors> colors;
 
@@ -111,10 +117,13 @@ public:
         captionActor->SetCaption(text.data());
         captionActor->GetProperty()->SetColor(colors->GetColor3d("Black").GetData());
         captionTextProperty->SetColor(colors->GetColor3d("Black").GetData());
-        captionTextProperty->SetFontSize(25);
         captionTextProperty->BoldOff();
         captionTextProperty->ItalicOff();
         captionTextProperty->ShadowOff();
+
+        // Set the anchor properties
+        captionRep->GetAnchorRepresentation()->GetProperty()->SetOpacity(0.0);
+        captionRep->GetAnchorRepresentation()->DragableOff();
 
         // Get the selected position in normalized display coordinates
         double x = worldPosition[0];
@@ -165,9 +174,7 @@ void GeometryPlot::initialize()
 
     // Set up the scence
     mRenderer = vtkRenderer::New();
-    mRenderer->SetBackground(mColors->GetColor3d("White").GetData());
-    mRenderer->GetActiveCamera()->Elevation(30);
-    mRenderer->GetActiveCamera()->Azimuth(30);
+    mRenderer->SetBackground(mColors->GetColor3d("WhiteSmoke").GetData());
 
     // Create the window
     mRenderWindow = vtkGenericOpenGLRenderWindow::New();
@@ -181,17 +188,76 @@ void GeometryPlot::initialize()
     renderWindowInteractor->SetInteractorStyle(mStyle);
 
     // Enable keyboard user interactions
-    vtkNew<vtkCallbackCommand> clickCallback;
-    clickCallback->SetCallback(processKeypress);
-    renderWindowInteractor->AddObserver(vtkCommand::KeyPressEvent, clickCallback);
+    vtkNew<vtkCallbackCommand> keypressCallback;
+    keypressCallback->SetCallback(processKeyPress);
+    renderWindowInteractor->AddObserver(vtkCommand::KeyPressEvent, keypressCallback);
+
+    // Set the view
+    setIsometricView();
 }
 
 //! Create all the widgets and corresponding actions
 void GeometryPlot::createContent()
 {
-    QVBoxLayout* pLayout = new QVBoxLayout;
+    QHBoxLayout* pLayout = new QHBoxLayout;
+
+    // Create the VTK widget
     mRenderWidget = new QVTKOpenGLNativeWidget;
+
+    // Create the toolbar
+    QToolBar* pToolBar = new QToolBar;
+    pToolBar->setOrientation(Qt::Vertical);
+    pToolBar->setIconSize(Constants::Size::skToolBarIcon);
+
+    // Create the actions
+    QAction* pIsometricAction = new QAction(tr("Isometric view"), this);
+    QAction* pLeftAction = new QAction(tr("Left view"), this);
+    QAction* pRightAction = new QAction(tr("Right view"), this);
+    QAction* pTopAction = new QAction(tr("Top view"), this);
+    QAction* pBottomAction = new QAction(tr("Bottom view"), this);
+    QAction* pFrontAction = new QAction(tr("Front view"), this);
+    QAction* pRearAction = new QAction(tr("Rear view"), this);
+
+    // Set the icons
+    pIsometricAction->setIcon(QIcon(":/icons/view-isometric.svg"));
+    pTopAction->setIcon(QIcon(":/icons/view-top.svg"));
+    pBottomAction->setIcon(QIcon(":/icons/view-bottom.svg"));
+    pLeftAction->setIcon(QIcon(":/icons/view-left.svg"));
+    pRightAction->setIcon(QIcon(":/icons/view-right.svg"));
+    pFrontAction->setIcon(QIcon(":/icons/view-front.svg"));
+    pRearAction->setIcon(QIcon(":/icons/view-rear.svg"));
+
+    // Set the shortcuts
+    pIsometricAction->setShortcut(Qt::CTRL | Qt::Key_1);
+    pTopAction->setShortcut(Qt::CTRL | Qt::Key_2);
+    pBottomAction->setShortcut(Qt::CTRL | Qt::Key_3);
+    pLeftAction->setShortcut(Qt::CTRL | Qt::Key_4);
+    pRightAction->setShortcut(Qt::CTRL | Qt::Key_5);
+    pFrontAction->setShortcut(Qt::CTRL | Qt::Key_6);
+    pRearAction->setShortcut(Qt::CTRL | Qt::Key_7);
+    Utility::setShortcutHints(pToolBar);
+
+    // Connect the actions
+    connect(pIsometricAction, &QAction::triggered, this, &GeometryPlot::setIsometricView);
+    connect(pLeftAction, &QAction::triggered, this, [this]() { setPlaneView(0, 1); });
+    connect(pRightAction, &QAction::triggered, this, [this]() { setPlaneView(0, -1); });
+    connect(pTopAction, &QAction::triggered, this, [this]() { setPlaneView(1, 1); });
+    connect(pBottomAction, &QAction::triggered, this, [this]() { setPlaneView(1, -1); });
+    connect(pFrontAction, &QAction::triggered, this, [this]() { setPlaneView(2, 1); });
+    connect(pRearAction, &QAction::triggered, this, [this]() { setPlaneView(2, -1); });
+
+    // Add the actions
+    pToolBar->addAction(pIsometricAction);
+    pToolBar->addAction(pLeftAction);
+    pToolBar->addAction(pRightAction);
+    pToolBar->addAction(pTopAction);
+    pToolBar->addAction(pBottomAction);
+    pToolBar->addAction(pFrontAction);
+    pToolBar->addAction(pRearAction);
+
+    // Combine the widgets
     pLayout->addWidget(mRenderWidget);
+    pLayout->addWidget(pToolBar);
     setLayout(pLayout);
 }
 
@@ -312,12 +378,12 @@ vtkSmartPointer<vtkPropAssembly> GeometryPlot::createOrientationActor()
     cube->SetFaceTextScale(0.366667);
 
     // Anatomic labeling
-    cube->SetXPlusFaceText("X+");
-    cube->SetXMinusFaceText("X-");
-    cube->SetYPlusFaceText("Y+");
-    cube->SetYMinusFaceText("Y-");
-    cube->SetZPlusFaceText("Z+");
-    cube->SetZMinusFaceText("Z-");
+    cube->SetXPlusFaceText("+X");
+    cube->SetXMinusFaceText("-X");
+    cube->SetYPlusFaceText("+Y");
+    cube->SetYMinusFaceText("-Y");
+    cube->SetZPlusFaceText("+Z");
+    cube->SetZMinusFaceText("-Z");
 
     // Change the vector text colors.
     cube->GetTextEdgesProperty()->SetColor(mColors->GetColor3d("Black").GetData());
@@ -367,10 +433,39 @@ vtkSmartPointer<vtkPropAssembly> GeometryPlot::createOrientationActor()
     return assembly;
 }
 
-void processKeypress(vtkObject* caller, long unsigned int vtkNotUsed(eventId), void* vtkNotUsed(clientData), void* vtkNotUsed(callData))
+//! Set the isometric view
+void GeometryPlot::setIsometricView()
+{
+    vtkSmartPointer<vtkCamera> camera = mRenderer->GetActiveCamera();
+    camera->SetPosition(1, 1, 1);
+    camera->SetFocalPoint(0, 0, 0);
+    camera->SetViewUp(0, 1, 0);
+    mRenderer->ResetCamera();
+    mRenderWindow->Render();
+}
+
+//! Set view perpendicular to one of the planes
+void GeometryPlot::setPlaneView(int dir, int sign)
+{
+    int const kNumDirections = 3;
+    vtkSmartPointer<vtkCamera> camera = mRenderer->GetActiveCamera();
+    double position[kNumDirections];
+    for (int i = 0; i != kNumDirections; ++i)
+        position[i] = 0.0;
+    position[dir] = 1.0 * sign;
+    camera->SetPosition(position);
+    camera->SetFocalPoint(0, 0, 0);
+    camera->SetViewUp(0, -1, 0);
+    mRenderer->ResetCamera();
+    mRenderWindow->Render();
+}
+
+//! Helper callback function to process keypress events
+void processKeyPress(vtkObject* caller, long unsigned int vtkNotUsed(eventId), void* vtkNotUsed(clientData), void* vtkNotUsed(callData))
 {
     vtkRenderWindowInteractor* renderWindowInteractor = static_cast<vtkRenderWindowInteractor*>(caller);
-    if (QString(renderWindowInteractor->GetKeySym()) == "Escape")
+    QString keyName = renderWindowInteractor->GetKeySym();
+    if (keyName == "Escape" || keyName == "Delete" || keyName == "BackSpace")
     {
         ClickInteractionStyle* style = (ClickInteractionStyle*) renderWindowInteractor->GetInteractorStyle();
         style->clear();

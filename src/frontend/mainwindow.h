@@ -65,6 +65,7 @@ private:
     void createFileActions();
     void createWindowActions();
     void createSolverActions();
+    void createHelpActions();
     void createDockManager();
     ads::CDockWidget* createPanelEditor();
     ads::CDockWidget* createPropertiesEditor(QString const& name, PropertyType type, Backend::Properties& properties);
@@ -99,6 +100,7 @@ private:
     bool saveProjectChangesDialog();
     bool stopSolverDialog();
     void clearResultsDialog();
+    void about();
 
 private:
     QSettings mSettings;

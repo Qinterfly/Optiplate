@@ -27,7 +27,7 @@ public:
     virtual ~SolutionBrowser();
 
     QSize sizeHint() const override;
-    void update(QList<Backend::Optimizer::Solution> const& solutions);
+    void update(QList<Backend::Optimizer::Solution> const& solutions, Backend::Optimizer::Options const& options);
 
 signals:
     void solutionSelected(Backend::Optimizer::Solution solution = Backend::Optimizer::Solution());

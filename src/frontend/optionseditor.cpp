@@ -111,6 +111,20 @@ void OptionsEditor::createProperties()
     mpDoubleManager->setDecimals(pProperty, 7);
     mpDoubleManager->setMinimum(pProperty, 1e-7);
     addProperty(pProperty, kDiffStepSize);
+
+    // Accept threshold
+    pProperty = mpDoubleManager->addProperty(tr("Accept threshold (green)"));
+    mpDoubleManager->setValue(pProperty, mOptions.acceptThreshold);
+    mpDoubleManager->setDecimals(pProperty, 3);
+    mpDoubleManager->setMinimum(pProperty, 0);
+    addProperty(pProperty, kAcceptThreshold);
+
+    // Critical threshold
+    pProperty = mpDoubleManager->addProperty(tr("Critical threshold (red)"));
+    mpDoubleManager->setValue(pProperty, mOptions.criticalThreshold);
+    mpDoubleManager->setDecimals(pProperty, 3);
+    mpDoubleManager->setMinimum(pProperty, 0);
+    addProperty(pProperty, kCriticalThreshold);
 }
 
 //! Process changing of a boolean value
@@ -163,6 +177,22 @@ void OptionsEditor::setDoubleValue(QtProperty* pProperty, double value)
         break;
     case kDiffStepSize:
         mOptions.diffStepSize = value;
+        break;
+    case kAcceptThreshold:
+        mOptions.acceptThreshold = value;
+        if (value > mOptions.criticalThreshold)
+        {
+            mOptions.criticalThreshold = value;
+            mpDoubleManager->setValue(mIDToProperty[kCriticalThreshold], value);
+        }
+        break;
+    case kCriticalThreshold:
+        mOptions.criticalThreshold = value;
+        if (value < mOptions.acceptThreshold)
+        {
+            mOptions.acceptThreshold = value;
+            mpDoubleManager->setValue(mIDToProperty[kAcceptThreshold], value);
+        }
         break;
     }
 

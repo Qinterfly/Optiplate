@@ -34,7 +34,9 @@ public:
         kTimeoutIteration,
         kNumThreads,
         kMaxRelativeError,
-        kDiffStepSize
+        kDiffStepSize,
+        kAcceptThreshold,
+        kCriticalThreshold
     };
 
     OptionsEditor(Backend::Optimizer::Options& options, QWidget* pParent = nullptr);

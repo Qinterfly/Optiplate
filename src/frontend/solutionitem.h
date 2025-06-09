@@ -18,13 +18,14 @@ namespace Frontend
 class SolutionItem : public QStandardItem
 {
 public:
-    SolutionItem(Backend::Optimizer::Solution const& solution);
+    SolutionItem(Backend::Optimizer::Solution const& solution, Backend::Optimizer::Options const& options);
     virtual ~SolutionItem();
 
     Backend::Optimizer::Solution const& solution() const;
 
 private:
     Backend::Optimizer::Solution const& mSolution;
+    Backend::Optimizer::Options const& mOptions;
 };
 
 }

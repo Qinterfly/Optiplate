@@ -75,6 +75,8 @@ public:
         int numThreads;
         double maxRelativeError;
         double diffStepSize;
+        double acceptThreshold;
+        double criticalThreshold;
     };
 
     Optimizer();
