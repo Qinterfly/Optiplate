@@ -27,6 +27,8 @@ namespace Frontend
 
 class GeometryPlot : public QWidget
 {
+    Q_OBJECT
+
 public:
     GeometryPlot(QWidget* pParent = nullptr);
     virtual ~GeometryPlot();

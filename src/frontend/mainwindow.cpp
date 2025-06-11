@@ -33,6 +33,9 @@ using namespace ads;
 using namespace Frontend;
 
 Logger* MainWindow::pLogger = nullptr;
+QString MainWindow::language = "en";
+
+void switchTranslator(QTranslator& translator, QString const& fileName, QString const& language, bool isResource);
 
 MainWindow::MainWindow(QWidget* pParent)
     : QMainWindow(pParent)
@@ -57,6 +60,7 @@ void MainWindow::initializeWindow()
     setWindowState(Qt::WindowMaximized);
     setWindowTitle(QString(APP_NAME) + "[*]");
     setTheme();
+    setLanguage();
     qInstallMessageHandler(Frontend::logMessage);
 
     // Since OpenGL widgets tend to change the window geometry, we set the maximized state manually
@@ -93,6 +97,7 @@ void MainWindow::createContent()
     // Panel editor
     ads::CDockWidget* pWidget = createPanelEditor();
     mpDockManager->addDockWidget(ads::TopDockWidgetArea, pWidget);
+    mpWindowMenu->addSeparator();
 
     // Properties editors
     pWidget = createPropertiesEditor(tr("Target"), PropertyType::kTarget, mProject.configuration().target);
@@ -104,6 +109,7 @@ void MainWindow::createContent()
     pWidget = createOptionsEditor();
     mpDockManager->addDockWidget(ads::CenterDockWidgetArea, pWidget, pArea);
     pArea->setCurrentIndex(0);
+    mpWindowMenu->addSeparator();
 
     // Properties viewer
     pWidget = createPropertiesViewer();
@@ -303,7 +309,7 @@ ads::CDockWidget* MainWindow::createPropertiesViewer()
     mpPropertiesViewer = new PropertiesViewer();
 
     // Construct the dock widget
-    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Properties"));
+    ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Inertia Properties"));
     pDockWidget->setWidget(mpPropertiesViewer);
     mpWindowMenu->addAction(pDockWidget->toggleViewAction());
     return pDockWidget;
@@ -494,6 +500,21 @@ void MainWindow::setProjectTitle()
         setWindowTitle(QString("%1: %2[*]").arg(APP_NAME, pathFile));
 }
 
+//! Specify the application language based on its locale
+void MainWindow::setLanguage()
+{
+    // Check if the requested language can be provided
+    if (language != "en" && language != "ru")
+        language = "ru";
+
+    // Force the application locale
+    setLocale(QLocale::C);
+    QLocale::setDefault(locale());
+
+    // Assign the translators
+    switchTranslator(mTranslator, "application", language, true);
+}
+
 //! Whenever a project has been modified
 void MainWindow::setModified(bool flag)
 {
@@ -666,6 +687,7 @@ void MainWindow::addToRecentProjects()
 void MainWindow::saveSettings()
 {
     mSettings.beginGroup(Constants::Settings::skMainWindow);
+    mSettings.setValue(Constants::Settings::skLanguage, MainWindow::language);
     mSettings.setValue(Constants::Settings::skGeometry, saveGeometry());
     mSettings.setValue(Constants::Settings::skState, saveState());
     mSettings.setValue(Constants::Settings::skDockingState, mpDockManager->saveState());
@@ -678,6 +700,9 @@ void MainWindow::saveSettings()
 void MainWindow::restoreSettings()
 {
     mSettings.beginGroup(Constants::Settings::skMainWindow);
+    QString lang = mSettings.value(Constants::Settings::skLanguage).toString();
+    if (lang != language)
+        return;
     bool isOk = restoreGeometry(mSettings.value(Constants::Settings::skGeometry).toByteArray())
                 && restoreState(mSettings.value(Constants::Settings::skState).toByteArray())
                 && mpDockManager->restoreState(mSettings.value(Constants::Settings::skDockingState).toByteArray());
@@ -831,4 +856,18 @@ void Frontend::logMessage(QtMsgType type, QMessageLogContext const& /*context*/,
 {
     if (Frontend::MainWindow::pLogger)
         Frontend::MainWindow::pLogger->log(type, message);
+}
+
+//! Helper function to switch translators
+void switchTranslator(QTranslator& translator, QString const& fileName, QString const& language, bool isResource)
+{
+    // Remove the old translator
+    qApp->removeTranslator(&translator);
+
+    // Load the new translator
+    QString baseDir = isResource ? ":" : QApplication::applicationDirPath();
+    QString dir = baseDir + "/translations";
+    QString pathFile = QString("%1/%2_%3.qm").arg(dir, fileName, language);
+    if (translator.load(pathFile))
+        qApp->installTranslator(&translator);
 }

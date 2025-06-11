@@ -20,6 +20,11 @@ int main(int argc, char* argv[])
     // Create the application
     QApplication application(argc, argv);
 
+    // Set up the language
+    QString lang = QLocale::system().name();
+    lang.truncate(lang.lastIndexOf('_'));
+    Frontend::MainWindow::language = lang;
+
     // Create the graphical window
     Frontend::MainWindow window;
     window.show();

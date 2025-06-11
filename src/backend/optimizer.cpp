@@ -88,7 +88,7 @@ ceres::CallbackReturnType OptimizerCallback::operator()(ceres::IterationSummary 
     QTextStream stream(&message);
     auto logFun = [&stream, &iLastName](std::vector<double> const& current, std::vector<double> const& target, std::vector<double> const& errors)
     {
-        std::vector<std::string> const kNames = {"M", "Cx", "Cy", "Cz", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
+        std::vector<std::string> const kNames = {"M", "Xc", "Yc", "Zc", "Jx", "Jy", "Jz", "Jxy", "Jyz", "Jxz"};
         auto constexpr kFormat = "{:^7} {:10.4g} {:10.4g} {:10.4f}";
         int numValues = current.size();
         for (int i = 0; i != numValues; ++i)
@@ -318,13 +318,15 @@ Panel Optimizer::unwrap(Panel const& basePanel, std::vector<double> const& param
 //! Output the report to log
 void Optimizer::printReport(ceres::Solver::Summary const& summary)
 {
-    std::string message = "Ceres Solver Report\n";
-    message += std::format("* Iterations:   {:d}\n", summary.iterations.size());
-    message += std::format("* Initial cost: {:.3e}\n", summary.initial_cost);
-    message += std::format("* Final cost:   {:.3e}\n", summary.final_cost);
-    message += std::format("* Duration:     {:.3f} s\n", summary.total_time_in_seconds);
-    message += std::format("* Termination:  {:}", ceres::TerminationTypeToString(summary.termination_type));
-    emit log(message.c_str());
+    QString message;
+    QTextStream stream(&message);
+    stream << tr("Ceres Solver Report") << Qt::endl;
+    stream << tr("* Iterations:   %1").arg(summary.iterations.size()) << Qt::endl;
+    stream << tr("* Initial cost: %1").arg(QString::number(summary.initial_cost, 'e', 3)) << Qt::endl;
+    stream << tr("* Final cost:   %1").arg(QString::number(summary.final_cost, 'e', 3)) << Qt::endl;
+    stream << tr("* Duration:     %1 s").arg(QString::number(summary.total_time_in_seconds, 'f', 3)) << Qt::endl;
+    stream << tr("* Termination:  %1").arg(ceres::TerminationTypeToString(summary.termination_type)) << Qt::endl;
+    emit log(message);
 }
 
 Optimizer::Solution::Solution()

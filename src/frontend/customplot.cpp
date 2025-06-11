@@ -84,7 +84,6 @@ QColor CustomPlot::getAvailableColor() const
 void CustomPlot::initializePlot()
 {
     const QColor kTranslucentWhite(255, 255, 255, 150);
-    const QPointF kDefaultLegendPosition(0.8f, 0.0f);
     const uint kNumTicks = 10;
 
     // Specify user interactions
@@ -106,10 +105,8 @@ void CustomPlot::initializePlot()
     // Configure the legend
     legend->setSelectableParts(QCPLegend::spItems);
     legend->setBrush(QBrush(kTranslucentWhite));
-    axisRect()->insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
-    QRectF legendRect = axisRect()->insetLayout()->insetRect(0);
-    legendRect.moveTopLeft(kDefaultLegendPosition);
-    axisRect()->insetLayout()->setInsetRect(0, legendRect);
+    axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight | Qt::AlignTop);
+    axisRect()->insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipBorderAligned);
 
     // Create the title
     plotLayout()->insertRow(0);

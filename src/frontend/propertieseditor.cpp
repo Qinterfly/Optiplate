@@ -58,10 +58,10 @@ void PropertiesEditor::createContent(PropertyType type)
     QGridLayout* pLayout = new QGridLayout;
 
     // Create the labels
-    pLayout->addWidget(new QLabel(tr("Mass:")), kMass, 0);
-    pLayout->addWidget(new QLabel(tr("Gravity center:")), kCenterGravity, 0);
-    pLayout->addWidget(new QLabel(tr("Inertia moments:")), kInertiaMoments, 0);
-    pLayout->addWidget(new QLabel(tr("Inertia products:")), kInertiaProducts, 0);
+    pLayout->addWidget(new QLabel(tr("Mass (M):")), kMass, 0);
+    pLayout->addWidget(new QLabel(tr("Gravity center (X<sub>c</sub>, Y<sub>c</sub>, Z<sub>c</sub>):")), kCenterGravity, 0);
+    pLayout->addWidget(new QLabel(tr("Inertia (J<sub>x</sub>, J<sub>y</sub>, J<sub>z</sub>):")), kInertiaMoments, 0);
+    pLayout->addWidget(new QLabel(tr("Inertia (J<sub>xy</sub>, J<sub>yz</sub>, J<sub>xz</sub>):")), kInertiaProducts, 0);
 
     // Create the spinboxes
     pLayout->addWidget(createDoubleSpinBox(limitsMass, numDecimals), kMass, 1);

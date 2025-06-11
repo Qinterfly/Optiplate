@@ -30,7 +30,6 @@
 #include <vtkPolyData.h>
 #include <vtkPolygon.h>
 #include <vtkPropAssembly.h>
-#include <vtkPropPicker.h>
 #include <vtkProperty.h>
 #include <vtkProperty2D.h>
 #include <vtkRenderWindowInteractor.h>
@@ -38,9 +37,9 @@
 #include <vtkRendererCollection.h>
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
-#include <QToolBar>
 
 #include <QHBoxLayout>
+#include <QToolBar>
 #include <QVTKOpenGLNativeWidget.h>
 
 #include "geometryplot.h"
@@ -80,13 +79,14 @@ public:
 
         // Process the pick
         if (picker->GetPointId() != -1)
-            addCaption(picker);
+            add(picker);
 
         // Forward events
         GetInteractor()->GetRenderWindow()->Render();
         vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
     }
 
+    //! Clear the caption
     void clear()
     {
         captionWidget->SetRepresentation(nullptr);
@@ -95,7 +95,7 @@ public:
     }
 
     //! Add the text caption associated with the selected point
-    void addCaption(vtkSmartPointer<vtkPointPicker> picker)
+    void add(vtkSmartPointer<vtkPointPicker> picker)
     {
         auto constexpr kFormat = "X: {:.3g}\nY: {:.3g}\nZ: {:.3g}";
 

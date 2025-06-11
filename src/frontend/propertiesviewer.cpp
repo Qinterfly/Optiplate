@@ -66,8 +66,11 @@ void PropertiesViewer::update(Backend::Panel const& panel, Backend::Configuratio
 void PropertiesViewer::update(Backend::Properties const& current, Backend::Configuration const& configuration)
 {
     int const kNumColumns = 4;
-    QStringList const kDirections = {"X", "Y", "Z"};
-    int const kNumDirections = kDirections.size();
+    QString const kNameMass = "M";
+    QStringList const kNamesCenterGravity = {"Xc", "Yc", "Zc"};
+    QStringList const kNamesInertiaMoments = {"Jx", "Jy", "Jz"};
+    QStringList const kNamesInertiaProducts = {"Jxy", "Jyz", "Jxz"};
+    int const kNumDirections = kNamesCenterGravity.size();
 
     // Clean up all the content
     clear();
@@ -81,16 +84,13 @@ void PropertiesViewer::update(Backend::Properties const& current, Backend::Confi
 
     // Set the data
     mpTable->setColumnCount(kNumColumns);
-    appendRow(tr("Mass"), current.mass, target.mass, errors.mass, options);
+    appendRow(kNameMass, current.mass, target.mass, errors.mass, options);
     for (int i = 0; i != kNumDirections; ++i)
-        appendRow(tr("Center of gravity %1").arg(kDirections[i]), current.centerGravity[i], target.centerGravity[i], errors.centerGravity[i],
-                  options);
+        appendRow(kNamesCenterGravity[i], current.centerGravity[i], target.centerGravity[i], errors.centerGravity[i], options);
     for (int i = 0; i != kNumDirections; ++i)
-        appendRow(tr("Inertia moment %1").arg(kDirections[i]), current.inertiaMoments[i], target.inertiaMoments[i], errors.inertiaMoments[i],
-                  options);
+        appendRow(kNamesInertiaMoments[i], current.inertiaMoments[i], target.inertiaMoments[i], errors.inertiaMoments[i], options);
     for (int i = 0; i != kNumDirections; ++i)
-        appendRow(tr("Inertia product %1").arg(kDirections[i]), current.inertiaProducts[i], target.inertiaProducts[i], errors.inertiaProducts[i],
-                  options);
+        appendRow(kNamesInertiaProducts[i], current.inertiaProducts[i], target.inertiaProducts[i], errors.inertiaProducts[i], options);
 
     // Set the data alignment
     for (int iRow = 0; iRow != mpTable->rowCount(); ++iRow)

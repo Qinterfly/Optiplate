@@ -65,10 +65,10 @@ void ConvergencePlot::plot(QList<Optimizer::Solution> const& solutions, Backend:
     auto yProducts = sliceVectorError(solutions, &Properties::inertiaProducts, kFactor);
 
     // Add the graphs
-    addGraph(xIter, yMass, tr("Mass"), Qt::red);
-    addGraph(xIter, yGravity, tr("Center of gravity"), Qt::green);
-    addGraph(xIter, yMoments, tr("Inertia moments"), Qt::blue);
-    addGraph(xIter, yProducts, tr("Inertia products"), Qt::cyan);
+    addGraph(xIter, yMass, tr("M"), Qt::red);
+    addGraph(xIter, yGravity, tr("Xc,   Yc,   Zc"), Qt::green);
+    addGraph(xIter, yMoments, tr("Jx,   Jy,   Jz"), Qt::blue);
+    addGraph(xIter, yProducts, tr("Jxy, Jyz, Jxz"), Qt::cyan);
 
     // Create the criterion line
     addCriterionLine(xIter.first(), xIter.last(), options.maxRelativeError * kFactor);

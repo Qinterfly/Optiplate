@@ -16,6 +16,7 @@ using namespace Backend;
 
 TestFrontend::TestFrontend()
 {
+    MainWindow::language = "ru";
     mpMainWindow = new MainWindow;
 }
 
@@ -31,7 +32,7 @@ void TestFrontend::testOpenProject()
 //! Solve the project
 void TestFrontend::testSolveProject()
 {
-    // mpMainWindow->startSolver();
+    mpMainWindow->startSolver();
 }
 
 TestFrontend::~TestFrontend()

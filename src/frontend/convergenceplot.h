@@ -19,6 +19,8 @@ class CustomPlot;
 
 class ConvergencePlot : public QWidget
 {
+    Q_OBJECT
+
 public:
     ConvergencePlot(QWidget* pParent = nullptr);
     virtual ~ConvergencePlot();

@@ -91,3 +91,9 @@ vtk_module_autoinit(
   TARGETS frontend
   MODULES ${VTK_LIBRARIES}
 )
+
+qt_add_translations(frontend
+    TS_FILES ${TRANSLATIONS_DIR}/application_ru.ts ${TRANSLATIONS_DIR}/application_en.ts
+    RESOURCE_PREFIX "/translations"
+    -no-obsolete
+)

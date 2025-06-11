@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <QSettings>
 #include <QThread>
+#include <QTranslator>
 
 #include "project.h"
 #include "propertieseditor.h"
@@ -56,6 +57,9 @@ public:
 signals:
     void stopSolverRequested();
 
+public:
+    static QString language;
+
 private:
     void initializeWindow();
     void closeEvent(QCloseEvent* pEvent) override;
@@ -80,6 +84,7 @@ private:
     // State
     void setProjectTitle();
     void setModified(bool flag);
+    void setLanguage();
     void setTheme();
     void processProjectChange();
     void updateSolverActions();
@@ -123,6 +128,9 @@ private:
 
     // Project
     Backend::Project mProject;
+
+    // Translations
+    QTranslator mTranslator;
 };
 
 class SolveThread : public QThread

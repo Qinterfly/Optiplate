@@ -15,6 +15,7 @@
 // Directories
 #define EXAMPLES_DIR "@EXAMPLES_DIR@"
 #define RESOURCES_DIR "@RESOURCES_DIR@"
+#define TRANSLATIONS_DIR "@TRANSLATIONS_DIR@"
 #define TEMP_DIR "@TEMP_DIR@"
 
 // Files

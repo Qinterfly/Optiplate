@@ -9,6 +9,7 @@ set(BACKEND_HEADERS
     fileutility.h
     mathutility.h
     project.h
+    properties.h
 )
 
 set(BACKEND_SOURCES
@@ -17,12 +18,12 @@ set(BACKEND_SOURCES
     fileutility.cpp
     mathutility.cpp
     project.cpp
+    properties.cpp
 )
 
 qt_add_library(backend STATIC
     ${BACKEND_HEADERS}
     ${BACKEND_SOURCES}
-    properties.h properties.cpp
 )
 
 target_include_directories(backend PUBLIC

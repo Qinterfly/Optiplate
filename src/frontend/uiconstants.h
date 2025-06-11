@@ -19,6 +19,7 @@ namespace Frontend::Constants
 namespace Settings
 {
 
+const QString skLanguage = "language";
 const QString skGeometry = "geometry";
 const QString skState = "state";
 const QString skDockingState = "dockingState";
