@@ -5,6 +5,7 @@
  * \brief Implementation of the PanelEditor class
  */
 
+#include <QClipboard>
 #include <QDialog>
 #include <QDragEnterEvent>
 #include <QFileDialog>
@@ -84,14 +85,17 @@ void PanelEditor::createContent()
     // Create the actions
     QAction* pExportAction = new QAction(QIcon(":/icons/export.svg"), tr("E&xport"), this);
     QAction* pRoundAction = new QAction(QIcon(":/icons/cut.svg"), tr("&Round"), this);
+    QAction* pCopyAction = new QAction(QIcon(":/icons/copy.svg"), tr("&Copy to clipboard"), this);
 
     // Connect the actions
     connect(pExportAction, &QAction::triggered, this, &PanelEditor::processExport);
     connect(pRoundAction, &QAction::triggered, this, &PanelEditor::processRound);
+    connect(pCopyAction, &QAction::triggered, this, &PanelEditor::processCopy);
 
     // Add the actions
     pToolBar->addAction(pExportAction);
     pToolBar->addAction(pRoundAction);
+    pToolBar->addAction(pCopyAction);
     Utility::setShortcutHints(pToolBar);
 
     // Set the resulting layout
@@ -245,6 +249,33 @@ void PanelEditor::processRound()
 
     // Execute the dialog
     pDialog->exec();
+}
+
+//! Copy panel data to clipboard
+void PanelEditor::processCopy()
+{
+    QClipboard* pClipboard = QGuiApplication::clipboard();
+    QString text;
+    QTextStream stream(&text);
+    auto formatter = [](double v) { return QString::number(v, 'e', 6); };
+    // Density
+    stream << tr("Density:") << '\t' << formatter(mPanel.density()) << Qt::endl;
+    // Coordinates
+    stream << tr("X coordinates:");
+    for (double v : mPanel.xCoords())
+        stream << '\t' << formatter(v);
+    stream << Qt::endl;
+    stream << tr("Z coordinates:");
+    for (double v : mPanel.zCoords())
+        stream << '\t' << formatter(v);
+    stream << Qt::endl;
+    // Depths
+    stream << tr("Depths:");
+    for (double v : mPanel.depths())
+        stream << '\t' << formatter(v);
+    stream << Qt::endl;
+    pClipboard->setText(text);
+    qInfo() << tr("Panel data copied to clipboard");
 }
 
 //! Helper function to create numeric widget

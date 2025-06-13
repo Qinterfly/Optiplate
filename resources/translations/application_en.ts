@@ -547,63 +547,77 @@ Copyright %1 (%2)</source>
 <context>
     <name>Frontend::PanelEditor</name>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="59"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="60"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="262"/>
         <source>Density:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="62"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="63"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="264"/>
         <source>X coordinates:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="63"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="64"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="268"/>
         <source>Z coordinates:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="71"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="72"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="273"/>
         <source>Depths:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="85"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="86"/>
         <source>E&amp;xport</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="86"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="87"/>
         <source>&amp;Round</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="201"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="88"/>
+        <source>&amp;Copy to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/frontend/paneleditor.cpp" line="205"/>
         <source>Save panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="201"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="205"/>
         <source>KCL files (*.txt *.dat)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="212"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="216"/>
         <source>Round panel data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="220"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="224"/>
         <source>Precision: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="225"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="229"/>
         <source>Round</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="236"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="240"/>
         <source>Panel data rounded to %1 decimals</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/frontend/paneleditor.cpp" line="278"/>
+        <source>Panel data copied to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

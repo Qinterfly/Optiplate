@@ -64,7 +64,7 @@
     <message>
         <location filename="../../src/frontend/convergenceplot.cpp" line="69"/>
         <source>Xc,   Yc,   Zc</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../src/frontend/convergenceplot.cpp" line="70"/>
@@ -589,64 +589,78 @@ Copyright %1 (%2)</translation>
 <context>
     <name>Frontend::PanelEditor</name>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="59"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="60"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="262"/>
         <source>Density:</source>
         <translation>Плотность:</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="62"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="63"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="264"/>
         <source>X coordinates:</source>
         <translation>X-координаты:</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="63"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="64"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="268"/>
         <source>Z coordinates:</source>
         <translation>Z-координаты:</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="71"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="72"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="273"/>
         <source>Depths:</source>
         <translation>Высоты:</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="85"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="86"/>
         <source>E&amp;xport</source>
         <translation>&amp;Экспорт</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="86"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="87"/>
         <source>&amp;Round</source>
         <translation>&amp;Округление</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="201"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="88"/>
+        <source>&amp;Copy to clipboard</source>
+        <translation>&amp;Скопировать в буфер обмена</translation>
+    </message>
+    <message>
+        <location filename="../../src/frontend/paneleditor.cpp" line="205"/>
         <source>Save panel</source>
         <translation>Сохранить панель</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="201"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="205"/>
         <source>KCL files (*.txt *.dat)</source>
         <translation>КС-Л файлы (*.txt *.dat)</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="212"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="216"/>
         <source>Round panel data</source>
         <translation>Округлить данные панели</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="220"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="224"/>
         <source>Precision: </source>
         <translation>Точность:</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="225"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="229"/>
         <source>Round</source>
         <translation>Округлить</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/paneleditor.cpp" line="236"/>
+        <location filename="../../src/frontend/paneleditor.cpp" line="240"/>
         <source>Panel data rounded to %1 decimals</source>
         <translation>Данные панели округлены до %1 знаков после запятой</translation>
+    </message>
+    <message>
+        <location filename="../../src/frontend/paneleditor.cpp" line="278"/>
+        <source>Panel data copied to clipboard</source>
+        <translation>Данные панели скопированы в буфер обмена</translation>
     </message>
 </context>
 <context>

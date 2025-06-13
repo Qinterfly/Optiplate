@@ -54,6 +54,7 @@ private:
     void processDataChange();
     void processExport();
     void processRound();
+    void processCopy();
 
 private:
     Backend::Panel& mPanel;
