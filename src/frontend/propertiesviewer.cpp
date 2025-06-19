@@ -36,6 +36,7 @@ void PropertiesViewer::createContent()
 
     // Create and configure the editor
     mpTable = new QTableWidget;
+    mpTable->setFont(qApp->font());
     mpTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     mpTable->setSelectionMode(QAbstractItemView::ContiguousSelection);
     mpTable->verticalHeader()->hide();

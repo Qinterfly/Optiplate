@@ -16,7 +16,7 @@ Logger::Logger(QWidget* pParent)
     : QTextEdit(pParent)
 {
     setReadOnly(false);
-    setFont(QFont("RobotoMono"));
+    setFont(QFont("RobotoMono", qApp->font().pointSize()));
 }
 
 Logger::~Logger()

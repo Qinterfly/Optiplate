@@ -5,6 +5,7 @@
  * \brief Implementation of the SolutionBrowser class
  */
 
+#include <QApplication>
 #include <QListView>
 #include <QMenu>
 #include <QVBoxLayout>
@@ -55,6 +56,7 @@ void SolutionBrowser::createContent()
 {
     // Create the view widget
     mpView = new QListView;
+    mpView->setFont(qApp->font());
     mpView->setSelectionMode(QAbstractItemView::SingleSelection);
     mpView->setSelectionBehavior(QAbstractItemView::SelectItems);
     mpView->setEditTriggers(QAbstractItemView::NoEditTriggers);

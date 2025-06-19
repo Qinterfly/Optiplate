@@ -139,11 +139,11 @@ void Panel::read(QXmlStreamReader& stream)
         if (stream.name() == "mass")
             mThickness = stream.readElementText().toDouble();
         else if (stream.name() == "xCoords")
-            Utility::readData(mXCoords.begin(), mXCoords.end(), stream);
+            Utility::readData(mXCoords.data(), mXCoords.size(), stream);
         else if (stream.name() == "zCoords")
-            Utility::readData(mZCoords.begin(), mZCoords.end(), stream);
+            Utility::readData(mZCoords.data(), mZCoords.size(), stream);
         else if (stream.name() == "depths")
-            Utility::readData(mDepths.begin(), mDepths.end(), stream);
+            Utility::readData(mDepths.data(), mDepths.size(), stream);
         else if (stream.name() == "youngsModulus")
             mYoungsModulus = stream.readElementText().toDouble();
         else if (stream.name() == "density")
@@ -158,9 +158,9 @@ void Panel::write(QXmlStreamWriter& stream) const
 {
     stream.writeStartElement("panel");
     stream.writeTextElement("thickness", QString::number(mThickness));
-    Utility::writeData("xCoords", mXCoords.begin(), mXCoords.end(), stream);
-    Utility::writeData("zCoords", mZCoords.begin(), mZCoords.end(), stream);
-    Utility::writeData("depths", mDepths.begin(), mDepths.end(), stream);
+    Utility::writeData("xCoords", mXCoords.data(), mXCoords.size(), stream);
+    Utility::writeData("zCoords", mZCoords.data(), mZCoords.size(), stream);
+    Utility::writeData("depths", mDepths.data(), mDepths.size(), stream);
     stream.writeTextElement("youngsModulus", QString::number(mYoungsModulus));
     stream.writeTextElement("density", QString::number(mDensity));
     stream.writeEndElement();

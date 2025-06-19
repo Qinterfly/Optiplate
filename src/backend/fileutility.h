@@ -33,8 +33,8 @@ QString combineFilePath(T const& first, Args... args)
 }
 
 QSharedPointer<QFile> openFile(QString const& pathFile, QString const& expectedSuffix, QIODevice::OpenModeFlag const& mode);
-void readData(double* pBegin, double* pEnd, QXmlStreamReader& stream);
-void writeData(QString const& name, double const* pBegin, double const* pEnd, QXmlStreamWriter& stream);
+void readData(double* pBegin, int numData, QXmlStreamReader& stream);
+void writeData(QString const& name, double const* pBegin, int numData, QXmlStreamWriter& stream);
 }
 
 #endif // FILEUTILITY_H

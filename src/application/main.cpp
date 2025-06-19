@@ -1,12 +1,12 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief The startup function
  */
 
-#include <QApplication>
 #include <config.h>
+#include <QApplication>
 
 #include "mainwindow.h"
 

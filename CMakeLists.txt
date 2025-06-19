@@ -9,16 +9,18 @@ set(APP_CREATOR "Pavel Lakiza")
 ## Version
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 2)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 2)
 set(VERSION_FULL ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 ## Directories
 set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 set(RESOURCES_DIR ${CMAKE_SOURCE_DIR}/resources)
 set(TRANSLATIONS_DIR ${RESOURCES_DIR}/translations)
 set(TEMP_DIR ${CMAKE_BINARY_DIR})
+set(ROOT_INSTALL_DIR ${CMAKE_SOURCE_DIR}/install)
 # Files
 set(RESOURCES_FILE ${RESOURCES_DIR}/resources.qrc)
 set(INFO_FILE ${RESOURCES_DIR}/info.rc)
+
 
 # Set language standard
 set(CMAKE_CXX_STANDARD 20)
@@ -29,22 +31,6 @@ configure_file(cmake/config.h.in config.h @ONLY)
 
 # Specify project options
 project(optiplate LANGUAGES CXX)
-
-# Create working functions
-function(deployDependencies target)
-    if (WIN32)
-        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-            find_program(TOOL_WINDEPLOYQT NAMES windeployqt.debug.bat)
-        else()
-            find_program(TOOL_WINDEPLOYQT NAMES windeployqt)
-        endif()
-        add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${TOOL_WINDEPLOYQT}
-            $<TARGET_FILE:${target}>
-        )
-    endif()
-endfunction()
-
 
 # Add dependencies
 add_subdirectory(lib)

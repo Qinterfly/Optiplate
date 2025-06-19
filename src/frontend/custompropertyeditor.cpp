@@ -5,6 +5,8 @@
  * \brief Implementation of the CustomPropertyEditor class
  */
 
+#include <QApplication>
+
 #include "custompropertyeditor.h"
 
 using namespace Frontend;
@@ -12,7 +14,6 @@ using namespace Frontend;
 CustomPropertyEditor::CustomPropertyEditor(QWidget* pParent)
     : QtTreePropertyBrowser(pParent)
 {
-
 }
 
 CustomPropertyEditor::~CustomPropertyEditor()

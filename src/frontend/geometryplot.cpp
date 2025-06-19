@@ -168,6 +168,7 @@ QSize GeometryPlot::sizeHint() const
 void GeometryPlot::initialize()
 {
     QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
+    vtkObject::GlobalWarningDisplayOff();
 
     mColors = vtkNamedColors::New();
     mOrientation = vtkOrientationMarkerWidget::New();

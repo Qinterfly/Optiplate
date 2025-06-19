@@ -26,5 +26,16 @@ target_link_libraries(testfrontend PRIVATE
 
 target_include_directories(testfrontend PUBLIC ${CMAKE_BINARY_DIR})
 
-deployDependencies("application")
-
+if (WIN32)
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        find_program(TOOL_WINDEPLOYQT NAMES windeployqt.debug.bat)
+    else()
+        find_program(TOOL_WINDEPLOYQT NAMES windeployqt)
+    endif()
+   set(scriptDir ${PROJECT_SOURCE_DIR}/cmake)
+   set(kclFiles ${kclDir}/*)
+   add_custom_command(TARGET testfrontend POST_BUILD
+       COMMAND ${TOOL_WINDEPLOYQT} $<TARGET_FILE:testfrontend>
+       COMMAND ${CMAKE_COMMAND} "-DSRCS=${kclFiles}" "-DDEST=${CMAKE_CURRENT_BINARY_DIR}" -P "${scriptDir}/copy.cmake"
+   )
+endif()

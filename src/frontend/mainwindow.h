@@ -130,7 +130,8 @@ private:
     Backend::Project mProject;
 
     // Translations
-    QTranslator mTranslator;
+    QTranslator mTranslatorApplication;
+    QTranslator mTranslatorQt;
 };
 
 class SolveThread : public QThread

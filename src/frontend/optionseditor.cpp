@@ -1,12 +1,13 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date June 2025
  * \brief Implementation of the OptionsEditor class
  */
 
 #include <qteditorfactory.h>
 #include <qtpropertymanager.h>
+#include <QApplication>
 
 #include "optionseditor.h"
 
@@ -16,6 +17,7 @@ OptionsEditor::OptionsEditor(Backend::Optimizer::Options& options, QWidget* pPar
     : CustomPropertyEditor(pParent)
     , mOptions(options)
 {
+    setTreeWidgetFont(qApp->font());
     createManagers();
     createFactories();
     createProperties();

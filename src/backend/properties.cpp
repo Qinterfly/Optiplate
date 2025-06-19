@@ -111,11 +111,11 @@ void Properties::read(QXmlStreamReader& stream)
         if (stream.name() == "mass")
             mass = stream.readElementText().toDouble();
         else if (stream.name() == "centerGravity")
-            Utility::readData(centerGravity.begin(), centerGravity.end(), stream);
+            Utility::readData(centerGravity.data(), centerGravity.size(), stream);
         else if (stream.name() == "inertiaMoments")
-            Utility::readData(inertiaMoments.begin(), inertiaMoments.end(), stream);
+            Utility::readData(inertiaMoments.data(), inertiaMoments.size(), stream);
         else if (stream.name() == "inertiaProducts")
-            Utility::readData(inertiaProducts.begin(), inertiaProducts.end(), stream);
+            Utility::readData(inertiaProducts.data(), inertiaProducts.size(), stream);
         else
             stream.skipCurrentElement();
     }
@@ -126,8 +126,8 @@ void Properties::write(QString const& name, QXmlStreamWriter& stream) const
 {
     stream.writeStartElement(name);
     stream.writeTextElement("mass", QString::number(mass));
-    Utility::writeData("centerGravity", centerGravity.begin(), centerGravity.end(), stream);
-    Utility::writeData("inertiaMoments", inertiaMoments.begin(), inertiaMoments.end(), stream);
-    Utility::writeData("inertiaProducts", inertiaProducts.begin(), inertiaProducts.end(), stream);
+    Utility::writeData("centerGravity", centerGravity.data(), centerGravity.size(), stream);
+    Utility::writeData("inertiaMoments", inertiaMoments.data(), inertiaMoments.size(), stream);
+    Utility::writeData("inertiaProducts", inertiaProducts.data(), inertiaProducts.size(), stream);
     stream.writeEndElement();
 }

@@ -39,7 +39,7 @@ void switchTranslator(QTranslator& translator, QString const& fileName, QString 
 
 MainWindow::MainWindow(QWidget* pParent)
     : QMainWindow(pParent)
-    , mSettings(Constants::Settings::skMainWindow, QSettings::IniFormat)
+    , mSettings(Constants::Settings::skFileName, QSettings::IniFormat)
     , mIsSolverRunning(false)
 {
     initializeWindow();
@@ -159,6 +159,7 @@ void MainWindow::createFileActions()
     // Create the menu
     QMenu* pFileMenu = new QMenu(tr("&File"), this);
     mpRecentMenu = new QMenu(tr("Recent P&rojects"), this);
+    pFileMenu->setFont(font());
 
     // Connect the actions
     connect(pNewAction, &QAction::triggered, this, &MainWindow::newProjectDialog);
@@ -178,7 +179,7 @@ void MainWindow::createFileActions()
     pFileMenu->addAction(pExitAction);
     menuBar()->addMenu(pFileMenu);
 
-    // Create the file toolbar
+    // Create the toolbar
     QToolBar* pFileToolBar = new QToolBar;
     pFileToolBar->setIconSize(Constants::Size::skToolBarIcon);
     pFileToolBar->addAction(pNewAction);
@@ -194,6 +195,7 @@ void MainWindow::createFileActions()
 void MainWindow::createWindowActions()
 {
     mpWindowMenu = new QMenu(tr("&Window"), this);
+    mpWindowMenu->setFont(font());
     menuBar()->addMenu(mpWindowMenu);
 }
 
@@ -221,6 +223,7 @@ void MainWindow::createSolverActions()
 
     // Create the menu
     QMenu* pMenu = new QMenu(tr("&Solver"), this);
+    pMenu->setFont(font());
     pMenu->addAction(mpStartSolverAction);
     pMenu->addAction(mpStopSolverAction);
     pMenu->addAction(pClearAction);
@@ -250,6 +253,7 @@ void MainWindow::createHelpActions()
 
     // Fill up the menu
     QMenu* pHelpMenu = new QMenu(tr("&Help"), this);
+    pHelpMenu->setFont(font());
     pHelpMenu->addAction(pAboutAction);
     pHelpMenu->addAction(pAboutQtAction);
     menuBar()->addMenu(pHelpMenu);
@@ -306,7 +310,7 @@ ads::CDockWidget* MainWindow::createOptionsEditor()
 ads::CDockWidget* MainWindow::createPropertiesViewer()
 {
     // Create the widget to view and compare properties
-    mpPropertiesViewer = new PropertiesViewer();
+    mpPropertiesViewer = new PropertiesViewer;
 
     // Construct the dock widget
     ads::CDockWidget* pDockWidget = new CDockWidget(mpDockManager, tr("Inertia Properties"));
@@ -512,7 +516,8 @@ void MainWindow::setLanguage()
     QLocale::setDefault(locale());
 
     // Assign the translators
-    switchTranslator(mTranslator, "application", language, true);
+    switchTranslator(mTranslatorApplication, "application", language, true);
+    switchTranslator(mTranslatorQt, "qt", language, false);
 }
 
 //! Whenever a project has been modified
@@ -530,11 +535,12 @@ void MainWindow::setTheme()
     QFontDatabase::addApplicationFont(":/fonts/RobotoMono.ttf");
     uint fontSize = 12;
 #ifdef Q_OS_WIN
-    fontSize = 10;
+    fontSize = 11;
 #endif
     QFont font("Roboto", fontSize);
     setFont(font);
     qApp->setFont(font);
+    menuBar()->setFont(font);
 
     // Icon
     qApp->setWindowIcon(QIcon(":/icons/application.svg"));
@@ -699,17 +705,20 @@ void MainWindow::saveSettings()
 //! Restore window settings from a file
 void MainWindow::restoreSettings()
 {
+    if (mSettings.allKeys().empty())
+        return;
     mSettings.beginGroup(Constants::Settings::skMainWindow);
     QString lang = mSettings.value(Constants::Settings::skLanguage).toString();
-    if (lang != language)
-        return;
-    bool isOk = restoreGeometry(mSettings.value(Constants::Settings::skGeometry).toByteArray())
-                && restoreState(mSettings.value(Constants::Settings::skState).toByteArray())
-                && mpDockManager->restoreState(mSettings.value(Constants::Settings::skDockingState).toByteArray());
+    if (lang == language)
+    {
+        bool isOk = restoreGeometry(mSettings.value(Constants::Settings::skGeometry).toByteArray())
+                    && restoreState(mSettings.value(Constants::Settings::skState).toByteArray())
+                    && mpDockManager->restoreState(mSettings.value(Constants::Settings::skDockingState).toByteArray());
+        if (isOk)
+            qInfo() << tr("Settings were restored from the file %1").arg(Constants::Settings::skFileName);
+    }
     mSettings.endGroup();
     retrieveRecentProjects();
-    if (isOk)
-        qInfo() << tr("Settings were restored from the file %1").arg(Constants::Settings::skFileName);
 }
 
 //! Create the new project using the dialog, if necessary
@@ -778,7 +787,9 @@ bool MainWindow::stopSolverDialog()
                                "Would you like to close the application anyway?");
     if (mIsSolverRunning)
     {
-        auto result = QMessageBox::question(this, title, message);
+        QMessageBox* pMessageBox = new QMessageBox(QMessageBox::Question, title, message, QMessageBox::NoButton, this);
+        pMessageBox->setFont(font());
+        auto result = pMessageBox->exec();
         if (result == QMessageBox::Yes)
             stopSolver();
         else
@@ -808,7 +819,9 @@ void MainWindow::clearResultsDialog()
     }
 
     // Create the dialog window
-    auto result = QMessageBox::question(this, title, message);
+    QMessageBox* pMessageBox = new QMessageBox(QMessageBox::Question, title, message, QMessageBox::NoButton, this);
+    pMessageBox->setFont(font());
+    auto result = pMessageBox->exec();
     if (result == QMessageBox::Yes)
     {
         mProject.clearSolutions();
@@ -827,7 +840,8 @@ void MainWindow::about()
                                "Built on %3\n\n"
                                "Copyright %1 (%2)")
                                 .arg(APP_NAME, author, build);
-    QMessageBox::about(this, tr("About %1 v%2").arg(APP_NAME, VERSION_FULL), message);
+    QString const title = tr("About %1 v%2").arg(APP_NAME, VERSION_FULL);
+    QMessageBox::about(this, title, message);
 }
 
 SolveThread::SolveThread(Backend::Project project, QObject* pParent)

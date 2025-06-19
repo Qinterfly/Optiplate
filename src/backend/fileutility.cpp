@@ -35,9 +35,10 @@ QSharedPointer<QFile> openFile(QString const& pathFile, QString const& expectedS
 }
 
 //! Read a vector from a XML stream
-void readData(double* pBegin, double* pEnd, QXmlStreamReader& stream)
+void readData(double* pBegin, int numData, QXmlStreamReader& stream)
 {
     double* pData = pBegin;
+    double* pEnd = pBegin + numData;
     while (stream.readNextStartElement())
     {
         if (stream.name() == "value")
@@ -56,11 +57,12 @@ void readData(double* pBegin, double* pEnd, QXmlStreamReader& stream)
 }
 
 //! Write a vector to a XML stream
-void writeData(QString const& name, double const* pBegin, double const* pEnd, QXmlStreamWriter& stream)
+void writeData(QString const& name, double const* pBegin, int numData, QXmlStreamWriter& stream)
 {
     stream.writeStartElement(name);
-    for (double const* pIter = pBegin; pIter != pEnd; ++pIter)
-        stream.writeTextElement("value", QString::number(*pIter));
+    double const* pEnd = pBegin + numData;
+    for (double const* pData = pBegin; pData != pEnd; ++pData)
+        stream.writeTextElement("value", QString::number(*pData));
     stream.writeEndElement();
 }
 
