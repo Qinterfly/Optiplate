@@ -214,7 +214,7 @@ void MainWindow::createSolverActions()
     // Set the icons
     mpStartSolverAction->setIcon(QIcon(":/icons/process-start.svg"));
     mpStopSolverAction->setIcon(QIcon(":/icons/process-stop.svg"));
-    pClearAction->setIcon(QIcon(":/icons/trash.svg"));
+    pClearAction->setIcon(QIcon(":/icons/edit-delete.svg"));
 
     // Set the connections
     connect(mpStartSolverAction, &QAction::triggered, this, &MainWindow::startSolver);
@@ -535,7 +535,7 @@ void MainWindow::setTheme()
     QFontDatabase::addApplicationFont(":/fonts/RobotoMono.ttf");
     uint fontSize = 12;
 #ifdef Q_OS_WIN
-    fontSize = 11;
+    fontSize = 10;
 #endif
     QFont font("Roboto", fontSize);
     setFont(font);
@@ -819,7 +819,7 @@ void MainWindow::clearResultsDialog()
     }
 
     // Create the dialog window
-    QMessageBox* pMessageBox = new QMessageBox(QMessageBox::Question, title, message, QMessageBox::NoButton, this);
+    QMessageBox* pMessageBox = new QMessageBox(QMessageBox::Question, title, message, QMessageBox::Yes | QMessageBox::No, this);
     pMessageBox->setFont(font());
     auto result = pMessageBox->exec();
     if (result == QMessageBox::Yes)
@@ -850,6 +850,7 @@ SolveThread::SolveThread(Backend::Project project, QObject* pParent)
 {
 }
 
+//! Run the optimizer
 void SolveThread::run()
 {
     // Configure the solver

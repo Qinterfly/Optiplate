@@ -83,9 +83,9 @@ void PanelEditor::createContent()
     pToolBar->setOrientation(Qt::Vertical);
 
     // Create the actions
-    QAction* pExportAction = new QAction(QIcon(":/icons/export.svg"), tr("E&xport"), this);
-    QAction* pRoundAction = new QAction(QIcon(":/icons/cut.svg"), tr("&Round"), this);
-    QAction* pCopyAction = new QAction(QIcon(":/icons/copy.svg"), tr("&Copy to clipboard"), this);
+    QAction* pExportAction = new QAction(QIcon(":/icons/edit-export.svg"), tr("E&xport"), this);
+    QAction* pRoundAction = new QAction(QIcon(":/icons/edit-cut.svg"), tr("&Round"), this);
+    QAction* pCopyAction = new QAction(QIcon(":/icons/edit-copy.svg"), tr("&Copy to clipboard"), this);
 
     // Connect the actions
     connect(pExportAction, &QAction::triggered, this, &PanelEditor::processExport);

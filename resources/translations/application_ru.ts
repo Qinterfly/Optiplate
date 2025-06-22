@@ -392,7 +392,7 @@
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="402"/>
         <source>The panel data has been substituted</source>
-        <translation>Данные панели были заменены</translation>
+        <translation>Данные панели заменены</translation>
     </message>
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="425"/>
@@ -402,22 +402,22 @@
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="426"/>
         <source>New project was created</source>
-        <translation>Новый проект был создан</translation>
+        <translation>Создан новый проект</translation>
     </message>
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="441"/>
         <source>Project %1 was successfully opened</source>
-        <translation>Проект %1 был успешно открыт</translation>
+        <translation>Проект %1 успешно открыт</translation>
     </message>
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="467"/>
         <source>The project was saved using the previous location: %1</source>
-        <translation>Проект был сохранен по предыдущему пути: %1</translation>
+        <translation>Проект сохранен по предыдущему пути: %1</translation>
     </message>
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="477"/>
         <source>The project was saved as the following file %1</source>
-        <translation>Проект был сохранен в виде следующего файла %1</translation>
+        <translation>Проект сохранен в виде следующего файла %1</translation>
     </message>
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="562"/>
@@ -437,7 +437,7 @@
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="617"/>
         <source>Starting the optimization process...</source>
-        <translation>Запуск оптимазционного процеса...</translation>
+        <translation>Запуск оптимизационного процеса...</translation>
     </message>
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="626"/>
@@ -447,7 +447,7 @@
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="696"/>
         <source>Settings were written to the file %1</source>
-        <translation>Настройки были записаны в файл %1</translation>
+        <translation>Настройки записаны в файл %1</translation>
     </message>
     <message>
         <location filename="../../src/frontend/mainwindow.cpp" line="712"/>

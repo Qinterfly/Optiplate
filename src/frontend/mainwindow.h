@@ -134,6 +134,7 @@ private:
     QTranslator mTranslatorQt;
 };
 
+//! Handler of optimization process
 class SolveThread : public QThread
 {
     Q_OBJECT

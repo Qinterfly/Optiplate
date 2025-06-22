@@ -16,7 +16,12 @@ Logger::Logger(QWidget* pParent)
     : QTextEdit(pParent)
 {
     setReadOnly(false);
-    setFont(QFont("RobotoMono", qApp->font().pointSize()));
+    QString fontName = "RobotoMono";
+#ifdef Q_OS_WIN
+    fontName = "Roboto Mono";
+#endif
+    int fontSize = qApp->font().pointSize();
+    setFont(QFont(fontName, fontSize));
 }
 
 Logger::~Logger()
