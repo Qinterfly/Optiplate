@@ -6,7 +6,6 @@
  */
 
 #include <config.h>
-#include <QFontDatabase>
 
 #include "fileutility.h"
 #include "testfrontend.h"
