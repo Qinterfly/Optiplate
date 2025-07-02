@@ -32,7 +32,7 @@ target_include_directories(backend PUBLIC
 )
 
 target_link_libraries(backend PUBLIC
-    Qt6::Core
+    Qt::Core
     Eigen3::Eigen
     Ceres::ceres
     ${KCL_LIB}

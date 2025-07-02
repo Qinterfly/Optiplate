@@ -17,7 +17,7 @@ set_target_properties(application PROPERTIES
 )
 
 target_link_libraries(application PRIVATE
-    Qt6::Widgets
+    Qt::Widgets
     backend
     frontend
 )

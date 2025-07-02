@@ -68,10 +68,10 @@ qt_add_library(frontend STATIC
 )
 
 target_link_libraries(frontend PRIVATE
-    Qt6::Core
-    Qt6::Gui
-    Qt6::Widgets
-    Qt6::OpenGLWidgets
+    Qt::Core
+    Qt::Gui
+    Qt::Widgets
+    Qt::OpenGLWidgets
     ads::qtadvanceddocking-qt6
     ${VTK_LIBRARIES}
     qcustomplot

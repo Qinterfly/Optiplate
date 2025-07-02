@@ -16,10 +16,10 @@ set_target_properties(testfrontend PROPERTIES
 )
 
 target_link_libraries(testfrontend PRIVATE
-    Qt6::Core
-    Qt6::Gui
-    Qt6::Widgets
-    Qt6::Test
+    Qt::Core
+    Qt::Gui
+    Qt::Widgets
+    Qt::Test
     backend
     frontend
 )

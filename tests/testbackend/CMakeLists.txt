@@ -13,8 +13,8 @@ set_target_properties(testbackend PROPERTIES
 )
 
 target_link_libraries(testbackend PRIVATE
-    Qt6::Core
-    Qt6::Test
+    Qt::Core
+    Qt::Test
     Eigen3::Eigen
     backend
 )

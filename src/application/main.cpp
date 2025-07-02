@@ -21,8 +21,11 @@ int main(int argc, char* argv[])
     QApplication application(argc, argv);
 
     // Set up the language
+    QString lang = "ru";
+#ifdef Q_OS_LINUX
     QString lang = QLocale::system().name();
     lang.truncate(lang.lastIndexOf('_'));
+#endif
     Frontend::MainWindow::language = lang;
 
     // Create the graphical window
