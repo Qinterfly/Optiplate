@@ -223,37 +223,37 @@
 <context>
     <name>Frontend::GeometryPlot</name>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="213"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="214"/>
         <source>Isometric view</source>
         <translation>Вид в изометрии</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="214"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="215"/>
         <source>Left view</source>
         <translation>Вид слева</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="215"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="216"/>
         <source>Right view</source>
         <translation>Вид справа</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="216"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="217"/>
         <source>Top view</source>
         <translation>Вид сверху</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="217"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="218"/>
         <source>Bottom view</source>
         <translation>Вид снизу</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="218"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="219"/>
         <source>Front view</source>
         <translation>Вид спереди</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="219"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="220"/>
         <source>Rear view</source>
         <translation>Вид сзади</translation>
     </message>
@@ -306,52 +306,52 @@
         <translation>Недавние &amp;проекты</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="196"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="197"/>
         <source>&amp;Window</source>
         <translation>&amp;Окно</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="204"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="206"/>
         <source>&amp;Start the solver</source>
         <translation>&amp;Запустить решатель</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="205"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="207"/>
         <source>&amp;Stop the solver</source>
         <translation>&amp;Остановить решатель</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="206"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="208"/>
         <source>&amp;Clear results</source>
         <translation>&amp;Очистить результаты</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="223"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="225"/>
         <source>&amp;Solver</source>
         <translation>&amp;Решатель</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="244"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="247"/>
         <source>&amp;About</source>
         <translation>&amp;О программе</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="245"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="248"/>
         <source>&amp;About Qt</source>
         <translation>О &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="252"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="255"/>
         <source>&amp;Help</source>
         <translation>&amp;Справка</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="273"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="277"/>
         <source>Panel</source>
         <translation>Панель</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="299"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="303"/>
         <source>Options</source>
         <translation>Опции</translation>
     </message>
@@ -360,172 +360,172 @@
         <translation type="vanished">Характеристики</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="312"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="316"/>
         <source>Inertia Properties</source>
         <translation>Инерционные характеристики</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="325"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="329"/>
         <source>Solution</source>
         <translation>Решение</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="338"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="342"/>
         <source>Convergence</source>
         <translation>Сходимость</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="351"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="355"/>
         <source>Geometry</source>
         <translation>Геометрия</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="365"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="369"/>
         <source>Log</source>
         <translation>Журнал</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="392"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="396"/>
         <source>Panel (Iteration: %1)</source>
         <translation>Панель (Итерация: %1)</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="402"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="406"/>
         <source>The panel data has been substituted</source>
         <translation>Данные панели заменены</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="425"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="429"/>
         <source>New</source>
         <translation>Новый</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="426"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="430"/>
         <source>New project was created</source>
         <translation>Создан новый проект</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="441"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="445"/>
         <source>Project %1 was successfully opened</source>
         <translation>Проект %1 успешно открыт</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="467"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="471"/>
         <source>The project was saved using the previous location: %1</source>
         <translation>Проект сохранен по предыдущему пути: %1</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="477"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="481"/>
         <source>The project was saved as the following file %1</source>
         <translation>Проект сохранен в виде следующего файла %1</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="562"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="568"/>
         <source>The solver is already running</source>
         <translation>Решатель уже запущен</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="593"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="599"/>
         <source>Opimization process finished</source>
         <translation>Процесс оптимизации завершен</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="609"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="615"/>
         <source>Stop solver requested</source>
         <translation>Запрошена остановка решателя</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="617"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="623"/>
         <source>Starting the optimization process...</source>
         <translation>Запуск оптимизационного процеса...</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="626"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="632"/>
         <source>The solver is not running</source>
         <translation>Решатель не запущен</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="696"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="702"/>
         <source>Settings were written to the file %1</source>
         <translation>Настройки записаны в файл %1</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="712"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="718"/>
         <source>Settings were restored from the file %1</source>
         <translation>Настройки загружены из файла %1</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="732"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="741"/>
         <source>Open Project</source>
         <translation>Открыть проект</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="733"/>
-        <location filename="../../src/frontend/mainwindow.cpp" line="745"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="742"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="754"/>
         <source>Project file format (*%1)</source>
         <translation>Формат файла проекта (*%1)</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="744"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="753"/>
         <source>Save Project</source>
         <translation>Сохранить проект</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="759"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="768"/>
         <source>Save project changes</source>
         <translation>Сохранить изменения в проекте</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="760"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="769"/>
         <source>The project containes unsaved changes.
 Would you like to save it?</source>
         <translation>Проект содержит несохраненные изменения.
 Желаете сохранить его?</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="776"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="785"/>
         <source>Stop the solver</source>
         <translation>Остановить решатель</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="777"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="786"/>
         <source>The solver is still running.
 Would you like to close the application anyway?</source>
         <translation>Решатель по-прежнему работает.
 Желаете закрыть программу?</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="793"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="804"/>
         <source>Clear the results</source>
         <translation>Очистить результаты</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="794"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="805"/>
         <source>Would you like to clear the results?</source>
         <translation>Желаете очистить результаты?</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="799"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="810"/>
         <source>The solver is still running. Wait till the results obtained</source>
         <translation>Решатель продолжает работать. Ожидайте его окончания для получения результатов</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="806"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="817"/>
         <source>There are no results to clear</source>
         <translation>Отсутствуют результаты для очистки</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="817"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="830"/>
         <source>The results have been cleared</source>
         <translation>Результаты были очищены</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="825"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="838"/>
         <source>Pavel Lakiza</source>
         <translation>Павел Лакиза</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="826"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="839"/>
         <source>%1 is a program which optimizes mechanical and geometrical properties of panels
 
 Built on %3
@@ -538,7 +538,7 @@ Copyright %1 (%2)</source>
 Copyright %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="830"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="843"/>
         <source>About %1 v%2</source>
         <translation>О программе %1 v%2</translation>
     </message>
@@ -546,42 +546,42 @@ Copyright %1 (%2)</translation>
 <context>
     <name>Frontend::OptionsEditor</name>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="79"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="81"/>
         <source>Autoscale</source>
         <translation>Автомасштабирование</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="84"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="86"/>
         <source>Max. number of iterations</source>
         <translation>Макс. число итераций</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="90"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="92"/>
         <source>Timeout iteration</source>
         <translation>Макс. длительность итерации</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="96"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="98"/>
         <source>Number of threads</source>
         <translation>Число потоков</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="102"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="104"/>
         <source>Max. relative error</source>
         <translation>Макс. относительная ошибка</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="109"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="111"/>
         <source>Diff step size</source>
         <translation>Шаг дифференцирования</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="116"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="118"/>
         <source>Accept threshold (green)</source>
         <translation>Предел принятия (зеленый)</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="123"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="125"/>
         <source>Critical threshold (red)</source>
         <translation>Критический предел (красный)</translation>
     </message>
@@ -863,22 +863,22 @@ Copyright %1 (%2)</translation>
         <translation type="vanished">Центробежный момент инерции %1</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Property</source>
         <translation>Свойство</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Current value</source>
         <translation>Текущее значение</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Target value</source>
         <translation>Целевое значение</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Error, %</source>
         <translation>Ошибка, %</translation>
     </message>
@@ -886,12 +886,12 @@ Copyright %1 (%2)</translation>
 <context>
     <name>Frontend::SolutionBrowser</name>
     <message>
-        <location filename="../../src/frontend/solutionbrowser.cpp" line="90"/>
+        <location filename="../../src/frontend/solutionbrowser.cpp" line="96"/>
         <source>&amp;View panel</source>
         <translation>&amp;Просмотр панели</translation>
     </message>
     <message>
-        <location filename="../../src/frontend/solutionbrowser.cpp" line="91"/>
+        <location filename="../../src/frontend/solutionbrowser.cpp" line="97"/>
         <source>&amp;Set panel</source>
         <translation>&amp;Заменить панель</translation>
     </message>

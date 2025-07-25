@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date June 2025
+ * \date July 2025
  * \brief Declaration of the Panel class
  */
 

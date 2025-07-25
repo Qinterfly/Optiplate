@@ -76,6 +76,10 @@ void SolutionBrowser::createContent()
 //! Create the context menu
 void SolutionBrowser::processContextMenu(QPoint const& point)
 {
+    // Check if the model is available
+    if (!mpView->selectionModel())
+        return;
+
     // Retrieve the selected items
     QModelIndexList indices = mpView->selectionModel()->selectedIndexes();
     if (indices.isEmpty())

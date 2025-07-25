@@ -191,37 +191,37 @@
 <context>
     <name>Frontend::GeometryPlot</name>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="213"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="214"/>
         <source>Isometric view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="214"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="215"/>
         <source>Left view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="215"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="216"/>
         <source>Right view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="216"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="217"/>
         <source>Top view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="217"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="218"/>
         <source>Bottom view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="218"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="219"/>
         <source>Front view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/geometryplot.cpp" line="219"/>
+        <location filename="../../src/frontend/geometryplot.cpp" line="220"/>
         <source>Rear view</source>
         <translation type="unfinished"></translation>
     </message>
@@ -274,220 +274,220 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="196"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="197"/>
         <source>&amp;Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="204"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="206"/>
         <source>&amp;Start the solver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="205"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="207"/>
         <source>&amp;Stop the solver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="206"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="208"/>
         <source>&amp;Clear results</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="223"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="225"/>
         <source>&amp;Solver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="244"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="247"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="245"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="248"/>
         <source>&amp;About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="252"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="255"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="273"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="277"/>
         <source>Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="299"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="303"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="312"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="316"/>
         <source>Inertia Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="325"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="329"/>
         <source>Solution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="338"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="342"/>
         <source>Convergence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="351"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="355"/>
         <source>Geometry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="365"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="369"/>
         <source>Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="392"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="396"/>
         <source>Panel (Iteration: %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="402"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="406"/>
         <source>The panel data has been substituted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="425"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="429"/>
         <source>New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="426"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="430"/>
         <source>New project was created</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="441"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="445"/>
         <source>Project %1 was successfully opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="467"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="471"/>
         <source>The project was saved using the previous location: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="477"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="481"/>
         <source>The project was saved as the following file %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="562"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="568"/>
         <source>The solver is already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="593"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="599"/>
         <source>Opimization process finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="609"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="615"/>
         <source>Stop solver requested</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="617"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="623"/>
         <source>Starting the optimization process...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="626"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="632"/>
         <source>The solver is not running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="696"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="702"/>
         <source>Settings were written to the file %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="712"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="718"/>
         <source>Settings were restored from the file %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="732"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="741"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="733"/>
-        <location filename="../../src/frontend/mainwindow.cpp" line="745"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="742"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="754"/>
         <source>Project file format (*%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="744"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="753"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="759"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="768"/>
         <source>Save project changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="760"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="769"/>
         <source>The project containes unsaved changes.
 Would you like to save it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="776"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="785"/>
         <source>Stop the solver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="777"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="786"/>
         <source>The solver is still running.
 Would you like to close the application anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="793"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="804"/>
         <source>Clear the results</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="794"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="805"/>
         <source>Would you like to clear the results?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="799"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="810"/>
         <source>The solver is still running. Wait till the results obtained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="806"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="817"/>
         <source>There are no results to clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="817"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="830"/>
         <source>The results have been cleared</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="825"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="838"/>
         <source>Pavel Lakiza</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="826"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="839"/>
         <source>%1 is a program which optimizes mechanical and geometrical properties of panels
 
 Built on %3
@@ -496,7 +496,7 @@ Copyright %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/mainwindow.cpp" line="830"/>
+        <location filename="../../src/frontend/mainwindow.cpp" line="843"/>
         <source>About %1 v%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -504,42 +504,42 @@ Copyright %1 (%2)</source>
 <context>
     <name>Frontend::OptionsEditor</name>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="79"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="81"/>
         <source>Autoscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="84"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="86"/>
         <source>Max. number of iterations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="90"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="92"/>
         <source>Timeout iteration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="96"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="98"/>
         <source>Number of threads</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="102"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="104"/>
         <source>Max. relative error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="109"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="111"/>
         <source>Diff step size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="116"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="118"/>
         <source>Accept threshold (green)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/optionseditor.cpp" line="123"/>
+        <location filename="../../src/frontend/optionseditor.cpp" line="125"/>
         <source>Critical threshold (red)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -785,22 +785,22 @@ Copyright %1 (%2)</source>
 <context>
     <name>Frontend::PropertiesViewer</name>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Property</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Current value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Target value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/propertiesviewer.cpp" line="103"/>
+        <location filename="../../src/frontend/propertiesviewer.cpp" line="104"/>
         <source>Error, %</source>
         <translation type="unfinished"></translation>
     </message>
@@ -808,12 +808,12 @@ Copyright %1 (%2)</source>
 <context>
     <name>Frontend::SolutionBrowser</name>
     <message>
-        <location filename="../../src/frontend/solutionbrowser.cpp" line="90"/>
+        <location filename="../../src/frontend/solutionbrowser.cpp" line="96"/>
         <source>&amp;View panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/frontend/solutionbrowser.cpp" line="91"/>
+        <location filename="../../src/frontend/solutionbrowser.cpp" line="97"/>
         <source>&amp;Set panel</source>
         <translation type="unfinished"></translation>
     </message>

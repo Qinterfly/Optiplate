@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     // Set up the language
     QString lang = "ru";
 #ifdef Q_OS_LINUX
-    QString lang = QLocale::system().name();
+    lang = QLocale::system().name();
     lang.truncate(lang.lastIndexOf('_'));
 #endif
     Frontend::MainWindow::language = lang;

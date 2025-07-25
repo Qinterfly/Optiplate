@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date June 2025
+ * \date July 2025
  * \brief Implementation of the Panel class
  */
 
@@ -43,20 +43,27 @@ Panel::Panel(double thickness, Vec4 const& xCoords, Vec4 const& zCoords, Vec3 co
 Properties Panel::massProperties(double timeout) const
 {
     double const kTimeFactor = 1e6;
-    Model model = build();
-    auto fun = [&model]() { return Properties(model.massProperties()); };
-    if (timeout > 0)
+    try
     {
-        std::future<Properties> future = std::async(fun);
-        auto duration = std::chrono::microseconds((int) std::round(timeout * kTimeFactor));
-        std::future_status status = future.wait_for(duration);
-        if (status != std::future_status::ready)
-            return Properties();
-        return future.get();
+        Model model = build();
+        auto fun = [&model]() { return Properties(model.massProperties()); };
+        if (timeout > 0)
+        {
+            std::future<Properties> future = std::async(fun);
+            auto duration = std::chrono::microseconds((int) std::round(timeout * kTimeFactor));
+            std::future_status status = future.wait_for(duration);
+            if (status != std::future_status::ready)
+                return Properties();
+            return future.get();
+        }
+        else
+        {
+            return fun();
+        }
     }
-    else
+    catch (...)
     {
-        return fun();
+        return MassProperties();
     }
 }
 
