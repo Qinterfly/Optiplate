@@ -1,12 +1,13 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date May 2025
+ * \date July 2025
  * \brief Implementation of the TestBackend class
  */
 
-#include <QFileInfo>
 #include <config.h>
+#include <QFileInfo>
+#include <QRandomGenerator>
 
 #include "testbackend.h"
 
@@ -25,6 +26,55 @@ TestBackend::TestBackend()
     , mRealProject("real")
 {
 
+}
+
+//! Create a series of panels with random parameters and estimate their properties
+void TestBackend::testCreateRandomPanel()
+{
+    // Parameters
+    int numSamples = 10;
+    QPair<double, double> limitsThickness = {0, 1};
+    QPair<double, double> limitsCoords = {-100, 100};
+    QPair<double, double> limitsDepths = {0, 10};
+    QPair<double, double> limitsDensity = {0, 10000};
+    double timeout = 1.0;
+
+    // Assign the path to write generated projects
+    QString fileName = QString("random.%1").arg(Project::fileSuffix());
+    QString pathFile = Utility::combineFilePath(TEMP_DIR, fileName);
+
+    // Generate the series of panels
+    KCL::Vec4 xCoords, zCoords;
+    KCL::Vec3 depths;
+    int numCoords = xCoords.size();
+    while (numSamples-- > 0)
+    {
+        // Generate random parameters
+        double thickness = generateDouble(limitsThickness);
+        for (int i = 0; i != numCoords; ++i)
+        {
+            xCoords[i] = generateDouble(limitsCoords);
+            zCoords[i] = generateDouble(limitsCoords);
+        }
+        for (double& value : depths)
+            value = generateDouble(limitsDepths);
+        double density = generateDouble(limitsDensity);
+
+        // Set panel data
+        Project project;
+        Panel& panel = project.panel();
+        panel.setThickness(thickness);
+        panel.setXCoords(xCoords);
+        panel.setZCoords(zCoords);
+        panel.setDepths(depths);
+        panel.setDensity(density);
+
+        // Write the project
+        project.write(pathFile);
+
+        // Estimate mass properties
+        panel.massProperties(timeout);
+    }
 }
 
 //! Create a rectangular panel and verify its inertia properties
@@ -206,6 +256,13 @@ bool TestBackend::isEqual(double firstValue, double secondValue, double precisio
 void TestBackend::log(QString message)
 {
     std::cout << message.toStdString() << std::endl;
+}
+
+//! Generate a bounded double value
+double TestBackend::generateDouble(QPair<double, double> const& limits)
+{
+    double value = QRandomGenerator::global()->generateDouble();
+    return limits.first + value * (limits.second - limits.first);
 }
 
 QTEST_MAIN(TestBackend)
