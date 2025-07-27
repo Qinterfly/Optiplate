@@ -434,6 +434,7 @@ void MainWindow::newProject()
         value->update();
     mpOptionsEditor->update();
     mpPropertiesViewer->clear();
+    mpSolutionBrowser->clear();
     mpConvergencePlot->clear();
 }
 

@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date June 2025
+ * \date July 2025
  * \brief Implementation of the SolutionBrowser class
  */
 
@@ -31,13 +31,20 @@ QSize SolutionBrowser::sizeHint() const
     return QSize(50, 600);
 }
 
+//! Remove the viewer content
+void SolutionBrowser::clear()
+{
+    mpView->setModel(nullptr);
+}
+
 //! Update the viewer content
 void SolutionBrowser::update(QList<Backend::Optimizer::Solution> const& solutions, Backend::Optimizer::Options const& options)
 {
-    SolutionModel* pModel = new SolutionModel(solutions, options);
+    // Clear the items
+    clear();
 
     // Set the model
-    mpView->setModel(nullptr);
+    SolutionModel* pModel = new SolutionModel(solutions, options);
     mpView->setModel(pModel);
 
     // Specify the connections between the model and view widget

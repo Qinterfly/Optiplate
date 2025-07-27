@@ -43,27 +43,20 @@ Panel::Panel(double thickness, Vec4 const& xCoords, Vec4 const& zCoords, Vec3 co
 Properties Panel::massProperties(double timeout) const
 {
     double const kTimeFactor = 1e6;
-    try
+    Model model = build();
+    auto fun = [&model]() { return Properties(model.massProperties()); };
+    if (timeout > 0)
     {
-        Model model = build();
-        auto fun = [&model]() { return Properties(model.massProperties()); };
-        if (timeout > 0)
-        {
-            std::future<Properties> future = std::async(fun);
-            auto duration = std::chrono::microseconds((int) std::round(timeout * kTimeFactor));
-            std::future_status status = future.wait_for(duration);
-            if (status != std::future_status::ready)
-                return Properties();
-            return future.get();
-        }
-        else
-        {
-            return fun();
-        }
+        std::future<Properties> future = std::async(fun);
+        auto duration = std::chrono::microseconds((int) std::round(timeout * kTimeFactor));
+        std::future_status status = future.wait_for(duration);
+        if (status != std::future_status::ready)
+            return Properties();
+        return future.get();
     }
-    catch (...)
+    else
     {
-        return MassProperties();
+        return fun();
     }
 }
 
@@ -81,6 +74,8 @@ void Panel::renumerate()
     for (int i = 0; i != numPoints; ++i)
         points[i] = {mXCoords[i], mZCoords[i]};
     std::vector<int> indices = Utility::jarvisMarch(points);
+    if (indices.size() != numPoints)
+        return;
 
     // Update the vertices
     KCL::Vec4 xCoords, zCoords;

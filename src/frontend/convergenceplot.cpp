@@ -54,6 +54,8 @@ void ConvergencePlot::plot(QList<Optimizer::Solution> const& solutions, Backend:
 
     // Slice iteration indices
     int numSolutions = solutions.size();
+    if (numSolutions == 0)
+        return;
     QList<double> xIter(numSolutions);
     for (int i = 0; i != numSolutions; ++i)
         xIter[i] = solutions[i].iteration;

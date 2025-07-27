@@ -32,25 +32,19 @@ TestBackend::TestBackend()
 void TestBackend::testCreateRandomPanel()
 {
     // Parameters
-    int numSamples = 10;
-    QPair<double, double> limitsThickness = {0, 1};
-    QPair<double, double> limitsCoords = {-100, 100};
-    QPair<double, double> limitsDepths = {0, 10};
-    QPair<double, double> limitsDensity = {0, 10000};
-    double timeout = 1.0;
-
-    // Assign the path to write generated projects
-    QString fileName = QString("random.%1").arg(Project::fileSuffix());
-    QString pathFile = Utility::combineFilePath(TEMP_DIR, fileName);
+    int numSamples = 20000;
+    QPair<double, double> limitsCoords = {-10, 10};
+    QPair<double, double> limitsDepths = {0, 1};
+    QPair<double, double> limitsDensity = {0, 1e5};
 
     // Generate the series of panels
     KCL::Vec4 xCoords, zCoords;
     KCL::Vec3 depths;
     int numCoords = xCoords.size();
-    while (numSamples-- > 0)
+    int numValid = 0;
+    for (int i = 0; i != numSamples; ++i)
     {
         // Generate random parameters
-        double thickness = generateDouble(limitsThickness);
         for (int i = 0; i != numCoords; ++i)
         {
             xCoords[i] = generateDouble(limitsCoords);
@@ -63,18 +57,22 @@ void TestBackend::testCreateRandomPanel()
         // Set panel data
         Project project;
         Panel& panel = project.panel();
-        panel.setThickness(thickness);
         panel.setXCoords(xCoords);
         panel.setZCoords(zCoords);
         panel.setDepths(depths);
         panel.setDensity(density);
 
         // Write the project
-        project.write(pathFile);
+        project.write(Utility::combineFilePath(TEMP_DIR, QString("random.oml")));
+        panel.write(Utility::combineFilePath(TEMP_DIR, "DATRND.dat"));
 
         // Estimate mass properties
-        panel.massProperties(timeout);
+        auto props = panel.massProperties();
+        if (props.isValid())
+            ++numValid;
+        qDebug() << i;
     }
+    QVERIFY(numValid > 0);
 }
 
 //! Create a rectangular panel and verify its inertia properties

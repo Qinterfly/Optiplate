@@ -1,7 +1,7 @@
 /*!
  * \file
  * \author Pavel Lakiza
- * \date June 2025
+ * \date July 2025
  * \brief Declaration of the SolutionBrowser class
  */
 
@@ -27,6 +27,7 @@ public:
     virtual ~SolutionBrowser();
 
     QSize sizeHint() const override;
+    void clear();
     void update(QList<Backend::Optimizer::Solution> const& solutions, Backend::Optimizer::Options const& options);
 
 signals:

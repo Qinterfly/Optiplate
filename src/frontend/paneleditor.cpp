@@ -51,7 +51,7 @@ void PanelEditor::createContent()
     // Constants
     int kNumDecimals = 5;
     QPair<double, double> kLimitsDensity = {0, 1e5};
-    QPair<double, double> kLimitsCoords = {-100, 100};
+    QPair<double, double> kLimitsCoords = {-10, 10};
     QPair<double, double> kLimitsDepths = {0, 1};
 
     // Create the widgets to edit properties
