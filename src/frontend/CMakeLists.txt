@@ -2,10 +2,6 @@
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-if (UNIX)
-    set(VTK_DIR $ENV{VTK_ROOT})
-endif()
-
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets OpenGLWidgets)
 find_package(qtadvanceddocking-qt6 CONFIG REQUIRED)
 find_package(VTK REQUIRED COMPONENTS
